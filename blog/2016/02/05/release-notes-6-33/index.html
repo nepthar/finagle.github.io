@@ -116,16 +116,16 @@
   <p>In this milestone, we&rsquo;ve been focusing on two major directions:</p>
 
 <ol>
-<li>Improving users experience by providing friendly APIs and updating docs</li>
+<li>Improving the user experience by providing friendly APIs and updating docs</li>
 <li>Continuing to improve Finagle&rsquo;s resiliency</li>
 </ol>
 
 <h3>Discoverable Params</h3>
 
-<p>There is new user-friendly API for configuring Finagle clients and servers using <code>with</code>-prefixed
-methods (<code>.withClientId</code>, <code>.withStatsReceiver</code>, etc). Discoverable configuration parameters, are a
+<p>There is a new user-friendly API for configuring Finagle clients and servers using <code>with</code>-prefixed
+methods (<code>.withClientId</code>, <code>.withStatsReceiver</code>, etc). Discoverable configuration parameters are a
 modern alternative to ClientBuilder/ServerBuilder which provides an easy to use, type safe, and IDE
-discoverable API on top of <code>$Protocol.{client,server}.configure</code>d through a collection of
+discoverable API on top of <code>$Protocol.{client,server}.configured</code> through a collection of
 <code>with</code>-prefixed methods available on both clients and servers. It’s already in master and we
 encourage you to open your favorite IDE and type <code>client.with</code> or <code>server.with</code> and start discovering.</p>
 
@@ -139,13 +139,17 @@ encourage you to open your favorite IDE and type <code>client.with</code> or <co
   <span class="o">.</span><span class="n">withSession</span><span class="o">.</span><span class="n">acquisitionTimeout</span><span class="o">(</span><span class="mf">10.</span><span class="n">seconds</span><span class="o">)</span>
 </code></pre>
 
+<p>See it in action!</p>
+
+<p><center><img src="http://i.imgur.com/yIE7iy8.gif" /></center></p>
+
 <p>We thought carefully about how to make these clear and easy to use. If you&rsquo;re curious about the
 design, please feel free to take a look at the <a href="http://twitter.github.io/finagle/guide/Configuration.html#design-principles">design principles</a>.</p>
 
 <p>The new API is fully documented so that every method has an up-to-date scaladoc comment explaining
-the parameters it configures as well as mentions its default values.</p>
+the parameters it configures as well as mentioning their default values.</p>
 
-<p>Also, it&rsquo;s worth mentioning that this is API is 100% Java-friendly. You can now forget about
+<p>Also, it&rsquo;s worth mentioning that this API is 100% Java-friendly. You can now forget about
 <code>new Param(...).mk(...)</code> and focus on what’s important–values, not the wrappers around them.</p>
 
 <h3>New User Guide</h3>
@@ -156,11 +160,11 @@ configurations of their modules.</p>
 
 <h3>Response Classifiers</h3>
 
-<p>Finagle’s new <a href="http://twitter.github.io/finagle/guide/Clients.html#response-classification">response classifiers</a> improve client’s avoidance of faulty nodes thus
-increasing your success rate. To get this benefit, you must wire up the application’s rules into your
-clients. There is already basic classifiers in Finagle available for HTTP and Thrift.</p>
+<p>Finagle’s new <a href="http://twitter.github.io/finagle/guide/Clients.html#response-classification">response classifiers</a> improve client’s avoidance of faulty nodes, and
+thus, increase your success rate. To get this benefit, you must wire up the application’s rules into
+your clients. There are already basic classifiers in Finagle available for HTTP and Thrift.</p>
 
-<p>For example, the following configuration advices a Finagle client treat 500s HTTP responses as
+<p>For example, the following configuration advises a Finagle client treat 500s HTTP responses as
 non-retriable failures.</p>
 <pre class="highlight scala"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.http.service.HttpResponseClassifier</span>
@@ -199,7 +203,7 @@ queue. All requests on top of 100 will be rejected by a client.</p>
       <hr>
       <!-- footer -->
       <div class="footer pull-right">
-        <p>&copy; 2016 <a href="https://twitter.com/">Twitter, Inc.</a> and other contributors
+        <p>&copy; 2014-2016 <a href="https://twitter.com/">Twitter, Inc.</a> and other contributors
       </div><!-- /footer -->
     </div><!-- /container -->
   </body>

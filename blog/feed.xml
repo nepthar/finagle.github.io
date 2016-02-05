@@ -13,23 +13,23 @@
     <link rel="alternate" href="https://finagle.github.io/blog/2016/02/05/release-notes-6-33/"/>
     <id>https://finagle.github.io/blog/2016/02/05/release-notes-6-33/</id>
     <published>2016-02-04T16:00:00-08:00</published>
-    <updated>2016-02-04T16:56:30-08:00</updated>
+    <updated>2016-02-04T19:19:00-08:00</updated>
     <author>
       <name>Article Author</name>
     </author>
     <content type="html">&lt;p&gt;In this milestone, we&amp;rsquo;ve been focusing on two major directions:&lt;/p&gt;
 
 &lt;ol&gt;
-&lt;li&gt;Improving users experience by providing friendly APIs and updating docs&lt;/li&gt;
+&lt;li&gt;Improving the user experience by providing friendly APIs and updating docs&lt;/li&gt;
 &lt;li&gt;Continuing to improve Finagle&amp;rsquo;s resiliency&lt;/li&gt;
 &lt;/ol&gt;
 
 &lt;h3&gt;Discoverable Params&lt;/h3&gt;
 
-&lt;p&gt;There is new user-friendly API for configuring Finagle clients and servers using &lt;code&gt;with&lt;/code&gt;-prefixed
-methods (&lt;code&gt;.withClientId&lt;/code&gt;, &lt;code&gt;.withStatsReceiver&lt;/code&gt;, etc). Discoverable configuration parameters, are a
+&lt;p&gt;There is a new user-friendly API for configuring Finagle clients and servers using &lt;code&gt;with&lt;/code&gt;-prefixed
+methods (&lt;code&gt;.withClientId&lt;/code&gt;, &lt;code&gt;.withStatsReceiver&lt;/code&gt;, etc). Discoverable configuration parameters are a
 modern alternative to ClientBuilder/ServerBuilder which provides an easy to use, type safe, and IDE
-discoverable API on top of &lt;code&gt;$Protocol.{client,server}.configure&lt;/code&gt;d through a collection of
+discoverable API on top of &lt;code&gt;$Protocol.{client,server}.configured&lt;/code&gt; through a collection of
 &lt;code&gt;with&lt;/code&gt;-prefixed methods available on both clients and servers. It’s already in master and we
 encourage you to open your favorite IDE and type &lt;code&gt;client.with&lt;/code&gt; or &lt;code&gt;server.with&lt;/code&gt; and start discovering.&lt;/p&gt;
 
@@ -43,13 +43,17 @@ encourage you to open your favorite IDE and type &lt;code&gt;client.with&lt;/cod
   &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withSession&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;acquisitionTimeout&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;10.&lt;/span&gt;&lt;span class="n"&gt;seconds&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 
+&lt;p&gt;See it in action!&lt;/p&gt;
+
+&lt;p&gt;&lt;center&gt;&lt;img src="http://i.imgur.com/yIE7iy8.gif" /&gt;&lt;/center&gt;&lt;/p&gt;
+
 &lt;p&gt;We thought carefully about how to make these clear and easy to use. If you&amp;rsquo;re curious about the
 design, please feel free to take a look at the &lt;a href="http://twitter.github.io/finagle/guide/Configuration.html#design-principles"&gt;design principles&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;The new API is fully documented so that every method has an up-to-date scaladoc comment explaining
-the parameters it configures as well as mentions its default values.&lt;/p&gt;
+the parameters it configures as well as mentioning their default values.&lt;/p&gt;
 
-&lt;p&gt;Also, it&amp;rsquo;s worth mentioning that this is API is 100% Java-friendly. You can now forget about
+&lt;p&gt;Also, it&amp;rsquo;s worth mentioning that this API is 100% Java-friendly. You can now forget about
 &lt;code&gt;new Param(...).mk(...)&lt;/code&gt; and focus on what’s important–values, not the wrappers around them.&lt;/p&gt;
 
 &lt;h3&gt;New User Guide&lt;/h3&gt;
@@ -60,11 +64,11 @@ configurations of their modules.&lt;/p&gt;
 
 &lt;h3&gt;Response Classifiers&lt;/h3&gt;
 
-&lt;p&gt;Finagle’s new &lt;a href="http://twitter.github.io/finagle/guide/Clients.html#response-classification"&gt;response classifiers&lt;/a&gt; improve client’s avoidance of faulty nodes thus
-increasing your success rate. To get this benefit, you must wire up the application’s rules into your
-clients. There is already basic classifiers in Finagle available for HTTP and Thrift.&lt;/p&gt;
+&lt;p&gt;Finagle’s new &lt;a href="http://twitter.github.io/finagle/guide/Clients.html#response-classification"&gt;response classifiers&lt;/a&gt; improve client’s avoidance of faulty nodes, and
+thus, increase your success rate. To get this benefit, you must wire up the application’s rules into
+your clients. There are already basic classifiers in Finagle available for HTTP and Thrift.&lt;/p&gt;
 
-&lt;p&gt;For example, the following configuration advices a Finagle client treat 500s HTTP responses as
+&lt;p&gt;For example, the following configuration advises a Finagle client treat 500s HTTP responses as
 non-retriable failures.&lt;/p&gt;
 &lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;
 &lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.http.service.HttpResponseClassifier&lt;/span&gt;
