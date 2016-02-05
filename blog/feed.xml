@@ -1,0 +1,709 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Finagle blog</title>
+  <id>https://finagle.github.io/blog</id>
+  <link href="https://finagle.github.io/blog"/>
+  <link href="https://finagle.github.io/blog/blog/feed.xml" rel="self"/>
+  <updated>2016-02-04T16:00:00-08:00</updated>
+  <author>
+    <name>Blog Author</name>
+  </author>
+  <entry>
+    <title>Finagle 6.33 Release Notes</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2016/02/05/release-notes-6-33/"/>
+    <id>https://finagle.github.io/blog/2016/02/05/release-notes-6-33/</id>
+    <published>2016-02-04T16:00:00-08:00</published>
+    <updated>2016-02-04T16:56:30-08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;In this milestone, we&amp;rsquo;ve been focusing on two major directions:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Improving users experience by providing friendly APIs and updating docs&lt;/li&gt;
+&lt;li&gt;Continuing to improve Finagle&amp;rsquo;s resiliency&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3&gt;Discoverable Params&lt;/h3&gt;
+
+&lt;p&gt;There is new user-friendly API for configuring Finagle clients and servers using &lt;code&gt;with&lt;/code&gt;-prefixed
+methods (&lt;code&gt;.withClientId&lt;/code&gt;, &lt;code&gt;.withStatsReceiver&lt;/code&gt;, etc). Discoverable configuration parameters, are a
+modern alternative to ClientBuilder/ServerBuilder which provides an easy to use, type safe, and IDE
+discoverable API on top of &lt;code&gt;$Protocol.{client,server}.configure&lt;/code&gt;d through a collection of
+&lt;code&gt;with&lt;/code&gt;-prefixed methods available on both clients and servers. It’s already in master and we
+encourage you to open your favorite IDE and type &lt;code&gt;client.with&lt;/code&gt; or &lt;code&gt;server.with&lt;/code&gt; and start discovering.&lt;/p&gt;
+
+&lt;p&gt;Example:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.conversions.time._&lt;/span&gt;
+
+&lt;span class="nc"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withLabel&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"http-client"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withSessionQualifier&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;noFailFast&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withSession&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;acquisitionTimeout&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;10.&lt;/span&gt;&lt;span class="n"&gt;seconds&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We thought carefully about how to make these clear and easy to use. If you&amp;rsquo;re curious about the
+design, please feel free to take a look at the &lt;a href="http://twitter.github.io/finagle/guide/Configuration.html#design-principles"&gt;design principles&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The new API is fully documented so that every method has an up-to-date scaladoc comment explaining
+the parameters it configures as well as mentions its default values.&lt;/p&gt;
+
+&lt;p&gt;Also, it&amp;rsquo;s worth mentioning that this is API is 100% Java-friendly. You can now forget about
+&lt;code&gt;new Param(...).mk(...)&lt;/code&gt; and focus on what’s important–values, not the wrappers around them.&lt;/p&gt;
+
+&lt;h3&gt;New User Guide&lt;/h3&gt;
+
+&lt;p&gt;We updated/reworked &lt;a href="http://twitter.github.io/finagle/guide/"&gt;Finagle’s User Guide&lt;/a&gt; recently to capture the current state of
+Finagle. For example, we updated both &lt;a href="http://twitter.github.io/finagle/guide/Clients.html"&gt;Clients&lt;/a&gt; and &lt;a href="http://twitter.github.io/finagle/guide/Servers.html"&gt;Servers&lt;/a&gt; with example
+configurations of their modules.&lt;/p&gt;
+
+&lt;h3&gt;Response Classifiers&lt;/h3&gt;
+
+&lt;p&gt;Finagle’s new &lt;a href="http://twitter.github.io/finagle/guide/Clients.html#response-classification"&gt;response classifiers&lt;/a&gt; improve client’s avoidance of faulty nodes thus
+increasing your success rate. To get this benefit, you must wire up the application’s rules into your
+clients. There is already basic classifiers in Finagle available for HTTP and Thrift.&lt;/p&gt;
+
+&lt;p&gt;For example, the following configuration advices a Finagle client treat 500s HTTP responses as
+non-retriable failures.&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.http.service.HttpResponseClassifier&lt;/span&gt;
+
+&lt;span class="nc"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;HttpResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;ServerErrorsAsFailures&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Pending Requests Limit&lt;/h3&gt;
+
+&lt;p&gt;As part of our work on client-side admission control, there is a new client module maintaining the
+limit of pending requests (i.e., requests that haven&amp;rsquo;t been yet written to a wire). The limit is
+unbounded by default.&lt;/p&gt;
+
+&lt;p&gt;In the following example, an HTTP client is configured to have at most 100 pending requests in the
+queue. All requests on top of 100 will be rejected by a client.&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;
+
+&lt;span class="nc"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withAdmissionControl&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;maxPendingRequests&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Changelog&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/finagle/blob/develop/CHANGES"&gt;Finagle 6.33&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/util/blob/develop/CHANGES"&gt;Util 6.32&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/scrooge/blob/develop/CHANGES"&gt;Scrooge 4.5&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/twitter-server/blob/develop/CHANGES"&gt;TwitterServer 1.18&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/ostrich/blob/develop/CHANGES"&gt;Ostrich 9.16&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+  </entry>
+  <entry>
+    <title>New FinagleCon venue</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2015/07/15/new-finaglecon-venue/"/>
+    <id>https://finagle.github.io/blog/2015/07/15/new-finaglecon-venue/</id>
+    <published>2015-07-14T17:00:00-07:00</published>
+    <updated>2016-02-04T16:56:27-08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;We&amp;rsquo;re pleased to announce that this year&amp;rsquo;s &lt;a href="https://finagle.github.io/finaglecon/"&gt;FinagleCon&lt;/a&gt; will now be
+hosted at Twitter&amp;rsquo;s new &lt;a href="https://www.google.com/maps/place/875+Stevenson+St,+San+Francisco,+CA+94103/@37.776292,-122.416245,17z/data=!3m1!4b1!4m2!3m1!1s0x8085809c5b48986f:0xb150a76f58e9f2da"&gt;One 10th Street Expansion&lt;/a&gt; in San Francisco.
+We believe that this location will be more convenient than the Kaiser Center in
+Oakland for many attendees, and we&amp;rsquo;re looking forward to showing off this brand
+new space.
+&lt;/p&gt;
+
+&lt;p&gt;The One 10th Street Expansion is next door to Twitter HQ at 1355 Market Street,
+and is easily accessible from the &lt;a href="http://www.bart.gov/stations/civc"&gt;Civic Center / UN Plaza BART station&lt;/a&gt;,
+or by any of a number of &lt;a href="https://www.sfmta.com/"&gt;Muni bus routes&lt;/a&gt; along Market
+Street.&lt;/p&gt;
+
+&lt;iframe width="600" height="450" frameborder="0" style="border:0; padding: 0.5em 0em;" src="https://www.google.com/maps/embed/v1/place?q=875%20Stevenson%20Street%2C%20San%20Francisco%2C%20CA%2094103%2C%20United%20States&amp;key=AIzaSyCvVSiXiD5D0wPQwoqFXTIRckhmD5Zk3ao" allowfullscreen&gt;&lt;/iframe&gt;
+
+&lt;p&gt;Parking is available at the &lt;a href="https://www.google.com/maps/place/Fox+Plaza+Public+Parking+Garage/@37.7771814,-122.4176978,17z/data=!3m1!4b1!4m2!3m1!1s0x8085809c09d4de63:0xef4edd2f27698fee"&gt;Fox Plaza Public Parking Garage&lt;/a&gt;, the &lt;a href="https://www.google.com/maps/place/Civic+Center+Garage/@37.7802614,-122.4179613,17z/data=!3m1!4b1!4m2!3m1!1s0x8085809a2f67bb53:0x6511ff5de0e3c609"&gt;Civic Center
+Garage&lt;/a&gt;, and several &lt;a href="http://en.parkopedia.com/parking/twitter_hq_market_street_san_francisco_ca_united_states/?ac=1&amp;amp;country=US&amp;amp;lat=37.776692&amp;amp;lng=-122.41678200000001"&gt;other locations in the area&lt;/a&gt;. A limited number of public bicycle rack spaces are
+available on Market—please &lt;a href="mailto:finaglecon@twitter.com"&gt;contact us&lt;/a&gt; if you&amp;rsquo;d
+like to arrange for secure bike parking.&lt;/p&gt;
+
+&lt;p&gt;Although we&amp;rsquo;re no longer located at the same venue as the other
+&lt;a href="http://scala.bythebay.io/"&gt;Scala by the Bay&lt;/a&gt; events, FinagleCon is of course still
+a part of the larger Scala by the Bay conference, and all Scala by the Bay attendees
+receive free registration for FinagleCon.&lt;/p&gt;
+
+&lt;p&gt;We&amp;rsquo;ll be getting started with breakfast at 8:30 AM on the morning of August 13
+(stay tuned for the full program announcement tomorrow), and look forward to seeing you there!&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Announcing FinagleCon 2015</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2015/06/11/announcing-finaglecon/"/>
+    <id>https://finagle.github.io/blog/2015/06/11/announcing-finaglecon/</id>
+    <published>2015-06-10T17:00:00-07:00</published>
+    <updated>2016-02-04T16:56:27-08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;Yesterday we opened registration and the call for participation for
+&lt;a href="https://finagle.github.io/finaglecon/"&gt;FinagleCon&lt;/a&gt;, a new annual conference for the Finagle community.
+This year&amp;rsquo;s conference will be a &lt;a href="http://scala.bythebay.io/"&gt;Scala by the Bay&lt;/a&gt; event hosted
+&lt;a href="https://finagle.github.io/blog/2015/07/15/new-finaglecon-venue/"&gt;at Twitter HQ&lt;/a&gt; in San Francisco, and will take place on Thursday,
+August 13, the day before Scala by the Bay begins.&lt;/p&gt;
+
+&lt;p align="center"&gt;
+  &lt;a href="http://scala.bythebay.io/"&gt;
+    &lt;img src="http://scala.bythebay.io/cimages/ScalaByTheBay_logo.png" style="margin: 1em 0em;" alt="Scala by the Bay logo"/&gt;
+  &lt;/a&gt;
+&lt;/p&gt;
+
+&lt;p&gt;The conference program will include keynotes by Twitter&amp;rsquo;s
+&lt;a href="https://twitter.com/marius"&gt;Marius Eriksen&lt;/a&gt; and SoundCloud&amp;rsquo;s &lt;a href="https://twitter.com/pcalcado"&gt;Phil Calçado&lt;/a&gt;, talks by Finagle
+adopters and contributors, and workshops and tutorials on a range of
+Finagle-related topics (including &lt;a href="https://github.com/twitter/finatra"&gt;Finatra&lt;/a&gt; and &lt;a href="https://github.com/finagle/finch"&gt;Finch&lt;/a&gt;).
+&lt;/p&gt;
+
+&lt;p&gt;We&amp;rsquo;d love to have your talk on the program, so if your
+organization is using Finagle, send us a proposal! You&amp;rsquo;ll need to create a
+&lt;a href="http://www.linuxfoundation.org/"&gt;Linux Foundation&lt;/a&gt; account if you don&amp;rsquo;t have one already (they&amp;rsquo;re helping us
+host the event), and you&amp;rsquo;ll want to select &amp;ldquo;FinagleCon 2015&amp;rdquo; as the event when
+filling out the &lt;a href="http://events.linuxfoundation.org/cfp/dashboard"&gt;Call for Participation form&lt;/a&gt;. The CFP will be open until
+June 30, and we&amp;rsquo;ll be announcing the full program on July 13. Please
+&lt;a href="mailto:finaglecon@twitter.com"&gt;let us know&lt;/a&gt; if you have any questions about the proposal process.&lt;/p&gt;
+
+&lt;p&gt;All Scala by the Bay attendees will receive a discount code that will allow them
+to register for FinagleCon for free, and Scala by the Bay registration is
+&lt;a href="http://scala.bythebay.io/tickets.html"&gt;available at the regular price&lt;/a&gt; through June 16. Once you&amp;rsquo;re
+registered for Scala by the Bay, please stay tuned for details about how to
+register for FinagleCon with the discount code.&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s also possible to &lt;a href="https://www.regonline.com/Register/Checkin.aspx?EventID=1719477"&gt;register for FinagleCon independently&lt;/a&gt; if
+you&amp;rsquo;re not attending Scala by the Bay (note that these tickets will not include
+access to other Scala by the Bay events).&lt;/p&gt;
+
+&lt;p&gt;We&amp;rsquo;re also inviting organizations that are using Finagle to join the program as
+sponsors. If you&amp;rsquo;re interested in sponsoring FinagleCon, please see
+&lt;a href="https://finagle.github.io/finaglecon/sponsorship/prospectus.pdf"&gt;our prospectus&lt;/a&gt; and &lt;a href="mailto:finaglecon@twitter.com"&gt;get in touch over email&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;This is our first time holding this event, so if you have questions please let
+us know—we&amp;rsquo;re on Twitter at &lt;a href="https://twitter.com/finaglecon"&gt;@finaglecon&lt;/a&gt;, and you can also reach us
+&lt;a href="mailto:finaglecon@twitter.com"&gt;by email&lt;/a&gt;. Help us make the first FinagleCon a success!&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Finagle services made simple with Serial</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2015/02/06/finagle-services-made-simple-with-serial/"/>
+    <id>https://finagle.github.io/blog/2015/02/06/finagle-services-made-simple-with-serial/</id>
+    <published>2015-02-05T16:00:00-08:00</published>
+    <updated>2016-02-04T16:56:27-08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;Most internal services at Twitter speak the &lt;a href="https://thrift.apache.org/"&gt;Thrift protocol&lt;/a&gt;, which
+provides many benefits—once you&amp;rsquo;ve defined your data types and service
+interfaces, for example, it&amp;rsquo;s possible to create bindings for a wide range of
+programming languages, and Twitter&amp;rsquo;s &lt;a href="https://twitter.github.io/scrooge/"&gt;Scrooge&lt;/a&gt; in particular makes
+it easy to create high-performance Finagle servers and clients for your Thrift
+interfaces.&lt;/p&gt;
+
+&lt;p&gt;In some cases, though, it would be more convenient not to have to worry about
+things like interface description files, the build system plugins necessary to
+generate bindings from them, etc. In particular, being able to define Finagle
+services that take arbitrary types as inputs and outputs in a Scala REPL would
+make writing tutorials and quickstart projects much more straightforward, and
+would enable easier experimentation with other parts of the Finagle API.
+&lt;/p&gt;
+
+&lt;p&gt;With this in mind, &lt;a href="https://twitter.com/vkostyukov"&gt;Vladimir Kostyukov&lt;/a&gt; and I
+decided to spend part of Twitter&amp;rsquo;s January 2015 Hack Week putting together a
+library that would allow users to create Finagle clients and servers that use
+Scala (or Java) libraries for serialization instead of IDL-based systems like
+Thrift. The result was &lt;a href="https://github.com/finagle/finagle-serial"&gt;Finagle Serial&lt;/a&gt;, a new project in the &lt;a href="https://github.com/finagle"&gt;Finagle
+organization&lt;/a&gt;. Serial is built on &lt;a href="https://twitter.github.io/finagle/guide/Protocols.html#mux"&gt;Mux&lt;/a&gt;, a generic
+session-layer RPC protocol that supports multiplexing, and currently provides
+support for using &lt;a href="https://github.com/scodec/scodec"&gt;Scodec&lt;/a&gt; for object serialization. Other
+serialization libraries may be supported in the future, but we found that
+Scodec worked well for the initial proof-of-concept implementation.&lt;/p&gt;
+
+&lt;h2&gt;Starting a server&lt;/h2&gt;
+
+&lt;p&gt;With Serial, you don&amp;rsquo;t need to describe your service interfaces using an
+external IDL—instead you simply provide &lt;em&gt;codecs&lt;/em&gt; for your input and output
+types. If you clone the &lt;a href="https://github.com/finagle/finagle-serial"&gt;Serial repository&lt;/a&gt; and &lt;a href="http://www.scala-sbt.org/0.13/tutorial/Setup.html"&gt;install
+SBT&lt;/a&gt;, you can launch a REPL with the following command:&lt;/p&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;sbt &lt;span class="s2"&gt;"project scodec"&lt;/span&gt; console
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And then define and start a Finagle server with just a few lines of code:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Service&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.util.Future&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.github.finagle.serial.scodec.ScodecSerial&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;java.net.InetSocketAddress&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;scodec.Codec&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;scodec.codecs._&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;protocol&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;ScodecSerial&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;int32&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;double&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;reciprocalServer&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt;
+  &lt;span class="n"&gt;protocol&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serveFunction&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;InetSocketAddress&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;8123&lt;/span&gt;&lt;span class="o"&gt;))(&lt;/span&gt;&lt;span class="mf"&gt;1.0&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And that&amp;rsquo;s all—we now have a Finagle server running on port 8123 that will
+return the floating-point reciprocal of any integer we pass to it.&lt;/p&gt;
+
+&lt;p&gt;Note that all you need to be able to serve a Finagle &lt;code&gt;Service[Req, Rep]&lt;/code&gt; (or an
+ordinary function from &lt;code&gt;Req&lt;/code&gt; to &lt;code&gt;Rep&lt;/code&gt;) is a pair of codecs for the &lt;code&gt;Req&lt;/code&gt; and
+&lt;code&gt;Rep&lt;/code&gt; types.&lt;/p&gt;
+
+&lt;p&gt;In this example, &lt;code&gt;int32&lt;/code&gt; and &lt;code&gt;double&lt;/code&gt; are the Scodec codecs that we&amp;rsquo;ve decided
+to use for the &lt;code&gt;Int&lt;/code&gt; and &lt;code&gt;Double&lt;/code&gt; input and output types. These are fairly simple,
+but Scodec makes it possible to define more complex codecs with very little
+boilerplate (see for example the ones for the &lt;code&gt;User&lt;/code&gt; and &lt;code&gt;Greeting&lt;/code&gt; case classes
+below).&lt;/p&gt;
+
+&lt;p&gt;We can try out our server by defining and calling a client:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;reciprocal&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;protocol&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newService&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"localhost:8123"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;reciprocal&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1001&lt;/span&gt;&lt;span class="o"&gt;).&lt;/span&gt;&lt;span class="n"&gt;onSuccess&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="s"&gt;"$result%.12f"&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Which should print &lt;code&gt;0.000999000999&lt;/code&gt;, exactly as we&amp;rsquo;d expect.&lt;/p&gt;
+
+&lt;h2&gt;Handling exceptions&lt;/h2&gt;
+
+&lt;p&gt;Now for a slightly more interesting service:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;protocol&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;ScodecSerial&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;variableSizeBits&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;uint8&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;utf8&lt;/span&gt;&lt;span class="o"&gt;),&lt;/span&gt; &lt;span class="n"&gt;int32&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;intParsingServer&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt;
+  &lt;span class="n"&gt;protocol&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serveFunction&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;InetSocketAddress&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;8124&lt;/span&gt;&lt;span class="o"&gt;))(&lt;/span&gt;&lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;toInt&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;intParser&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;protocol&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newService&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"localhost:8124"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;intParser&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"2015"&lt;/span&gt;&lt;span class="o"&gt;).&lt;/span&gt;&lt;span class="n"&gt;onSuccess&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This should print &lt;code&gt;2015&lt;/code&gt;. But the function that we&amp;rsquo;re serving is of course not
+very well-behaved—it&amp;rsquo;ll throw an exception on strings that can&amp;rsquo;t be
+parsed into integers. So what happens if we call our client with invalid input?&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="n"&gt;intParser&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"I'm not a number"&lt;/span&gt;&lt;span class="o"&gt;).&lt;/span&gt;&lt;span class="n"&gt;onFailure&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="s"&gt;"Too bad: $result"&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You should see the following:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="nc"&gt;Too&lt;/span&gt; &lt;span class="n"&gt;bad&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;java.lang.NumberFormatException:&lt;/span&gt; &lt;span class="kt"&gt;For&lt;/span&gt; &lt;span class="kt"&gt;input&lt;/span&gt; &lt;span class="kt"&gt;string:&lt;/span&gt; &lt;span class="err"&gt;"&lt;/span&gt;&lt;span class="kt"&gt;I'm&lt;/span&gt; &lt;span class="kt"&gt;not&lt;/span&gt; &lt;span class="kt"&gt;a&lt;/span&gt; &lt;span class="kt"&gt;number&lt;/span&gt;&lt;span class="err"&gt;"&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that we&amp;rsquo;re getting a &lt;code&gt;NumberFormatException&lt;/code&gt;, not a
+&lt;a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.mux.ServerApplicationError"&gt;&lt;code&gt;ServerApplicationError&lt;/code&gt;&lt;/a&gt; or some other kind of Finagle-explicit exception
+type. This is because the default Scodec protocol implementation knows how to
+serialize a few common exception types so that they can be sent over the wire.&lt;/p&gt;
+
+&lt;h2&gt;Using your own input, output, and error types&lt;/h2&gt;
+
+&lt;p&gt;Using types you&amp;rsquo;ve defined as your service&amp;rsquo;s input and output is as easy as
+providing codecs for those types, and you also can extend the functionality in
+the default implementation with information about how to serialize your own
+exception types. Custom error types requires a little more work than custom
+input and output types, but it&amp;rsquo;s still fairly concise (and is likely to improve
+in future iterations of the API).&lt;/p&gt;
+
+&lt;p&gt;Suppose for example that we&amp;rsquo;ve got a simple user greeting service with a couple
+of case classes and a custom error type:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;User&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Greeting&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;u&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;User&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;override&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;toString&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="s"&gt;"Hello, ${u.name}!"&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;GreetingError&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;extends&lt;/span&gt; &lt;span class="nc"&gt;Exception&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;object&lt;/span&gt; &lt;span class="nc"&gt;GreetUser&lt;/span&gt; &lt;span class="k"&gt;extends&lt;/span&gt; &lt;span class="nc"&gt;Service&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;User&lt;/span&gt;, &lt;span class="kt"&gt;Greeting&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;apply&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;u&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;User&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;u&lt;/span&gt; &lt;span class="k"&gt;match&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;User&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"Mary"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nc"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Greeting&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;u&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
+    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;User&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;other&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nc"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;exception&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;GreetingError&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="s"&gt;"Unknown user: $other"&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
+  &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The easy part is defining our codecs for our input and output case classes:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;userCodec&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Codec&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;User&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;variableSizeBits&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;uint24&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;utf8&lt;/span&gt;&lt;span class="o"&gt;).&lt;/span&gt;&lt;span class="n"&gt;as&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;User&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;greetingCodec&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Codec&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Greeting&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;userCodec&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;as&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Greeting&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We have to create a new &lt;code&gt;ScodecSerial&lt;/code&gt; instance to add support for our custom
+error type, but then we&amp;rsquo;re done:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.github.finagle.serial.scodec.ApplicationErrorCodec&lt;/span&gt;
+
+&lt;span class="k"&gt;object&lt;/span&gt; &lt;span class="nc"&gt;UserSerial&lt;/span&gt; &lt;span class="k"&gt;extends&lt;/span&gt; &lt;span class="nc"&gt;ScodecSerial&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;override&lt;/span&gt; &lt;span class="k"&gt;lazy&lt;/span&gt; &lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;applicationErrorCodec&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt;
+    &lt;span class="nc"&gt;ApplicationErrorCodec&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;basic&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;add&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;GreetingError&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+      &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;GreetingError&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;message&lt;/span&gt;
+    &lt;span class="o"&gt;}.&lt;/span&gt;&lt;span class="n"&gt;underlying&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;protocol&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;UserSerial&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;userCodec&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;greetingCodec&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;protocol&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serve&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;InetSocketAddress&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;8125&lt;/span&gt;&lt;span class="o"&gt;),&lt;/span&gt; &lt;span class="nc"&gt;GreetUser&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;protocol&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newService&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"localhost:8125"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now Mary will get a greeting and everyone else will get a &lt;code&gt;GreetingError&lt;/code&gt;:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="n"&gt;scala&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;User&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"Mary"&lt;/span&gt;&lt;span class="o"&gt;)).&lt;/span&gt;&lt;span class="n"&gt;onSuccess&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;res33&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;com.twitter.util.Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Greeting&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;...&lt;/span&gt;
+&lt;span class="nc"&gt;Hello&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;Mary&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;
+
+&lt;span class="n"&gt;scala&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;User&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"Travis"&lt;/span&gt;&lt;span class="o"&gt;)).&lt;/span&gt;&lt;span class="n"&gt;onFailure&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;res34&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;com.twitter.util.Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Greeting&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;...&lt;/span&gt;
+&lt;span class="nc"&gt;GreetingError&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Unknown&lt;/span&gt; &lt;span class="kt"&gt;user:&lt;/span&gt; &lt;span class="kt"&gt;Travis&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Any exceptions that the implementation doesn&amp;rsquo;t know how to serialize will result
+in the exception&amp;rsquo;s message being wrapped in a Serial &lt;code&gt;ApplicationError&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2&gt;Using Serial&lt;/h2&gt;
+
+&lt;p&gt;Serial is a very young project, but Finagle and Mux are a good foundation to
+build on, and we&amp;rsquo;d love to have other people give it a try.&lt;/p&gt;
+
+&lt;p&gt;The API documentation is available on &lt;a href="https://finagle.github.io/finagle-serial/docs/#package"&gt;the project&amp;rsquo;s GitHub Pages site&lt;/a&gt;,
+and the project&amp;rsquo;s &lt;a href="https://github.com/finagle/finagle-serial"&gt;README&lt;/a&gt; presents some initial benchmarks and goes
+into more detail on topics like exception serialization. If you&amp;rsquo;re interested in
+writing an implementation for another serialization library, we&amp;rsquo;ve put together
+some &lt;a href="https://www.scalacheck.org/"&gt;ScalaCheck&lt;/a&gt;-based integration testing tools that can help you
+verify that it&amp;rsquo;s working correctly.&lt;/p&gt;
+
+&lt;p&gt;Please let us know if you have any questions, either by filing a GitHub issue or
+getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt; or the
+&lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;!&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Purely Functional REST APIs with Finch</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2014/12/10/rest-apis-with-finch/"/>
+    <id>https://finagle.github.io/blog/2014/12/10/rest-apis-with-finch/</id>
+    <published>2014-12-09T16:00:00-08:00</published>
+    <updated>2016-02-04T16:56:27-08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;At &lt;a href="http://konfettin.ru"&gt;Konfettin&lt;/a&gt; we decided to build a REST API backend using a &lt;a href="https://twitter.github.io/finagle"&gt;Finagle&lt;/a&gt; stack. While it&amp;rsquo;s possible to do that using pure Finagle abstractions, we ended up writing the &lt;a href="https://github.com/finagle/finch"&gt;Finch&lt;/a&gt; library to simplify things and get more suitable building blocks. And it worked well: we shipped the product and got the customers. This library has been running in production for about six months so far and it&amp;rsquo;s pretty stable and well-tested. This post gives an overview of Finch: explains its core design principles and use cases.
+&lt;/p&gt;
+
+&lt;h2&gt;Overview&lt;/h2&gt;
+
+&lt;p&gt;Finch&amp;rsquo;s mission is to provide the developers composable REST API building blocks being as close as possible to the bare metal Finagle API. The killer feature of Finch is purely functional primitives/functions layered on top of the Finagle API. Finch doesn&amp;rsquo;t &lt;em&gt;hide&lt;/em&gt; the underlying API, but &lt;em&gt;extends&lt;/em&gt; it with new abstractions such as &lt;code&gt;RequestReader&lt;/code&gt;, &lt;code&gt;ResponseBuilder&lt;/code&gt;, &lt;code&gt;Endpoint&lt;/code&gt;, etc. Using Finch means using the power and composability of Finagle within a couple of handy REST-specific types/functions.&lt;/p&gt;
+
+&lt;p align="center"&gt;
+  &lt;img src="https://raw.githubusercontent.com/finagle/finch/master/finch-logo.png" width="360px" style="margin: 1em 0em;"/&gt;
+&lt;/p&gt;
+
+&lt;h2&gt;Quick Start&lt;/h2&gt;
+
+&lt;p&gt;Let&amp;rsquo;s start with writing a simple REST service that greets a user by given &lt;code&gt;name&lt;/code&gt; and &lt;code&gt;title&lt;/code&gt;.&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.finch._&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.finch.request._&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.finch.response._&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;hello&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Service&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;HttpRequest&lt;/span&gt;, &lt;span class="kt"&gt;HttpResponse&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;apply&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;HttpRequest&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;title&lt;/span&gt; &lt;span class="k"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nc"&gt;OptionalParam&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"title"&lt;/span&gt;&lt;span class="o"&gt;)(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="nc"&gt;Ok&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"greetings"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="s"&gt;"Hello, ${title.getOrElse("")} $name!"&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;endpoint&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Endpoint&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;HttpRequest&lt;/span&gt;, &lt;span class="kt"&gt;HttpResponse&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;route&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;// routes requests like '/hello/Bob?title=Mr.'
+&lt;/span&gt;    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;Method&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Get&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nc"&gt;Root&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="s"&gt;"hello"&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;hello&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;name&lt;/code&gt; param is passed as a part of URI, but the &lt;code&gt;title&lt;/code&gt; is a regular query string param. The body of &lt;code&gt;hello&lt;/code&gt; service is a for-comprehension over the Finagle futures. &lt;code&gt;OptionalParam&lt;/code&gt; (a &lt;code&gt;RequestReader&lt;/code&gt;) might be treated here as a simple Finagle service that fetches the &lt;em&gt;option&lt;/em&gt; of string out of the HTTP request. So it takes an &lt;code&gt;HttpRequest&lt;/code&gt; and returns a &lt;code&gt;Future[Option[String]]&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The response is build by &lt;code&gt;ResponseBuilder&lt;/code&gt; &lt;code&gt;Ok&lt;/code&gt; that builds a succeed &lt;code&gt;HttpResponse&lt;/code&gt; with status code two hundred. It takes a JSON object and builds &lt;code&gt;application/json&lt;/code&gt; HTTP response. The JSON API is provided by &lt;code&gt;finch-json&lt;/code&gt; module, which is shipped along with &lt;code&gt;finch-core&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2&gt;Request Reader&lt;/h2&gt;
+
+&lt;p&gt;Under the hood, &lt;code&gt;RequestReader&lt;/code&gt; is a &lt;a href="https://hackage.haskell.org/package/mtl-1.1.0.2/docs/Control-Monad-Reader.html"&gt;reader monad&lt;/a&gt;. So, it has a monadic API and we can use a for-comprehension to compose readers together. &lt;code&gt;RequestReader&lt;/code&gt; is also a function. So we can pass it a request and get a future of a read value.&lt;/p&gt;
+
+&lt;p&gt;Since the request readers read futures they might be chained together with regular Finagle services in a single for-comprehension. Thus, reading the request params is an additional monad-transformation in the program&amp;rsquo;s data flow. This is an extremely useful when a service should fetch and validate the request params before doing a real job and not doing the job at all if the params are not valid. &lt;code&gt;RequestReader&lt;/code&gt; might throw a future exception and none of further transformations will be performed. &lt;em&gt;Reader Monad&lt;/em&gt; is a well-known abstraction that is heavily used in Finch applications.&lt;/p&gt;
+
+&lt;p&gt;The simplified signature of the &lt;code&gt;RequestReader&lt;/code&gt; abstraction is similar to &lt;code&gt;Service&lt;/code&gt; but with monadic API methods &lt;code&gt;map&lt;/code&gt; and &lt;code&gt;flatMap&lt;/code&gt;.&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;trait&lt;/span&gt; &lt;span class="nc"&gt;RequestReader&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;A&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;apply&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;HttpRequest&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;A&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;B&lt;/span&gt;&lt;span class="o"&gt;](&lt;/span&gt;&lt;span class="n"&gt;fn&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;A&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RequestReader&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;B&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;flatMap&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fn&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;A&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nc"&gt;RequestReader&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;B&lt;/span&gt;&lt;span class="o"&gt;])&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RequestReader&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;B&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In the following example, we define a new request reader &lt;code&gt;pagination&lt;/code&gt; that reads a tuple from an &lt;code&gt;HttpRequest&lt;/code&gt; with two numbers: &lt;code&gt;offset&lt;/code&gt; and &lt;code&gt;limit&lt;/code&gt;. These params are optional so we have to provide default values for both of them. We can use request reader as a regular service: it takes an &lt;code&gt;HttpRequest&lt;/code&gt; and returns the pagination details in &lt;code&gt;Future[(Int, Int)]&lt;/code&gt;.&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.finch.request._&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;pagination&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RequestReader&lt;/span&gt;&lt;span class="o"&gt;[(&lt;/span&gt;&lt;span class="kt"&gt;Int&lt;/span&gt;, &lt;span class="kt"&gt;Int&lt;/span&gt;&lt;span class="o"&gt;)]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="n"&gt;offset&lt;/span&gt; &lt;span class="k"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nc"&gt;OptionalIntParam&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"offset"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;limit&lt;/span&gt; &lt;span class="k"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nc"&gt;OptionalIntParam&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"limit"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;offset&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getOrElse&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;),&lt;/span&gt; &lt;span class="n"&gt;math&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;min&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;limit&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getOrElse&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="o"&gt;),&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;service&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Service&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;HttpRequest&lt;/span&gt;, &lt;span class="kt"&gt;HttpResponse&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;apply&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;HttpRequest&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;offsetIt&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;limit&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="n"&gt;pagination&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="nc"&gt;Ok&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="s"&gt;"Fetching items $offset..${offset+limit}"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here is more complex example: &lt;em&gt;param validation&lt;/em&gt;. The &lt;code&gt;RequestReader&lt;/code&gt; abstraction may be used for param validation. There is a &lt;code&gt;ValidationRule&lt;/code&gt; request reader that doesn&amp;rsquo;t read anything from the request but validates the given predicate and returns &lt;code&gt;Future.Done&lt;/code&gt; in case of success. Since, a &lt;code&gt;ValidationRule&lt;/code&gt; is an implementation of a &lt;code&gt;RequestReader&lt;/code&gt;, it might be chained together with other request readers in the same for-comprehension.&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.finch.request._&lt;/span&gt;
+
+&lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;User&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;age&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Int&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;adult&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RequestReader&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;User&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="n"&gt;age&lt;/span&gt; &lt;span class="k"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nc"&gt;RequiredIntParam&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"age"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;_&lt;/span&gt; &lt;span class="k"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nc"&gt;ValidationRule&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"age"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"should be greater then 18"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;age&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;18&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="nc"&gt;User&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;age&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;HttpRequest&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Json&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;adult&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="nc"&gt;Json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"age"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;age&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="n"&gt;handle&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;ParamNotFound&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;param&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
+    &lt;span class="nc"&gt;Json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"error"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getMessage&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"param"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;param&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;ValidationFailed&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;param&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rule&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
+    &lt;span class="nc"&gt;Json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"error"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getMessage&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"param"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;param&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"rule"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;rule&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We have a case class &lt;code&gt;User&lt;/code&gt; with only single field &lt;code&gt;age&lt;/code&gt;. We can define a new reader &lt;code&gt;adult&lt;/code&gt; that reads only adult users. We compose a &lt;code&gt;RequiredIntParam&lt;/code&gt; request reader here within a &lt;code&gt;ValidationRule&lt;/code&gt;. Then, we fetch the &lt;em&gt;adult&lt;/em&gt; user out of the &lt;code&gt;HttpRequest&lt;/code&gt; and map it to JSON object. We also have to handle the exceptions of both cases: &lt;code&gt;ParamNotFound&lt;/code&gt; and &lt;code&gt;ValidationFailed&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;There are plenty of request readers that can read almost everything out of the &lt;code&gt;HttpRequest&lt;/code&gt;. There are three common groups of readers:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;OptionalX&lt;/code&gt; - reads future &lt;code&gt;Option&lt;/code&gt; value from the request;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;RequiredX&lt;/code&gt; - reads either future of value or future exception from the request;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ValidationRule&lt;/code&gt; - returns &lt;code&gt;Future.Done&lt;/code&gt; if the given predicate is true or &lt;code&gt;Future[ValidationFailed]&lt;/code&gt; exception;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Every &lt;em&gt;required&lt;/em&gt; reader has a companion &lt;em&gt;optional&lt;/em&gt; one that reads value into a &lt;code&gt;Future[Option[_]]&lt;/code&gt;. For example, there are &lt;code&gt;RequiredIntParam&lt;/code&gt; and &lt;code&gt;OptionalIntParam&lt;/code&gt; readers Finch. Here the list of most popular required readers.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;RequiredParam&lt;/code&gt; reads query string param value into a &lt;code&gt;Future[String]&lt;/code&gt; or &lt;code&gt;Future[ParamNotFound]&lt;/code&gt; exception;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;RequiredParams&lt;/code&gt; reads comma-separated query string param values into a &lt;code&gt;Future[List[_]]&lt;/code&gt; or &lt;code&gt;Future[ParamNotFound]&lt;/code&gt; exception;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;RequiredStringBody&lt;/code&gt; reads request body into a &lt;code&gt;Future[String]&lt;/code&gt; or &lt;code&gt;Future[BodyNotFound]&lt;/code&gt; exception;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;RequiredJsonBody&lt;/code&gt; reasd request body into a &lt;code&gt;Future&lt;/code&gt; of JSON type defined by implicit &lt;code&gt;DecodeJson&lt;/code&gt; value or &lt;code&gt;Future[JsonNotParsed]&lt;/code&gt; exception;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;RequiredHeader&lt;/code&gt; reads request header into a &lt;code&gt;Future[String]&lt;/code&gt; or &lt;code&gt;Future[HeaderNotFound]&lt;/code&gt; exception;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;For complete reference, see &lt;a href="https://github.com/finagle/finch/blob/master/docs.md#requests"&gt;Requests&lt;/a&gt; section in the documentation.&lt;/p&gt;
+
+&lt;h2&gt;Response Builder&lt;/h2&gt;
+
+&lt;p&gt;Responses are much easier. There are plenty of predefined response builders like &lt;code&gt;Ok&lt;/code&gt;, &lt;code&gt;NotFound&lt;/code&gt; and so on. We can pass it a &lt;code&gt;String&lt;/code&gt; and get &lt;code&gt;plain/text&lt;/code&gt; HTTP response or we can pass it a JSON object and get &lt;code&gt;application/json&lt;/code&gt; HTTP response. We can also add custom headers to the response.&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.finch.response._&lt;/span&gt;
+
+&lt;span class="c1"&gt;// an empty response with status 200
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Ok&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;
+
+&lt;span class="c1"&gt;// 'plain/text' response with status 404
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;NotFound&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"body"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;// 'application/json' response with status 201
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Created&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"id"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
+
+&lt;span class="c1"&gt;// an empty response with header
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;SeeOther&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withHeaders&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"X-Location"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="s"&gt;"Nowhere"&lt;/span&gt;&lt;span class="o"&gt;)()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For more details, see &lt;a href="https://github.com/finagle/finch/blob/master/docs.md#responses"&gt;Responses&lt;/a&gt; section in the documentation.&lt;/p&gt;
+
+&lt;h2&gt;Endpoint&lt;/h2&gt;
+
+&lt;p&gt;Another powerful abstraction in Finch is an &lt;code&gt;Endpoint&lt;/code&gt;, which is a &lt;em&gt;composable router&lt;/em&gt;. At the high level it might be treated as a usual &lt;code&gt;PartialFuncton&lt;/code&gt; from request to service. Endpoints may be converted to Finagle services. And more importantly they can be composed with other building blocks like &lt;em&gt;filters&lt;/em&gt;, &lt;em&gt;services&lt;/em&gt; or &lt;em&gt;endpoints&lt;/em&gt; itself.&lt;/p&gt;
+
+&lt;p&gt;We&amp;rsquo;ve seen a pipe (a bang &lt;code&gt;!&lt;/code&gt;) operator  before in a quick start example. It&amp;rsquo;s kinda type-safe compositor which can be used with almost everything. It exposes a data flow just like the Linux pipe &lt;code&gt;|&lt;/code&gt;. The idea is pretty simple: we can build new endpoints by composing the old ones with either filters or services. It is nothing more than a fancy DSL for developers to allow them to think of the &lt;code&gt;request&lt;/code&gt; -&amp;gt; &lt;code&gt;response&lt;/code&gt; relationship in terms of flow of data: we just pipe the request through the chain of building blocks and it flows in the exact way we&amp;rsquo;ve written it. Easy-peasy to reason about such code.&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;ab&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Filter&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;A&lt;/span&gt;, &lt;span class="kt"&gt;C&lt;/span&gt;, &lt;span class="kt"&gt;B&lt;/span&gt;, &lt;span class="kt"&gt;C&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;bc&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Endpoint&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;B&lt;/span&gt;, &lt;span class="kt"&gt;C&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;cd&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Service&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;C&lt;/span&gt;, &lt;span class="kt"&gt;D&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;ad1&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Endpoint&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;A&lt;/span&gt;, &lt;span class="kt"&gt;D&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ab&lt;/span&gt; &lt;span class="o"&gt;!&lt;/span&gt; &lt;span class="n"&gt;bc&lt;/span&gt; &lt;span class="o"&gt;!&lt;/span&gt; &lt;span class="n"&gt;cd&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;ad2&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Endpoint&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;A&lt;/span&gt;, &lt;span class="kt"&gt;D&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;ad3&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Endpoint&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;A&lt;/span&gt;, &lt;span class="kt"&gt;D&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ad1&lt;/span&gt; &lt;span class="n"&gt;orElse&lt;/span&gt; &lt;span class="n"&gt;ad2&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;See &lt;a href="https://github.com/finagle/finch/blob/master/docs.md#endpoints"&gt;Endpoints&lt;/a&gt; section in the documentation.&lt;/p&gt;
+
+&lt;h2&gt;JSON&lt;/h2&gt;
+
+&lt;p&gt;The Finch library has built-in support for JSON via traits &lt;code&gt;EncodeJson&lt;/code&gt; and &lt;code&gt;DecodeJson&lt;/code&gt;. All the building blocks in Finch that deal with JSON objects take those traits as implicit values. It makes the JSON dependency pluggable. All we need to do in order to change the JSON backend is to import implicit encoder and decoder into scope and use the new JSON API.&lt;/p&gt;
+
+&lt;p&gt;Here is an example of usage of the default JSON implementation from &lt;code&gt;finch-json&lt;/code&gt; module.&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.finch.json._&lt;/span&gt;       &lt;span class="c1"&gt;// import Immutable JSON API from finch-json
+&lt;/span&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.finch.json.finch._&lt;/span&gt; &lt;span class="c1"&gt;// import implciit encoder/decoder for finch-json
+&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;jsonService&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Service&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;HttpRequest&lt;/span&gt;, &lt;span class="kt"&gt;Json&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;httpService&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Setvice&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;HttpRequest&lt;/span&gt;, &lt;span class="kt"&gt;HttpResponse&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;jsonService&lt;/span&gt; &lt;span class="o"&gt;!&lt;/span&gt; &lt;span class="nc"&gt;TurnJsonIntoHttp&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Json&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;See &lt;a href="https://github.com/finagle/finch/blob/master/docs.md#json"&gt;JSON&lt;/a&gt; section in the documentation.&lt;/p&gt;
+
+&lt;h2&gt;OAuth2&lt;/h2&gt;
+
+&lt;p&gt;There is a separate project &lt;a href="https://github.com/finagle/finagle-oauth2"&gt;finagle-oauth2&lt;/a&gt;, which is 100% compatible with Finch. It might be used as follows for request authorization.&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.oauth2._&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.oauth2.&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="nc"&gt;OAuth2Filter&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;OAuth2Request&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;dataHandler&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;DataHandler&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;User&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;auth&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;OAuth2Filter&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;dataHandler&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;hello&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Service&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;OAuth2Request&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;User&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;, &lt;span class="kt"&gt;Response&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;apply&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;OAuth2Request&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;User&lt;/span&gt;&lt;span class="o"&gt;])&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="s"&gt;"Hello, ${req.authInfo.user}!"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+    &lt;span class="nc"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Response&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt;
+  &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;backend&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Service&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Request&lt;/span&gt;, &lt;span class="kt"&gt;Response&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;auth&lt;/span&gt; &lt;span class="n"&gt;andThen&lt;/span&gt; &lt;span class="n"&gt;hello&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here &lt;code&gt;hello&lt;/code&gt; is a &lt;em&gt;protected&lt;/em&gt; service. It takes only authorized requests (request type is &lt;code&gt;OAuth2Request[U]&lt;/code&gt;). So, we can rely on the compiler to make sure at compile time that all the services that are supposed to be protected are actually protected. This is a well-known Finagle example of why we need filters and why we love type-safety. We express the business logic in the type system and get a robust application.&lt;/p&gt;
+
+&lt;p&gt;For details, see &lt;a href="https://github.com/finagle/finch/blob/master/docs.md#authentication"&gt;Authentication&lt;/a&gt; section in the documentation.&lt;/p&gt;
+
+&lt;h2&gt;Finagle Rocks!&lt;/h2&gt;
+
+&lt;p&gt;Finagle itself is a great tool that can easily be adopted outside the Twitter infrastructure. Sometimes it just requires writing a couple of handy libraries on top of it. And that shouldn&amp;rsquo;t be scary for passionate developers.&lt;/p&gt;
+
+&lt;h2&gt;Try Finch&lt;/h2&gt;
+
+&lt;p&gt;The latest &lt;a href="https://github.com/finagle/finch/releases/tag/0.2.0"&gt;release&lt;/a&gt; is available on Maven Central:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="n"&gt;libraryDependencies&lt;/span&gt; &lt;span class="o"&gt;++=&lt;/span&gt; &lt;span class="nc"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+  &lt;span class="s"&gt;"com.github.finagle"&lt;/span&gt; &lt;span class="o"&gt;%%&lt;/span&gt; &lt;span class="s"&gt;"finch-core"&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="s"&gt;"0.2.0"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+  &lt;span class="s"&gt;"com.github.finagle"&lt;/span&gt; &lt;span class="o"&gt;%%&lt;/span&gt; &lt;span class="s"&gt;"finch-json"&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="s"&gt;"0.2.0"&lt;/span&gt;
+&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For a complete example of usage, see the &lt;a href="https://github.com/finagle/finch/blob/master/docs.md#demo"&gt;demo&lt;/a&gt; project (&lt;a href="https://github.com/finagle/finch/blob/master/finch-demo/src/main/scala/io/finch/demo/Main.scala"&gt;Main.scala&lt;/a&gt;) that is built with the &lt;code&gt;finch-core&lt;/code&gt; and &lt;code&gt;finch-json&lt;/code&gt; modules.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>New and upcoming Finagle examples</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2014/10/30/new-and-upcoming-finagle-examples/"/>
+    <id>https://finagle.github.io/blog/2014/10/30/new-and-upcoming-finagle-examples/</id>
+    <published>2014-10-29T17:00:00-07:00</published>
+    <updated>2016-02-04T16:56:27-08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;Part of my role as an open source advocate for Scala projects at Twitter
+involves talking to developers outside of Twitter about how we can make
+&lt;a href="https://engineering.twitter.com/opensource/projects"&gt;our open source projects&lt;/a&gt;
+more widely useful and accessible, and one of the most common requests for
+Finagle is for more introductory tutorials and examples.&lt;/p&gt;
+
+&lt;p&gt;One of the steps we&amp;rsquo;re taking in this direction is a major overhaul of
+&lt;a href="https://github.com/twitter/finagle/tree/6.22.0/finagle-example/"&gt;&lt;code&gt;finagle-example&lt;/code&gt;&lt;/a&gt;,
+which we&amp;rsquo;ll be moving out of the main Finagle repository and
+into its own project under the &lt;a href="https://github.com/finagle/"&gt;Finagle organization&lt;/a&gt;
+on GitHub. At the same time we&amp;rsquo;ll be
+filling out the top-level introduction to the examples (which is &lt;a href="https://github.com/twitter/finagle/tree/6.22.0/finagle-example"&gt;currently a
+little bare&lt;/a&gt;),
+adding more detailed API documentation, providing &lt;a href="https://github.com/twitter/finagle/tree/6.22.0/finagle-example/src/main/scala/com/twitter/finagle/example"&gt;better example coverage for
+Finagle subprojects&lt;/a&gt;,
+and creating a larger set of
+&lt;a href="https://github.com/twitter/finagle/tree/6.22.0/finagle-example/src/main/java/com/twitter/finagle/example/java"&gt;Java examples&lt;/a&gt;
+to show off our new work on improving Java compatibility.
+&lt;/p&gt;
+
+&lt;p&gt;We&amp;rsquo;re also working on several stand-alone example projects and tutorials,
+including the &lt;a href="https://github.com/finagle/finagle-example-name-finder"&gt;Finagle Name Finder&lt;/a&gt;,
+which provides a simple Scala wrapper for a few pieces of &lt;a href="https://opennlp.apache.org/"&gt;OpenNLP&lt;/a&gt;,
+a Java library for natural language processing, and uses that wrapper to define
+a &lt;a href="http://en.wikipedia.org/wiki/Named-entity_recognition"&gt;named entity recognition&lt;/a&gt;
+RPC service built on Finagle and &lt;a href="https://thrift.apache.org/"&gt;Thrift&lt;/a&gt;.
+You can start up a name finding service in your SBT console with just a few
+lines of code:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Thrift&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.examples.names.thriftscala._&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;SafeNameRecognizerService&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;create&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+  &lt;span class="n"&gt;langs&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"en"&lt;/span&gt;&lt;span class="o"&gt;),&lt;/span&gt;
+  &lt;span class="n"&gt;numThreads&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+  &lt;span class="n"&gt;numRecognizers&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;
+&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;service&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
+  &lt;span class="nc"&gt;Thrift&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serveIface&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"localhost:9090"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;service&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="n"&gt;onSuccess&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="k"&gt;_&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
+  &lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"Server started successfully"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="n"&gt;onFailure&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;ex&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
+  &lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"Could not start the server: "&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;ex&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;You can then create a client (either locally in the same console, or on another
+machine):&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Thrift&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.examples.names.thriftscala._&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt;
+  &lt;span class="nc"&gt;Thrift&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newIface&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;NameRecognizerService.FutureIface&lt;/span&gt;&lt;span class="o"&gt;](&lt;/span&gt;&lt;span class="s"&gt;"localhost:9090"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And feed it a document:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;doc&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="s"&gt;"""
+An anomaly which often struck me in the character of my friend Sherlock Holmes
+was that, although in his methods of thought he was the neatest and most
+methodical of mankind, and although also he affected a certain quiet primness of
+dress, he was none the less in his personal habits one of the most untidy men
+that ever drove a fellow-lodger to distraction. Not that I am in the least
+conventional in that respect myself. The rough-and-tumble work in Afghanistan,
+coming on the top of a natural Bohemianism of disposition, has made me rather
+more lax than befits a medical man.
+"""&lt;/span&gt;
+
+&lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;findNames&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"en"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;doc&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="n"&gt;onSuccess&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;response&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
+  &lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"People: "&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;response&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;persons&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mkString&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;", "&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
+  &lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"Places: "&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;response&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;locations&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mkString&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;", "&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="n"&gt;onFailure&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;ex&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
+  &lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"Something bad happened: "&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;ex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getMessage&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And the service will tokenize the document, identify parts of speech, attempt
+to find all the names of people, places, and organizations, and promptly return
+the results:&lt;/p&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;People: Sherlock Holmes
+Places: Afghanistan
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When you start a service, you can have OpenNLP recognizers loaded into memory
+for a given set of languages, but the service can also load languages from disk
+for individual requests—for example, we&amp;rsquo;ve only loaded the English-language
+models for the service we started above, but we could also copy a set of
+Spanish-language models into our &lt;code&gt;models&lt;/code&gt; directory, and then our client could
+ask to use them:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;esDoc&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="s"&gt;"""
+Alrededor de 1902 fue el primero en aplicar una descarga eléctrica en un tubo
+sellado y con gas neón con la idea de crear una lámpara. Inspirado en parte por
+la invención de Daniel McFarlan Moore, la lámpara de Moore, Claude inventó la
+lámpara de neón mediante la descarga eléctrica de un gas inerte comprobando que
+el brillo era considerable.
+"""&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;findNames&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"es"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;esDoc&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We&amp;rsquo;re using the Name Finder project in a new &amp;ldquo;Finagle Essentials&amp;rdquo; course at
+&lt;a href="https://twitter.com/university"&gt;Twitter University&lt;/a&gt;, and
+&lt;a href="https://finagle.github.io/finagle-example-name-finder/"&gt;the slides&lt;/a&gt; for that
+course go into more detail about how the implementation works. The project is
+currently designed to fit into an overview of the fundamental abstractions
+behind Finagle, and to demonstrate just how easy it is to get a basic (but useful)
+Finagle service up and running, but over the next few months we&amp;rsquo;ll be expanding
+it to show off more of Finagle&amp;rsquo;s capabilities.&lt;/p&gt;
+
+&lt;p&gt;We&amp;rsquo;re also working on a tutorial that walks through the implementation of a
+Finagle protocol for &lt;a href="https://github.com/scodec/scodec"&gt;scodec&lt;/a&gt;, a Scala binary
+serialization library that&amp;rsquo;s part of the &lt;a href="http://typelevel.org/"&gt;Typelevel&lt;/a&gt;
+group of projects. If you&amp;rsquo;re interested in helping out with this kind of
+tutorial development, or if you have a Finagle example project, blog post, etc.
+that you&amp;rsquo;d like us to feature, or if you just have questions, please get in
+touch via &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt;
+or the &lt;a href="https://groups.google.com/d/forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;,
+and be sure to watch this space for updates as we continue to improve our
+documentation and examples.&lt;/p&gt;
+</content>
+  </entry>
+</feed>
