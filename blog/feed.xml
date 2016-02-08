@@ -4,10 +4,77 @@
   <id>https://finagle.github.io/blog</id>
   <link href="https://finagle.github.io/blog"/>
   <link href="https://finagle.github.io/blog/blog/feed.xml" rel="self"/>
-  <updated>2016-02-04T16:00:00-08:00</updated>
+  <updated>2016-02-07T16:00:00-08:00</updated>
   <author>
     <name>Blog Author</name>
   </author>
+  <entry>
+    <title>Retry Budgets</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2016/02/08/retry-budgets/"/>
+    <id>https://finagle.github.io/blog/2016/02/08/retry-budgets/</id>
+    <published>2016-02-07T16:00:00-08:00</published>
+    <updated>2016-02-08T09:38:54-08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;Ever had your service attacked by a retry storm from your clients? Or
+your clients’ clients? Or has your service ever been the attacker in
+one of those situations?&lt;/p&gt;
+
+&lt;p&gt;Thought so.&lt;/p&gt;
+
+&lt;p&gt;To help you avoid this, in release 6.31 we’ve introduced the notion of
+a &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/service/RetryBudget.scala"&gt;&lt;code&gt;RetryBudget&lt;/code&gt;&lt;/a&gt;
+that controls when it is okay for a client to retry a failed request.&lt;/p&gt;
+
+&lt;p&gt;The default budget allows for 20% of requests to be retried on top of
+a minimum of 10 retries per second. This is built on top of a token
+bucket where credits expire after 10 seconds. In practice this should
+allow for plenty of retries in the face of transient errors without
+causing cascading failures when there are persistent issues.&lt;/p&gt;
+
+&lt;p&gt;Developers can wire up their own budget:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.service.&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="nc"&gt;Retries&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;RetryBudget&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;budget&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RetryBudget&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;twitter&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;configured&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Retries&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Budget&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;retryBudget&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;budget&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newService&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"twitter.com"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The following code shows how to use the factory method
+&lt;code&gt;RetryBudget.apply&lt;/code&gt; in order to construct a custom instance of
+&lt;code&gt;RetryBudget&lt;/code&gt;:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.conversions.time._&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.service.RetryBudget&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;budget&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RetryBudget&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;RetryBudget&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+  &lt;span class="n"&gt;ttl&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;10.&lt;/span&gt;&lt;span class="n"&gt;seconds&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+  &lt;span class="n"&gt;minRetriesPerSec&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+  &lt;span class="n"&gt;percentCanRetry&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;
+&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;RetryBudget&lt;/code&gt; factory method takes three arguments:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;ttl&lt;/code&gt; — a time to live for deposited tokens&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;minRetriesPerSec&lt;/code&gt; — the minimum rate of retries allowed&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;percentCanRetry&lt;/code&gt; — the percentage of requests that might be retried&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;code&gt;RetryBudgets&lt;/code&gt; are wired up to &lt;code&gt;RetryFilter&lt;/code&gt; and &lt;code&gt;RetryExceptionsFilter&lt;/code&gt;
+which allows them to be used outside of a Finagle client as well.
+Further details on retries and retry budgets are covered in the
+&lt;a href="http://twitter.github.io/finagle/guide/Clients.html#retries"&gt;user guide&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Please let us know if you have any questions, either by filing a GitHub issue or
+getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt; or the
+&lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;.&lt;/p&gt;
+</content>
+  </entry>
   <entry>
     <title>Finagle 6.33 Release Notes</title>
     <link rel="alternate" href="https://finagle.github.io/blog/2016/02/05/release-notes-6-33/"/>
@@ -581,133 +648,6 @@ getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;For a complete example of usage, see the &lt;a href="https://github.com/finagle/finch/blob/master/docs.md#demo"&gt;demo&lt;/a&gt; project (&lt;a href="https://github.com/finagle/finch/blob/master/finch-demo/src/main/scala/io/finch/demo/Main.scala"&gt;Main.scala&lt;/a&gt;) that is built with the &lt;code&gt;finch-core&lt;/code&gt; and &lt;code&gt;finch-json&lt;/code&gt; modules.&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>New and upcoming Finagle examples</title>
-    <link rel="alternate" href="https://finagle.github.io/blog/2014/10/30/new-and-upcoming-finagle-examples/"/>
-    <id>https://finagle.github.io/blog/2014/10/30/new-and-upcoming-finagle-examples/</id>
-    <published>2014-10-29T17:00:00-07:00</published>
-    <updated>2016-02-04T16:56:27-08:00</updated>
-    <author>
-      <name>Article Author</name>
-    </author>
-    <content type="html">&lt;p&gt;Part of my role as an open source advocate for Scala projects at Twitter
-involves talking to developers outside of Twitter about how we can make
-&lt;a href="https://engineering.twitter.com/opensource/projects"&gt;our open source projects&lt;/a&gt;
-more widely useful and accessible, and one of the most common requests for
-Finagle is for more introductory tutorials and examples.&lt;/p&gt;
-
-&lt;p&gt;One of the steps we&amp;rsquo;re taking in this direction is a major overhaul of
-&lt;a href="https://github.com/twitter/finagle/tree/6.22.0/finagle-example/"&gt;&lt;code&gt;finagle-example&lt;/code&gt;&lt;/a&gt;,
-which we&amp;rsquo;ll be moving out of the main Finagle repository and
-into its own project under the &lt;a href="https://github.com/finagle/"&gt;Finagle organization&lt;/a&gt;
-on GitHub. At the same time we&amp;rsquo;ll be
-filling out the top-level introduction to the examples (which is &lt;a href="https://github.com/twitter/finagle/tree/6.22.0/finagle-example"&gt;currently a
-little bare&lt;/a&gt;),
-adding more detailed API documentation, providing &lt;a href="https://github.com/twitter/finagle/tree/6.22.0/finagle-example/src/main/scala/com/twitter/finagle/example"&gt;better example coverage for
-Finagle subprojects&lt;/a&gt;,
-and creating a larger set of
-&lt;a href="https://github.com/twitter/finagle/tree/6.22.0/finagle-example/src/main/java/com/twitter/finagle/example/java"&gt;Java examples&lt;/a&gt;
-to show off our new work on improving Java compatibility.
-&lt;/p&gt;
-
-&lt;p&gt;We&amp;rsquo;re also working on several stand-alone example projects and tutorials,
-including the &lt;a href="https://github.com/finagle/finagle-example-name-finder"&gt;Finagle Name Finder&lt;/a&gt;,
-which provides a simple Scala wrapper for a few pieces of &lt;a href="https://opennlp.apache.org/"&gt;OpenNLP&lt;/a&gt;,
-a Java library for natural language processing, and uses that wrapper to define
-a &lt;a href="http://en.wikipedia.org/wiki/Named-entity_recognition"&gt;named entity recognition&lt;/a&gt;
-RPC service built on Finagle and &lt;a href="https://thrift.apache.org/"&gt;Thrift&lt;/a&gt;.
-You can start up a name finding service in your SBT console with just a few
-lines of code:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Thrift&lt;/span&gt;
-&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.examples.names.thriftscala._&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;SafeNameRecognizerService&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;create&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
-  &lt;span class="n"&gt;langs&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"en"&lt;/span&gt;&lt;span class="o"&gt;),&lt;/span&gt;
-  &lt;span class="n"&gt;numThreads&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
-  &lt;span class="n"&gt;numRecognizers&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;
-&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;service&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
-  &lt;span class="nc"&gt;Thrift&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serveIface&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"localhost:9090"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;service&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="n"&gt;onSuccess&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="k"&gt;_&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
-  &lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"Server started successfully"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="n"&gt;onFailure&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;ex&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
-  &lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"Could not start the server: "&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;ex&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;You can then create a client (either locally in the same console, or on another
-machine):&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Thrift&lt;/span&gt;
-&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.examples.names.thriftscala._&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt;
-  &lt;span class="nc"&gt;Thrift&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newIface&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;NameRecognizerService.FutureIface&lt;/span&gt;&lt;span class="o"&gt;](&lt;/span&gt;&lt;span class="s"&gt;"localhost:9090"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;And feed it a document:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;doc&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="s"&gt;"""
-An anomaly which often struck me in the character of my friend Sherlock Holmes
-was that, although in his methods of thought he was the neatest and most
-methodical of mankind, and although also he affected a certain quiet primness of
-dress, he was none the less in his personal habits one of the most untidy men
-that ever drove a fellow-lodger to distraction. Not that I am in the least
-conventional in that respect myself. The rough-and-tumble work in Afghanistan,
-coming on the top of a natural Bohemianism of disposition, has made me rather
-more lax than befits a medical man.
-"""&lt;/span&gt;
-
-&lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;findNames&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"en"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;doc&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="n"&gt;onSuccess&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;response&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
-  &lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"People: "&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;response&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;persons&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mkString&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;", "&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
-  &lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"Places: "&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;response&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;locations&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mkString&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;", "&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="n"&gt;onFailure&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;ex&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
-  &lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"Something bad happened: "&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;ex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getMessage&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;And the service will tokenize the document, identify parts of speech, attempt
-to find all the names of people, places, and organizations, and promptly return
-the results:&lt;/p&gt;
-&lt;pre class="highlight plaintext"&gt;&lt;code&gt;People: Sherlock Holmes
-Places: Afghanistan
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;When you start a service, you can have OpenNLP recognizers loaded into memory
-for a given set of languages, but the service can also load languages from disk
-for individual requests—for example, we&amp;rsquo;ve only loaded the English-language
-models for the service we started above, but we could also copy a set of
-Spanish-language models into our &lt;code&gt;models&lt;/code&gt; directory, and then our client could
-ask to use them:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;esDoc&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="s"&gt;"""
-Alrededor de 1902 fue el primero en aplicar una descarga eléctrica en un tubo
-sellado y con gas neón con la idea de crear una lámpara. Inspirado en parte por
-la invención de Daniel McFarlan Moore, la lámpara de Moore, Claude inventó la
-lámpara de neón mediante la descarga eléctrica de un gas inerte comprobando que
-el brillo era considerable.
-"""&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;findNames&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"es"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;esDoc&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;We&amp;rsquo;re using the Name Finder project in a new &amp;ldquo;Finagle Essentials&amp;rdquo; course at
-&lt;a href="https://twitter.com/university"&gt;Twitter University&lt;/a&gt;, and
-&lt;a href="https://finagle.github.io/finagle-example-name-finder/"&gt;the slides&lt;/a&gt; for that
-course go into more detail about how the implementation works. The project is
-currently designed to fit into an overview of the fundamental abstractions
-behind Finagle, and to demonstrate just how easy it is to get a basic (but useful)
-Finagle service up and running, but over the next few months we&amp;rsquo;ll be expanding
-it to show off more of Finagle&amp;rsquo;s capabilities.&lt;/p&gt;
-
-&lt;p&gt;We&amp;rsquo;re also working on a tutorial that walks through the implementation of a
-Finagle protocol for &lt;a href="https://github.com/scodec/scodec"&gt;scodec&lt;/a&gt;, a Scala binary
-serialization library that&amp;rsquo;s part of the &lt;a href="http://typelevel.org/"&gt;Typelevel&lt;/a&gt;
-group of projects. If you&amp;rsquo;re interested in helping out with this kind of
-tutorial development, or if you have a Finagle example project, blog post, etc.
-that you&amp;rsquo;d like us to feature, or if you just have questions, please get in
-touch via &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt;
-or the &lt;a href="https://groups.google.com/d/forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;,
-and be sure to watch this space for updates as we continue to improve our
-documentation and examples.&lt;/p&gt;
 </content>
   </entry>
 </feed>
