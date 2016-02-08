@@ -13,7 +13,7 @@
     <link rel="alternate" href="https://finagle.github.io/blog/2016/02/08/retry-budgets/"/>
     <id>https://finagle.github.io/blog/2016/02/08/retry-budgets/</id>
     <published>2016-02-07T16:00:00-08:00</published>
-    <updated>2016-02-08T09:38:54-08:00</updated>
+    <updated>2016-02-08T09:43:17-08:00</updated>
     <author>
       <name>Article Author</name>
     </author>
@@ -35,12 +35,12 @@ causing cascading failures when there are persistent issues.&lt;/p&gt;
 
 &lt;p&gt;Developers can wire up their own budget:&lt;/p&gt;
 &lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;
-&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.service.&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="nc"&gt;Retries&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;RetryBudget&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.service.RetryBudget&lt;/span&gt;
 
 &lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;budget&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RetryBudget&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
 
 &lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;twitter&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;
-  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;configured&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Retries&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Budget&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;retryBudget&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;budget&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withRetryBudget&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;budget&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
   &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newService&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"twitter.com"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 

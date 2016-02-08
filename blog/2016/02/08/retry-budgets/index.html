@@ -131,12 +131,12 @@ causing cascading failures when there are persistent issues.</p>
 
 <p>Developers can wire up their own budget:</p>
 <pre class="highlight scala"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.service.</span><span class="o">{</span><span class="nc">Retries</span><span class="o">,</span> <span class="nc">RetryBudget</span><span class="o">}</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.service.RetryBudget</span>
 
 <span class="k">val</span> <span class="n">budget</span><span class="k">:</span> <span class="kt">RetryBudget</span> <span class="o">=</span> <span class="o">???</span>
 
 <span class="k">val</span> <span class="n">twitter</span> <span class="k">=</span> <span class="nc">Http</span><span class="o">.</span><span class="n">client</span>
-  <span class="o">.</span><span class="n">configured</span><span class="o">(</span><span class="nc">Retries</span><span class="o">.</span><span class="nc">Budget</span><span class="o">(</span><span class="n">retryBudget</span> <span class="k">=</span> <span class="n">budget</span><span class="o">))</span>
+  <span class="o">.</span><span class="n">withRetryBudget</span><span class="o">(</span><span class="n">budget</span><span class="o">)</span>
   <span class="o">.</span><span class="n">newService</span><span class="o">(</span><span class="s">"twitter.com"</span><span class="o">)</span>
 </code></pre>
 
