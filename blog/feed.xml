@@ -4,10 +4,213 @@
   <id>https://finagle.github.io/blog</id>
   <link href="https://finagle.github.io/blog"/>
   <link href="https://finagle.github.io/blog/blog/feed.xml" rel="self"/>
-  <updated>2016-02-07T16:00:00-08:00</updated>
+  <updated>2016-02-08T16:00:00-08:00</updated>
   <author>
     <name>Blog Author</name>
   </author>
+  <entry>
+    <title>Make application errors great again</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2016/02/09/response-classification/"/>
+    <id>https://finagle.github.io/blog/2016/02/09/response-classification/</id>
+    <published>2016-02-08T16:00:00-08:00</published>
+    <updated>2016-02-09T10:23:49-08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p align="center"&gt;
+  &lt;img src="/assets/img/make.png" style="margin: 1em 0em;" alt="make application errors great again"/&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Finagle’s new response classifiers improve client’s avoidance of
+faulty nodes thus increasing your success rate. To get this benefit,
+you must wire up the application’s rules into your clients and how to
+do so is explained below.&lt;/p&gt;
+
+&lt;p&gt;First, a pop quiz — does Finagle treat an HTTP 500 response as a
+success or failure? How about a Thrift Exception?&lt;/p&gt;
+
+&lt;p&gt;If you answered &lt;strong&gt;failures&lt;/strong&gt;, sadly, you are in for a surprise. Finagle
+lacks application level domain knowledge of what kinds of responses
+are failures. Without this, Finagle uses a conservative policy and
+treats all &lt;a href="https://github.com/twitter/util/blob/8e33b34a0379f920ccb2dfae531a5c003db36152/util-core/src/main/scala/com/twitter/util/Try.scala#L64-L68"&gt;&lt;code&gt;Returns&lt;/code&gt;&lt;/a&gt; as successful
+and all &lt;a href="https://github.com/twitter/util/blob/8e33b34a0379f920ccb2dfae531a5c003db36152/util-core/src/main/scala/com/twitter/util/Try.scala#L64-L68"&gt;&lt;code&gt;Throws&lt;/code&gt;&lt;/a&gt; as failures. Unfortunately, both HTTP 500s and Thrift
+Exceptions are &lt;code&gt;Returns&lt;/code&gt;, and thus, successful responses.&lt;/p&gt;
+
+&lt;p&gt;By having you, the developers, give Finagle this application level
+knowledge, it can then accurately track failures in its &lt;a href="http://twitter.github.io/finagle/guide/Clients.html#failure-accrual"&gt;failure
+accrual module&lt;/a&gt; which directly helps your client’s success rate.
+Finagle’s built-in &lt;a href="http://twitter.github.io/finagle/guide/Metrics.html#statsfilter"&gt;success rate&lt;/a&gt; metrics (e.g. &lt;code&gt;clnt/tweetsvc/success&lt;/code&gt;)
+also become accurate and this in turn means you may be able remove
+additional success rate metrics you may be wrapping on top of a
+Finagle client.&lt;/p&gt;
+
+&lt;p&gt;In the future, we are considering wiring this into load balancing
+which enables us to penalize servers which are returning failures or
+&lt;a href="http://www.control.lth.se/media/Staff/AlessandroPapadopoulos/publications/2014-SRDS-KPDDMAHRE.pdf"&gt;partial results&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3&gt;Cool story. How do I use it?&lt;/h3&gt;
+
+&lt;p&gt;As of &lt;a href="http://localhost:4567/blog/2016/02/05/release-notes-6-33/"&gt;release 6.33&lt;/a&gt; you wire up a &lt;a href="https://github.com/twitter/finagle/blob/bb91e967618f8884af98e655eb989dd20cd79e61/finagle-core/src/main/scala/com/twitter/finagle/service/package.scala#L5-L35"&gt;&lt;code&gt;ResponseClassifier&lt;/code&gt;&lt;/a&gt;
+to your client. For HTTP clients, using
+&lt;a href="https://github.com/twitter/finagle/blob/bb91e967618f8884af98e655eb989dd20cd79e61/finagle-http/src/main/scala/com/twitter/finagle/http/service/HttpResponseClassifier.scala#L15-L19"&gt;&lt;code&gt;HttpResponseClassifier.ServerErrorsAsFailures&lt;/code&gt;&lt;/a&gt; often works great as it
+classifies any HTTP 5xx response code as a failure. For
+Thrift/ThriftMux clients you may want to use
+&lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-thriftmux/src/main/scala/com/twitter/finagle/thriftmux/service/ThriftMuxResponseClassifier.scala"&gt;&lt;code&gt;ThriftResponseClassifier.ThriftExceptionsAsFailures&lt;/code&gt;&lt;/a&gt; which classifies
+any deserialized Thrift Exception as a failure. For a large set of use
+cases these should suffice. Classifiers get wired up to your client in
+a straightforward manner, for example:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Scala
+&lt;/span&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.ThriftMux&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.builder.ClientBuilder&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.thrift.service.ThriftResponseClassifier&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Discoverable Parameters API
+&lt;/span&gt;&lt;span class="nc"&gt;ThriftMux&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;
+  &lt;span class="o"&gt;...&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;ThriftResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;ThriftExceptionsAsFailures&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;// ClientBuilder API
+&lt;/span&gt;&lt;span class="nc"&gt;ClientBuilder&lt;/span&gt;
+  &lt;span class="o"&gt;...&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;responseClassifier&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;ThriftResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;ThriftExceptionsAsFailures&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="highlight java"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Java&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.builder.ClientBuilder&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.http.service.HttpResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Discoverable Parameters API&lt;/span&gt;
+&lt;span class="n"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;client&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;
+  &lt;span class="o"&gt;...&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;withResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;HttpResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;ServerErrorsAsFailures&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+
+&lt;span class="c1"&gt;// ClientBuilder API&lt;/span&gt;
+&lt;span class="n"&gt;ClientBuilder&lt;/span&gt;
+  &lt;span class="o"&gt;...&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;responseClassifier&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;HttpResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;ServerErrorsAsFailures&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If a classifier is not specified on a client or if a user’s classifier
+isn’t defined for a given request/response pair then
+&lt;a href="https://github.com/twitter/finagle/blob/246986aa055e865f521eba0e09d7c0b42880e0ac/finagle-core/src/main/scala/com/twitter/finagle/service/ResponseClassifier.scala#L18-L36"&gt;&lt;code&gt;ResponseClassifier.Default&lt;/code&gt;&lt;/a&gt; is used. This gives us the same behavior
+Finagle had prior to classification — responses that are &lt;code&gt;Returns&lt;/code&gt; are
+successful and &lt;code&gt;Throws&lt;/code&gt; are failures.&lt;/p&gt;
+
+&lt;h3&gt;Rad. How do I write a custom classifier?&lt;/h3&gt;
+
+&lt;p&gt;To do this we should understand the few classes used. A
+&lt;code&gt;ResponseClassifier&lt;/code&gt; is a &lt;code&gt;PartialFunction&lt;/code&gt; from &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/service/ReqRep.scala"&gt;&lt;code&gt;ReqRep&lt;/code&gt;&lt;/a&gt; to
+&lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/service/ResponseClass.scala"&gt;&lt;code&gt;ResponseClass&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Let’s work our way backwards through those, beginning with
+&lt;code&gt;ResponseClass&lt;/code&gt;. This can be either &lt;code&gt;Successful&lt;/code&gt; or &lt;code&gt;Failed&lt;/code&gt; and those
+values are self-explanatory. There are three constants which will
+cover the vast majority of usage: &lt;code&gt;Success&lt;/code&gt;, &lt;code&gt;NonRetryableFailure&lt;/code&gt; and
+&lt;code&gt;RetryableFailure&lt;/code&gt;. While as of today there is no distinction made
+between retryable and non-retryable failures, it was a good
+opportunity to lay the groundwork for use in the future.&lt;/p&gt;
+
+&lt;p&gt;A &lt;code&gt;ReqRep&lt;/code&gt; is a request/response struct with a request of type &lt;code&gt;Any&lt;/code&gt;
+and a response of type &lt;code&gt;Try[Any]&lt;/code&gt;. While the lack of typing may
+initially disturb you, our hope is that it is not an issue in
+practice. While all of this functionality is called response
+classification, you’ll note that classifiers make judgements on both a
+request and response.&lt;/p&gt;
+
+&lt;p&gt;Writing a custom &lt;code&gt;PartialFunction&lt;/code&gt; is easy in Scala given its syntactic
+sugar. As with many things it is a bit more work from Java but is
+doable. Here is an example that counts HTTP 503s as failures (for Java
+examples, take a look at &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-http/src/test/java/com/twitter/finagle/http/service/HttpResponseClassifierCompilationTest.java"&gt;&lt;code&gt;HttpResponseClassifierCompilationTest&lt;/code&gt;&lt;/a&gt;
+and &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/test/java/com/twitter/finagle/service/ResponseClassifierCompilationTest.java"&gt;&lt;code&gt;ResponseClassifierCompilationTest&lt;/code&gt;&lt;/a&gt;):&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Scala
+&lt;/span&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.http&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.service.&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="nc"&gt;ReqRep&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;ResponseClass&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;ResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.util.Return&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;classifier&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;ResponseClassifier&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;ReqRep&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;Return&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;r&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;http.Response&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;statusCode&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;503&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
+    &lt;span class="nc"&gt;ResponseClass&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;NonRetryableFailure&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that this &lt;code&gt;PartialFunction&lt;/code&gt; isn’t total which is ok due to
+Finagle always using user defined classifiers in combination with
+&lt;code&gt;ResponseClassifier.Default&lt;/code&gt; which will cover all cases.&lt;/p&gt;
+
+&lt;p&gt;Thrift and ThriftMux classifiers require a bit more care as the
+request and response types are not as obvious. This is because there
+is only a single &lt;code&gt;Service&lt;/code&gt; from &lt;code&gt;Array[Byte]&lt;/code&gt; to &lt;code&gt;Array[Byte]&lt;/code&gt; for all the
+methods of an IDL’s service. To make this workable, there is support
+in &lt;a href="http://twitter.github.io/scrooge/"&gt;Scrooge&lt;/a&gt; and &lt;code&gt;Thrift&lt;/code&gt;/&lt;code&gt;ThriftMux.newService&lt;/code&gt; and
+&lt;code&gt;Thrift&lt;/code&gt;/&lt;code&gt;ThriftMux.newClient&lt;/code&gt; code to deserialize the responses into the
+expected application types so that classifiers can be written in terms
+of the Scrooge generated request type, &lt;code&gt;$Service.$Method.Args&lt;/code&gt;, and the
+method&amp;rsquo;s response type. Given an IDL:&lt;/p&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;exception NotFoundException { 1: string reason }
+
+service SocialGraph {
+  i32 follow(1: i64 follower, 2: i64 followee) throws (1: NotFoundException ex)
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;One possible classifier would be:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;classifier&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;ResponseClassifier&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="c1"&gt;// #1
+&lt;/span&gt;  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;ReqRep&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;Throw&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;_:&lt;/span&gt; &lt;span class="kt"&gt;NotFoundException&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
+    &lt;span class="nc"&gt;ResponseClass&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;NonRetryableFailure&lt;/span&gt;
+  &lt;span class="c1"&gt;// #2
+&lt;/span&gt;  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;ReqRep&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;Return&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Int&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
+    &lt;span class="nc"&gt;ResponseClass&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;NonRetryableFailure&lt;/span&gt;
+  &lt;span class="c1"&gt;// #3
+&lt;/span&gt;  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;ReqRep&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;SocialGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Follow&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Args&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="o"&gt;),&lt;/span&gt; &lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
+    &lt;span class="nc"&gt;ResponseClass&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;NonRetryableFailure&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you examine that classifier you’ll note a few things. First (#1),
+the deserialized &lt;code&gt;NotFoundException&lt;/code&gt; can be treated as a failure. Next
+(#2), a “successful” response can be examined to enable services using
+status codes to classify errors. Lastly (#3), the request can be
+introspected to make the decision.  But what’s it really gonna do?
+It’s important to understand what the impact will be if you customize
+response classification for your client. Perhaps most importantly,
+when responses are classified as failures, this affects how failure
+accrual sees responses. In the past, you may have had a Thrift service
+returning nothing but exceptions, but this node would continue getting
+traffic due to failure accrual’s lack of visibility. While this
+changes lets you fix this visibility, you should consider what causes
+those responses. For example, if the service is simply proxying a
+failure from its downstream service, you may not want to count that as
+a failure.&lt;/p&gt;
+
+&lt;h3&gt;But what’s it really gonna do?&lt;/h3&gt;
+
+&lt;p&gt;It’s important to understand what the impact will be if you customize
+response classification for your client. Perhaps most importantly,
+when responses are classified as failures, this affects how failure
+accrual sees responses. In the past, you may have had a Thrift service
+returning nothing but exceptions, but this node would continue getting
+traffic due to failure accrual’s lack of visibility. While this
+changes lets you fix this visibility, you should consider what causes
+those responses. For example, if the service is simply proxying a
+failure from its downstream service, you may not want to count that as
+a failure.&lt;/p&gt;
+
+&lt;p&gt;There isn’t a strict rule on what is the right thing to do with
+classification. However, with some minimal thought, many services can
+improve their success rate both in terms of how it’s reported as well
+as through avoidance of bad nodes.&lt;/p&gt;
+
+&lt;h3&gt;Alright.&lt;/h3&gt;
+
+&lt;p&gt;We’re really hopeful that this makes a significant difference in how
+well Finagle works for you but it needs you, the application
+developers, to make these choices.&lt;/p&gt;
+
+&lt;p&gt;If you have any questions on how to use this or feedback on how it’s working,
+please get in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt; or the
+&lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;.&lt;/p&gt;
+</content>
+  </entry>
   <entry>
     <title>Retry Budgets</title>
     <link rel="alternate" href="https://finagle.github.io/blog/2016/02/08/retry-budgets/"/>
@@ -442,212 +645,6 @@ verify that it&amp;rsquo;s working correctly.&lt;/p&gt;
 &lt;p&gt;Please let us know if you have any questions, either by filing a GitHub issue or
 getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt; or the
 &lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;!&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>Purely Functional REST APIs with Finch</title>
-    <link rel="alternate" href="https://finagle.github.io/blog/2014/12/10/rest-apis-with-finch/"/>
-    <id>https://finagle.github.io/blog/2014/12/10/rest-apis-with-finch/</id>
-    <published>2014-12-09T16:00:00-08:00</published>
-    <updated>2016-02-04T16:56:27-08:00</updated>
-    <author>
-      <name>Article Author</name>
-    </author>
-    <content type="html">&lt;p&gt;At &lt;a href="http://konfettin.ru"&gt;Konfettin&lt;/a&gt; we decided to build a REST API backend using a &lt;a href="https://twitter.github.io/finagle"&gt;Finagle&lt;/a&gt; stack. While it&amp;rsquo;s possible to do that using pure Finagle abstractions, we ended up writing the &lt;a href="https://github.com/finagle/finch"&gt;Finch&lt;/a&gt; library to simplify things and get more suitable building blocks. And it worked well: we shipped the product and got the customers. This library has been running in production for about six months so far and it&amp;rsquo;s pretty stable and well-tested. This post gives an overview of Finch: explains its core design principles and use cases.
-&lt;/p&gt;
-
-&lt;h2&gt;Overview&lt;/h2&gt;
-
-&lt;p&gt;Finch&amp;rsquo;s mission is to provide the developers composable REST API building blocks being as close as possible to the bare metal Finagle API. The killer feature of Finch is purely functional primitives/functions layered on top of the Finagle API. Finch doesn&amp;rsquo;t &lt;em&gt;hide&lt;/em&gt; the underlying API, but &lt;em&gt;extends&lt;/em&gt; it with new abstractions such as &lt;code&gt;RequestReader&lt;/code&gt;, &lt;code&gt;ResponseBuilder&lt;/code&gt;, &lt;code&gt;Endpoint&lt;/code&gt;, etc. Using Finch means using the power and composability of Finagle within a couple of handy REST-specific types/functions.&lt;/p&gt;
-
-&lt;p align="center"&gt;
-  &lt;img src="https://raw.githubusercontent.com/finagle/finch/master/finch-logo.png" width="360px" style="margin: 1em 0em;"/&gt;
-&lt;/p&gt;
-
-&lt;h2&gt;Quick Start&lt;/h2&gt;
-
-&lt;p&gt;Let&amp;rsquo;s start with writing a simple REST service that greets a user by given &lt;code&gt;name&lt;/code&gt; and &lt;code&gt;title&lt;/code&gt;.&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.finch._&lt;/span&gt;
-&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.finch.request._&lt;/span&gt;
-&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.finch.response._&lt;/span&gt;
-
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;hello&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Service&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;HttpRequest&lt;/span&gt;, &lt;span class="kt"&gt;HttpResponse&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;apply&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;HttpRequest&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-    &lt;span class="n"&gt;title&lt;/span&gt; &lt;span class="k"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nc"&gt;OptionalParam&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"title"&lt;/span&gt;&lt;span class="o"&gt;)(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-  &lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="nc"&gt;Ok&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"greetings"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="s"&gt;"Hello, ${title.getOrElse("")} $name!"&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;endpoint&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Endpoint&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;HttpRequest&lt;/span&gt;, &lt;span class="kt"&gt;HttpResponse&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;route&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-    &lt;span class="c1"&gt;// routes requests like '/hello/Bob?title=Mr.'
-&lt;/span&gt;    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;Method&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Get&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nc"&gt;Root&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="s"&gt;"hello"&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;hello&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-  &lt;span class="o"&gt;}&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The &lt;code&gt;name&lt;/code&gt; param is passed as a part of URI, but the &lt;code&gt;title&lt;/code&gt; is a regular query string param. The body of &lt;code&gt;hello&lt;/code&gt; service is a for-comprehension over the Finagle futures. &lt;code&gt;OptionalParam&lt;/code&gt; (a &lt;code&gt;RequestReader&lt;/code&gt;) might be treated here as a simple Finagle service that fetches the &lt;em&gt;option&lt;/em&gt; of string out of the HTTP request. So it takes an &lt;code&gt;HttpRequest&lt;/code&gt; and returns a &lt;code&gt;Future[Option[String]]&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;The response is build by &lt;code&gt;ResponseBuilder&lt;/code&gt; &lt;code&gt;Ok&lt;/code&gt; that builds a succeed &lt;code&gt;HttpResponse&lt;/code&gt; with status code two hundred. It takes a JSON object and builds &lt;code&gt;application/json&lt;/code&gt; HTTP response. The JSON API is provided by &lt;code&gt;finch-json&lt;/code&gt; module, which is shipped along with &lt;code&gt;finch-core&lt;/code&gt;.&lt;/p&gt;
-
-&lt;h2&gt;Request Reader&lt;/h2&gt;
-
-&lt;p&gt;Under the hood, &lt;code&gt;RequestReader&lt;/code&gt; is a &lt;a href="https://hackage.haskell.org/package/mtl-1.1.0.2/docs/Control-Monad-Reader.html"&gt;reader monad&lt;/a&gt;. So, it has a monadic API and we can use a for-comprehension to compose readers together. &lt;code&gt;RequestReader&lt;/code&gt; is also a function. So we can pass it a request and get a future of a read value.&lt;/p&gt;
-
-&lt;p&gt;Since the request readers read futures they might be chained together with regular Finagle services in a single for-comprehension. Thus, reading the request params is an additional monad-transformation in the program&amp;rsquo;s data flow. This is an extremely useful when a service should fetch and validate the request params before doing a real job and not doing the job at all if the params are not valid. &lt;code&gt;RequestReader&lt;/code&gt; might throw a future exception and none of further transformations will be performed. &lt;em&gt;Reader Monad&lt;/em&gt; is a well-known abstraction that is heavily used in Finch applications.&lt;/p&gt;
-
-&lt;p&gt;The simplified signature of the &lt;code&gt;RequestReader&lt;/code&gt; abstraction is similar to &lt;code&gt;Service&lt;/code&gt; but with monadic API methods &lt;code&gt;map&lt;/code&gt; and &lt;code&gt;flatMap&lt;/code&gt;.&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;trait&lt;/span&gt; &lt;span class="nc"&gt;RequestReader&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;A&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;apply&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;HttpRequest&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;A&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
-  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;B&lt;/span&gt;&lt;span class="o"&gt;](&lt;/span&gt;&lt;span class="n"&gt;fn&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;A&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RequestReader&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;B&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
-  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;flatMap&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fn&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;A&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nc"&gt;RequestReader&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;B&lt;/span&gt;&lt;span class="o"&gt;])&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RequestReader&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;B&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;In the following example, we define a new request reader &lt;code&gt;pagination&lt;/code&gt; that reads a tuple from an &lt;code&gt;HttpRequest&lt;/code&gt; with two numbers: &lt;code&gt;offset&lt;/code&gt; and &lt;code&gt;limit&lt;/code&gt;. These params are optional so we have to provide default values for both of them. We can use request reader as a regular service: it takes an &lt;code&gt;HttpRequest&lt;/code&gt; and returns the pagination details in &lt;code&gt;Future[(Int, Int)]&lt;/code&gt;.&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.finch.request._&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;pagination&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RequestReader&lt;/span&gt;&lt;span class="o"&gt;[(&lt;/span&gt;&lt;span class="kt"&gt;Int&lt;/span&gt;, &lt;span class="kt"&gt;Int&lt;/span&gt;&lt;span class="o"&gt;)]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-  &lt;span class="n"&gt;offset&lt;/span&gt; &lt;span class="k"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nc"&gt;OptionalIntParam&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"offset"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-  &lt;span class="n"&gt;limit&lt;/span&gt; &lt;span class="k"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nc"&gt;OptionalIntParam&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"limit"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;offset&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getOrElse&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;),&lt;/span&gt; &lt;span class="n"&gt;math&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;min&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;limit&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getOrElse&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="o"&gt;),&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;service&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Service&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;HttpRequest&lt;/span&gt;, &lt;span class="kt"&gt;HttpResponse&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;apply&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;HttpRequest&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-    &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;offsetIt&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;limit&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="n"&gt;pagination&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-  &lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="nc"&gt;Ok&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="s"&gt;"Fetching items $offset..${offset+limit}"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Here is more complex example: &lt;em&gt;param validation&lt;/em&gt;. The &lt;code&gt;RequestReader&lt;/code&gt; abstraction may be used for param validation. There is a &lt;code&gt;ValidationRule&lt;/code&gt; request reader that doesn&amp;rsquo;t read anything from the request but validates the given predicate and returns &lt;code&gt;Future.Done&lt;/code&gt; in case of success. Since, a &lt;code&gt;ValidationRule&lt;/code&gt; is an implementation of a &lt;code&gt;RequestReader&lt;/code&gt;, it might be chained together with other request readers in the same for-comprehension.&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.finch.request._&lt;/span&gt;
-
-&lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;User&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;age&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Int&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;adult&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RequestReader&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;User&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-  &lt;span class="n"&gt;age&lt;/span&gt; &lt;span class="k"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nc"&gt;RequiredIntParam&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"age"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-  &lt;span class="k"&gt;_&lt;/span&gt; &lt;span class="k"&gt;&amp;lt;-&lt;/span&gt; &lt;span class="nc"&gt;ValidationRule&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"age"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"should be greater then 18"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;age&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;18&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="nc"&gt;User&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;age&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;HttpRequest&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Json&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;adult&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="nc"&gt;Json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"age"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;age&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="n"&gt;handle&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;ParamNotFound&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;param&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
-    &lt;span class="nc"&gt;Json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"error"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getMessage&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"param"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;param&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;ValidationFailed&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;param&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;rule&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
-    &lt;span class="nc"&gt;Json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"error"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getMessage&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"param"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;param&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"rule"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;rule&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;We have a case class &lt;code&gt;User&lt;/code&gt; with only single field &lt;code&gt;age&lt;/code&gt;. We can define a new reader &lt;code&gt;adult&lt;/code&gt; that reads only adult users. We compose a &lt;code&gt;RequiredIntParam&lt;/code&gt; request reader here within a &lt;code&gt;ValidationRule&lt;/code&gt;. Then, we fetch the &lt;em&gt;adult&lt;/em&gt; user out of the &lt;code&gt;HttpRequest&lt;/code&gt; and map it to JSON object. We also have to handle the exceptions of both cases: &lt;code&gt;ParamNotFound&lt;/code&gt; and &lt;code&gt;ValidationFailed&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;There are plenty of request readers that can read almost everything out of the &lt;code&gt;HttpRequest&lt;/code&gt;. There are three common groups of readers:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;OptionalX&lt;/code&gt; - reads future &lt;code&gt;Option&lt;/code&gt; value from the request;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;RequiredX&lt;/code&gt; - reads either future of value or future exception from the request;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;ValidationRule&lt;/code&gt; - returns &lt;code&gt;Future.Done&lt;/code&gt; if the given predicate is true or &lt;code&gt;Future[ValidationFailed]&lt;/code&gt; exception;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Every &lt;em&gt;required&lt;/em&gt; reader has a companion &lt;em&gt;optional&lt;/em&gt; one that reads value into a &lt;code&gt;Future[Option[_]]&lt;/code&gt;. For example, there are &lt;code&gt;RequiredIntParam&lt;/code&gt; and &lt;code&gt;OptionalIntParam&lt;/code&gt; readers Finch. Here the list of most popular required readers.&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;RequiredParam&lt;/code&gt; reads query string param value into a &lt;code&gt;Future[String]&lt;/code&gt; or &lt;code&gt;Future[ParamNotFound]&lt;/code&gt; exception;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;RequiredParams&lt;/code&gt; reads comma-separated query string param values into a &lt;code&gt;Future[List[_]]&lt;/code&gt; or &lt;code&gt;Future[ParamNotFound]&lt;/code&gt; exception;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;RequiredStringBody&lt;/code&gt; reads request body into a &lt;code&gt;Future[String]&lt;/code&gt; or &lt;code&gt;Future[BodyNotFound]&lt;/code&gt; exception;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;RequiredJsonBody&lt;/code&gt; reasd request body into a &lt;code&gt;Future&lt;/code&gt; of JSON type defined by implicit &lt;code&gt;DecodeJson&lt;/code&gt; value or &lt;code&gt;Future[JsonNotParsed]&lt;/code&gt; exception;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;RequiredHeader&lt;/code&gt; reads request header into a &lt;code&gt;Future[String]&lt;/code&gt; or &lt;code&gt;Future[HeaderNotFound]&lt;/code&gt; exception;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;For complete reference, see &lt;a href="https://github.com/finagle/finch/blob/master/docs.md#requests"&gt;Requests&lt;/a&gt; section in the documentation.&lt;/p&gt;
-
-&lt;h2&gt;Response Builder&lt;/h2&gt;
-
-&lt;p&gt;Responses are much easier. There are plenty of predefined response builders like &lt;code&gt;Ok&lt;/code&gt;, &lt;code&gt;NotFound&lt;/code&gt; and so on. We can pass it a &lt;code&gt;String&lt;/code&gt; and get &lt;code&gt;plain/text&lt;/code&gt; HTTP response or we can pass it a JSON object and get &lt;code&gt;application/json&lt;/code&gt; HTTP response. We can also add custom headers to the response.&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.finch.response._&lt;/span&gt;
-
-&lt;span class="c1"&gt;// an empty response with status 200
-&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Ok&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;
-
-&lt;span class="c1"&gt;// 'plain/text' response with status 404
-&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;NotFound&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"body"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-
-&lt;span class="c1"&gt;// 'application/json' response with status 201
-&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Created&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"id"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
-
-&lt;span class="c1"&gt;// an empty response with header
-&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;SeeOther&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withHeaders&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"X-Location"&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="s"&gt;"Nowhere"&lt;/span&gt;&lt;span class="o"&gt;)()&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;For more details, see &lt;a href="https://github.com/finagle/finch/blob/master/docs.md#responses"&gt;Responses&lt;/a&gt; section in the documentation.&lt;/p&gt;
-
-&lt;h2&gt;Endpoint&lt;/h2&gt;
-
-&lt;p&gt;Another powerful abstraction in Finch is an &lt;code&gt;Endpoint&lt;/code&gt;, which is a &lt;em&gt;composable router&lt;/em&gt;. At the high level it might be treated as a usual &lt;code&gt;PartialFuncton&lt;/code&gt; from request to service. Endpoints may be converted to Finagle services. And more importantly they can be composed with other building blocks like &lt;em&gt;filters&lt;/em&gt;, &lt;em&gt;services&lt;/em&gt; or &lt;em&gt;endpoints&lt;/em&gt; itself.&lt;/p&gt;
-
-&lt;p&gt;We&amp;rsquo;ve seen a pipe (a bang &lt;code&gt;!&lt;/code&gt;) operator  before in a quick start example. It&amp;rsquo;s kinda type-safe compositor which can be used with almost everything. It exposes a data flow just like the Linux pipe &lt;code&gt;|&lt;/code&gt;. The idea is pretty simple: we can build new endpoints by composing the old ones with either filters or services. It is nothing more than a fancy DSL for developers to allow them to think of the &lt;code&gt;request&lt;/code&gt; -&amp;gt; &lt;code&gt;response&lt;/code&gt; relationship in terms of flow of data: we just pipe the request through the chain of building blocks and it flows in the exact way we&amp;rsquo;ve written it. Easy-peasy to reason about such code.&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;ab&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Filter&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;A&lt;/span&gt;, &lt;span class="kt"&gt;C&lt;/span&gt;, &lt;span class="kt"&gt;B&lt;/span&gt;, &lt;span class="kt"&gt;C&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;bc&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Endpoint&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;B&lt;/span&gt;, &lt;span class="kt"&gt;C&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;cd&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Service&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;C&lt;/span&gt;, &lt;span class="kt"&gt;D&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;ad1&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Endpoint&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;A&lt;/span&gt;, &lt;span class="kt"&gt;D&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ab&lt;/span&gt; &lt;span class="o"&gt;!&lt;/span&gt; &lt;span class="n"&gt;bc&lt;/span&gt; &lt;span class="o"&gt;!&lt;/span&gt; &lt;span class="n"&gt;cd&lt;/span&gt;
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;ad2&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Endpoint&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;A&lt;/span&gt;, &lt;span class="kt"&gt;D&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;ad3&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Endpoint&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;A&lt;/span&gt;, &lt;span class="kt"&gt;D&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ad1&lt;/span&gt; &lt;span class="n"&gt;orElse&lt;/span&gt; &lt;span class="n"&gt;ad2&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;See &lt;a href="https://github.com/finagle/finch/blob/master/docs.md#endpoints"&gt;Endpoints&lt;/a&gt; section in the documentation.&lt;/p&gt;
-
-&lt;h2&gt;JSON&lt;/h2&gt;
-
-&lt;p&gt;The Finch library has built-in support for JSON via traits &lt;code&gt;EncodeJson&lt;/code&gt; and &lt;code&gt;DecodeJson&lt;/code&gt;. All the building blocks in Finch that deal with JSON objects take those traits as implicit values. It makes the JSON dependency pluggable. All we need to do in order to change the JSON backend is to import implicit encoder and decoder into scope and use the new JSON API.&lt;/p&gt;
-
-&lt;p&gt;Here is an example of usage of the default JSON implementation from &lt;code&gt;finch-json&lt;/code&gt; module.&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.finch.json._&lt;/span&gt;       &lt;span class="c1"&gt;// import Immutable JSON API from finch-json
-&lt;/span&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;io.finch.json.finch._&lt;/span&gt; &lt;span class="c1"&gt;// import implciit encoder/decoder for finch-json
-&lt;/span&gt;
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;jsonService&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Service&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;HttpRequest&lt;/span&gt;, &lt;span class="kt"&gt;Json&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;httpService&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Setvice&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;HttpRequest&lt;/span&gt;, &lt;span class="kt"&gt;HttpResponse&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;jsonService&lt;/span&gt; &lt;span class="o"&gt;!&lt;/span&gt; &lt;span class="nc"&gt;TurnJsonIntoHttp&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Json&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;See &lt;a href="https://github.com/finagle/finch/blob/master/docs.md#json"&gt;JSON&lt;/a&gt; section in the documentation.&lt;/p&gt;
-
-&lt;h2&gt;OAuth2&lt;/h2&gt;
-
-&lt;p&gt;There is a separate project &lt;a href="https://github.com/finagle/finagle-oauth2"&gt;finagle-oauth2&lt;/a&gt;, which is 100% compatible with Finch. It might be used as follows for request authorization.&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.oauth2._&lt;/span&gt;
-&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.oauth2.&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="nc"&gt;OAuth2Filter&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;OAuth2Request&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;dataHandler&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;DataHandler&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;User&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;auth&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;OAuth2Filter&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;dataHandler&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;hello&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Service&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;OAuth2Request&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;User&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;, &lt;span class="kt"&gt;Response&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;apply&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;OAuth2Request&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;User&lt;/span&gt;&lt;span class="o"&gt;])&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-    &lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="s"&gt;"Hello, ${req.authInfo.user}!"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-    &lt;span class="nc"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Response&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt;
-  &lt;span class="o"&gt;}&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;backend&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Service&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Request&lt;/span&gt;, &lt;span class="kt"&gt;Response&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;auth&lt;/span&gt; &lt;span class="n"&gt;andThen&lt;/span&gt; &lt;span class="n"&gt;hello&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Here &lt;code&gt;hello&lt;/code&gt; is a &lt;em&gt;protected&lt;/em&gt; service. It takes only authorized requests (request type is &lt;code&gt;OAuth2Request[U]&lt;/code&gt;). So, we can rely on the compiler to make sure at compile time that all the services that are supposed to be protected are actually protected. This is a well-known Finagle example of why we need filters and why we love type-safety. We express the business logic in the type system and get a robust application.&lt;/p&gt;
-
-&lt;p&gt;For details, see &lt;a href="https://github.com/finagle/finch/blob/master/docs.md#authentication"&gt;Authentication&lt;/a&gt; section in the documentation.&lt;/p&gt;
-
-&lt;h2&gt;Finagle Rocks!&lt;/h2&gt;
-
-&lt;p&gt;Finagle itself is a great tool that can easily be adopted outside the Twitter infrastructure. Sometimes it just requires writing a couple of handy libraries on top of it. And that shouldn&amp;rsquo;t be scary for passionate developers.&lt;/p&gt;
-
-&lt;h2&gt;Try Finch&lt;/h2&gt;
-
-&lt;p&gt;The latest &lt;a href="https://github.com/finagle/finch/releases/tag/0.2.0"&gt;release&lt;/a&gt; is available on Maven Central:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="n"&gt;libraryDependencies&lt;/span&gt; &lt;span class="o"&gt;++=&lt;/span&gt; &lt;span class="nc"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
-  &lt;span class="s"&gt;"com.github.finagle"&lt;/span&gt; &lt;span class="o"&gt;%%&lt;/span&gt; &lt;span class="s"&gt;"finch-core"&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="s"&gt;"0.2.0"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
-  &lt;span class="s"&gt;"com.github.finagle"&lt;/span&gt; &lt;span class="o"&gt;%%&lt;/span&gt; &lt;span class="s"&gt;"finch-json"&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="s"&gt;"0.2.0"&lt;/span&gt;
-&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;For a complete example of usage, see the &lt;a href="https://github.com/finagle/finch/blob/master/docs.md#demo"&gt;demo&lt;/a&gt; project (&lt;a href="https://github.com/finagle/finch/blob/master/finch-demo/src/main/scala/io/finch/demo/Main.scala"&gt;Main.scala&lt;/a&gt;) that is built with the &lt;code&gt;finch-core&lt;/code&gt; and &lt;code&gt;finch-json&lt;/code&gt; modules.&lt;/p&gt;
 </content>
   </entry>
 </feed>
