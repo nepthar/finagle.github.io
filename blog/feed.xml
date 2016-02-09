@@ -13,7 +13,7 @@
     <link rel="alternate" href="https://finagle.github.io/blog/2016/02/09/response-classification/"/>
     <id>https://finagle.github.io/blog/2016/02/09/response-classification/</id>
     <published>2016-02-08T16:00:00-08:00</published>
-    <updated>2016-02-09T13:24:32-08:00</updated>
+    <updated>2016-02-09T14:26:55-08:00</updated>
     <author>
       <name>Article Author</name>
     </author>
@@ -50,7 +50,7 @@ which enables us to penalize servers which are returning failures or
 
 &lt;h3&gt;Cool story. How do I use it?&lt;/h3&gt;
 
-&lt;p&gt;As of &lt;a href="http://localhost:4567/blog/2016/02/05/release-notes-6-33/"&gt;release 6.33&lt;/a&gt; you wire up a &lt;a href="https://github.com/twitter/finagle/blob/bb91e967618f8884af98e655eb989dd20cd79e61/finagle-core/src/main/scala/com/twitter/finagle/service/package.scala#L5-L35"&gt;&lt;code&gt;ResponseClassifier&lt;/code&gt;&lt;/a&gt;
+&lt;p&gt;As of &lt;a href="http://finagle.github.io/blog/2016/02/05/release-notes-6-33/"&gt;release 6.33&lt;/a&gt; you wire up a &lt;a href="https://github.com/twitter/finagle/blob/bb91e967618f8884af98e655eb989dd20cd79e61/finagle-core/src/main/scala/com/twitter/finagle/service/package.scala#L5-L35"&gt;&lt;code&gt;ResponseClassifier&lt;/code&gt;&lt;/a&gt;
 to your client. For HTTP clients, using
 &lt;a href="https://github.com/twitter/finagle/blob/bb91e967618f8884af98e655eb989dd20cd79e61/finagle-http/src/main/scala/com/twitter/finagle/http/service/HttpResponseClassifier.scala#L15-L19"&gt;&lt;code&gt;HttpResponseClassifier.ServerErrorsAsFailures&lt;/code&gt;&lt;/a&gt; often works great as it
 classifies any HTTP 5xx response code as a failure. For
@@ -170,7 +170,7 @@ service SocialGraph {
 the deserialized &lt;code&gt;NotFoundException&lt;/code&gt; can be treated as a failure. Next
 (#2), a “successful” response can be examined to enable services using
 status codes to classify errors. Lastly (#3), the request can be
-introspected to make the decision.&lt;/p&gt;
+  introspected to make the decision.&lt;/p&gt;
 
 &lt;h3&gt;But what’s it really gonna do?&lt;/h3&gt;
 
