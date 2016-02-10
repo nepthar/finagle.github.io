@@ -33,6 +33,18 @@
     <lastmod>2016-02-09T00:00:00-08:00</lastmod>
   </url>
   <url>
+    <loc>http://finagle.github.io/blog/2015/07/16/ssl-now-supported-for-maven-twttr-com/</loc>
+    <lastmod>2016-02-09T00:00:00-08:00</lastmod>
+  </url>
+  <url>
+    <loc>http://finagle.github.io/blog/2015/07/29/lightning-talks-at-finaglecon/</loc>
+    <lastmod>2016-02-09T00:00:00-08:00</lastmod>
+  </url>
+  <url>
+    <loc>http://finagle.github.io/blog/2015/09/10/services-per-endpoint-in-scrooge/</loc>
+    <lastmod>2016-02-09T00:00:00-08:00</lastmod>
+  </url>
+  <url>
     <loc>http://finagle.github.io/blog/2016/02/05/release-notes-6-33/</loc>
     <lastmod>2016-02-09T00:00:00-08:00</lastmod>
   </url>
