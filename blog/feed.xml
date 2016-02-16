@@ -4,10 +4,199 @@
   <id>https://finagle.github.io/blog</id>
   <link href="https://finagle.github.io/blog"/>
   <link href="https://finagle.github.io/blog/blog/feed.xml" rel="self"/>
-  <updated>2016-02-08T16:00:00-08:00</updated>
+  <updated>2016-02-14T16:00:00-08:00</updated>
   <author>
     <name>Blog Author</name>
   </author>
+  <entry>
+    <title>Hello AsyncStream!</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2016/02/15/asyncstream/"/>
+    <id>https://finagle.github.io/blog/2016/02/15/asyncstream/</id>
+    <published>2016-02-14T16:00:00-08:00</published>
+    <updated>2016-02-16T14:08:06-08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;h1&gt;AsyncStream&lt;/h1&gt;
+
+&lt;p&gt;tl;dr AsyncStream is replacing Spool.&lt;/p&gt;
+
+&lt;p&gt;Big shoutout to &lt;a href="https://github.com/luciferous"&gt;Neuman Vong&lt;/a&gt;, who designed and built AsyncStream soup to nuts ✧٩(•́⌄•́๑)&lt;/p&gt;
+
+&lt;p&gt;We know and love &lt;a href="https://github.com/twitter/util/blob/develop/util-core/src/main/scala/com/twitter/concurrent/Spool.scala"&gt;Spool&lt;/a&gt;, the Twitter &lt;a href="https://github.com/twitter/util"&gt;util&lt;/a&gt; tool for asynchronous object streaming.  The main
+advantages of asynchronous stream processing are that it makes it easy to exert backpressure by no
+longer reading from the stream, it’s easy to map over it lazily and asynchronously, and unlike a
+Stream of Futures, it’s simple to discover the end of the collection without having to resort to
+making it blocking, or allowing users to grab Futures past the end of the stream.&lt;/p&gt;
+
+&lt;p&gt;However, since we’ve had a long time to experiment with it, we’ve found that there are places where
+Spool is a little clumsy.  For example, the &lt;code&gt;flatMap&lt;/code&gt; operation in Spool isn’t associative, some of
+the flatMap behavior is unintuitive, and the API is a little messy.  Taking lessons from our
+experience with Spool, we are proud to announce &lt;a href="https://github.com/twitter/util/blob/develop/util-core/src/main/scala/com/twitter/concurrent/AsyncStream.scala"&gt;&lt;em&gt;~AsyncStream~&lt;/em&gt;&lt;/a&gt;, as an improved API for
+asynchronous object streaming.  Several twitter services spent months experimenting with it, and we
+decided we were confident enough in it a few months ago to consider it stable.  We like it a lot,
+and we hope you like it too.&lt;/p&gt;
+
+&lt;p&gt;We’ve taken care with the API to make it more pleasant to use, while still keeping the APIs that
+worked well with Spool, so migration shouldn&amp;rsquo;t be too painful (migration guide in appendix below).
+We’ve also benchmarked it carefully, to ensure that we don’t regress–in fact, it should be faster
+and entail less GC pressure than before.  We aren’t planning to deprecate Spool immediately, but
+we’re targeting all new features and performance optimizations for AsyncStream, so if you’re a heavy
+user of Spool, you should strongly consider migrating to AsyncStream.&lt;/p&gt;
+
+&lt;h1&gt;Appendix&lt;/h1&gt;
+
+&lt;h2&gt;Perf&lt;/h2&gt;
+
+&lt;p&gt;Here are the differences in microbenchmark results between AsyncStream and Spool, when trying to use
+them as conduits for moving objects through.  The first one (like asyncStream) measures how fast an
+operation is on average, and the second one (like asyncStream:·gc.alloc.rate.norm) measures how many
+bytes are allocated per operation on average.  Lower is better.&lt;/p&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;                                        threads     score
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;asyncStream                                         1       162.707 ±   39.933   ns/op
+asyncStream:·gc.alloc.rate.norm            1       232.000 ±    0.001    B/op
+spool                                               1       611.280 ±  324.364   ns/op
+spool:·gc.alloc.rate.norm                      1       752.001 ±    0.003    B/op&lt;/p&gt;
+
+&lt;p&gt;asyncStream                                         2       514.126 ±   87.914   ns/op
+asyncStream:·gc.alloc.rate.norm            2       688.001 ±    0.003    B/op
+spool                                               2       942.653 ±  111.403   ns/op
+spool:·gc.alloc.rate.norm                      2       1344.001 ±    0.005    B/op&lt;/p&gt;
+
+&lt;p&gt;asyncStream                                         5       1609.987 ±  718.745   ns/op
+asyncStream:·gc.alloc.rate.norm            5       2248.003 ±    0.009    B/op
+spool                                               5       2792.601 ± 1238.565   ns/op
+spool:·gc.alloc.rate.norm                      5       3120.005 ±    0.019    B/op&lt;/p&gt;
+
+&lt;p&gt;asyncStream                                         10      3214.592 ±  843.915   ns/op
+asyncStream:·gc.alloc.rate.norm                10      4848.005 ±    0.016    B/op
+spool                                               10      4235.138 ± 1448.331   ns/op
+spool:·gc.alloc.rate.norm                      10      6080.006 ±    0.020    B/op&lt;/p&gt;
+
+&lt;p&gt;As you can see, we have improvements across the board for every number of threads.&lt;/p&gt;
+
+&lt;h2&gt;Migration guide:&lt;/h2&gt;
+
+&lt;h3&gt;Stream construction with Spool&lt;/h3&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;import com.twitter.concurrent.Spool
+import com.twitter.util.Future
+
+// Construction from a materialized value
+val result: String = "wonderful string" // materialized wonderful string
+val spool: Spool[String] = result *:: Spool.empty
+
+// Construction from a Future
+def getString(): Future[String] = myService.getString("wonderful string") // gets a wonderful string
+val unforced: () =&amp;gt; Future[Spool[String]] =
+  () =&amp;gt; getString().map { string =&amp;gt; string *:: Spool.empty }
+
+// Construction from a Seq
+val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
+val spool: Spool[String] = Spool.fromSeq(results)
+
+// Construction from a function
+def getNext(): Future[String] = myService.getNext()
+def mkStream(): Future[Spool[String]] = getNext().flatMap { string =&amp;gt; new Spool.LazyCons(string, mkStream()) }
+val unforced: () =&amp;gt; Future[Spool[String]] = () =&amp;gt; mkStream()
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Stream construction with AsyncStream&lt;/h3&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;import com.twitter.concurrent.AsyncStream
+import com.twitter.util.Future
+
+// Construction from a materialized value
+val result: String = "wonderful string" // materialized wonderful string
+val spool: AsyncStream[String] = AsyncStream.of(result)
+
+// Construction from a Future
+def getString(): Future[String] = myService.getString("wonderful string") // gets a wonderful string
+val unforced: () =&amp;gt; AsyncStream =
+  () =&amp;gt; AsyncStream.fromFuture(getString())
+
+// Construction from a Seq
+val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
+val spool: AsyncStream[String] = AsyncStream.fromSeq(results)
+
+// Construction from a function
+def getNext(): Future[String] = myService.getNext()
+def mkStream(): AsyncStream[String] = AsyncStream.fromFuture(getNext()) ++ mkStream()
+val unforced: () =&amp;gt; AsyncStream[String] = () =&amp;gt; mkStream()
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Iteration with Spool&lt;/h3&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;import com.twitter.concurrent.Spool
+import com.twitter.util.Future
+
+val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
+val spool: Spool[String] = Spool.fromSeq(results)
+spool.foreach { string =&amp;gt; log.info(s"love to log my string $string") }
+
+val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
+val spool: Spool[String] = Spool.fromSeq(results)
+val newSpool: Spool[Int] = spool.map { string =&amp;gt; string.length }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Iteration with AsyncStream&lt;/h3&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;import com.twitter.concurrent.AsyncStream
+import com.twitter.util.Future
+
+val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
+val stream: AsyncStream[String] = AsyncStream.fromSeq(results)
+stream.foreach { string =&amp;gt; log.info(s"love to log my string $string") }
+
+val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
+val stream: AsyncStream[String] = AsyncStream.fromSeq(results)
+val newStream: AsyncStream[Int] = stream.map { string =&amp;gt; string.length }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Aggregation with Spool&lt;/h3&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;import com.twitter.concurrent.Spool
+import com.twitter.util.Future
+
+val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
+val spool: Spool[String] = Spool.fromSeq(results)
+val fullyFolded: Future[String] = spool.foldLeft("") { (acc, item) =&amp;gt; acc ++ item }
+
+val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
+val spool: Spool[String] = Spool.fromSeq(results)
+def recursing(spool: Spool[String]): Future[String] = spool.headOption match {
+  case Some(head) =&amp;gt; if (head.length &amp;lt; 6) spool.tail.flatMap {
+    next =&amp;gt; recursing(next).map { rest =&amp;gt; spool.head ++ rest }
+  } else Future.value(head)
+  case None =&amp;gt; Future.value("")
+}
+val partiallyForced: Future[String] = recursing(spool)
+
+val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
+val spool: Spool[String] = Spool.fromSeq(results)
+def split(item: String): Spool[String] = Spool.fromSeq(item.grouped(1).toSeq)
+val result: Future[Spool[String]] = spool.flatMap { item =&amp;gt; Future.value(split(item)) }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Aggregation with AsyncStream&lt;/h3&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;import com.twitter.concurrent.AsyncStream
+import com.twitter.util.Future
+
+val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
+val stream: AsyncStream[String] = AsyncStream.fromSeq(results)
+val fullyFolded: Future[String] = stream.foldLeft("") { (acc, item) =&amp;gt; acc ++ item }
+
+val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
+val stream: AsyncStream[String] = AsyncStream.fromSeq(results)
+def continue(next: String, acc: =&amp;gt; Future[String]): Future[String] = if (next.length &amp;gt; 6) Future.value(next) else acc.map {
+  string =&amp;gt; next ++ string
+}
+val partiallyForced: Future[String] = stream.foldRight(Future.value(""))(continue _)
+
+val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
+val stream: AsyncStream[String] = AsyncStream.fromSeq(results)
+def split(item: String): AsyncStream[String] = AsyncStream.fromSeq(item.grouped(1).toSeq)
+val result: AsyncStream[String] = stream.flatMap(split)
+&lt;/code&gt;&lt;/pre&gt;
+</content>
+  </entry>
   <entry>
     <title>Make application errors great again</title>
     <link rel="alternate" href="https://finagle.github.io/blog/2016/02/09/response-classification/"/>
@@ -472,48 +661,6 @@ far-fetched experiments, integration with other libraries or tools, etc.
 speakers that afternoon. Please let us know if you have any questions about the
 lightning talks, or about the conference more generally—we look forward to seeing
 you there!&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>SSL now supported for maven.twttr.com</title>
-    <link rel="alternate" href="https://finagle.github.io/blog/2015/07/16/ssl-now-supported-for-maven-twttr-com/"/>
-    <id>https://finagle.github.io/blog/2015/07/16/ssl-now-supported-for-maven-twttr-com/</id>
-    <published>2015-07-15T17:00:00-07:00</published>
-    <updated>2016-02-09T17:23:51-08:00</updated>
-    <author>
-      <name>Article Author</name>
-    </author>
-    <content type="html">&lt;p&gt;Most of Twitter&amp;rsquo;s open source projects for the JVM are published to &lt;a href="http://search.maven.org/"&gt;Maven
-Central&lt;/a&gt;, but for various reasons a few are still published to
-&lt;code&gt;maven.twttr.com&lt;/code&gt;, a Maven repository that is hosted by Twitter. While Finagle
-itself is in Maven Central, some of its subprojects and some
-&lt;a href="http://twitter.github.io/twitter-server/#quick-start"&gt;Finagle-related libraries and tools&lt;/a&gt; require dependencies from
-&lt;code&gt;maven.twttr.com&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;We&amp;rsquo;re actively working to eliminate the need for this separate repository, but
-we don&amp;rsquo;t have a definite timeline for moving everything to Maven Central, and so
-this week we have enabled secure access to the repository, which was previously
-only available over unsecured HTTP.
-&lt;/p&gt;
-
-&lt;p&gt;To switch to HTTPS, you&amp;rsquo;ll just need to add an &amp;ldquo;s&amp;rdquo; to the URL in your build
-configuration. For example, if you have a line like the following in your SBT
-build:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="n"&gt;resolvers&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="s"&gt;"twitter-repo"&lt;/span&gt; &lt;span class="n"&gt;at&lt;/span&gt; &lt;span class="s"&gt;"http://maven.twttr.com"&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;You&amp;rsquo;ll just change it to the following:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="n"&gt;resolvers&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="s"&gt;"twitter-repo"&lt;/span&gt; &lt;span class="n"&gt;at&lt;/span&gt; &lt;span class="s"&gt;"https://maven.twttr.com"&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Over the next week we&amp;rsquo;ll be updating the build configuration and documentation 
-for all of our own projects to reflect this change.&lt;/p&gt;
-
-&lt;p&gt;Unsecured access will remain available until September 30, 2015, but we
-encourage you to update your configuration as soon as possible. Please contact
-us on the &lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers&lt;/a&gt; mailing
-list or &lt;a href="https://twitter.com/finagle"&gt;on Twitter&lt;/a&gt; if you have any questions
-about this change.&lt;/p&gt;
 </content>
   </entry>
 </feed>
