@@ -113,9 +113,7 @@
 <div class="post col-md-9">
   <h1>Hello AsyncStream!</h1>
   
-  <h1>AsyncStream</h1>
-
-<p>tl;dr AsyncStream is replacing Spool.</p>
+  <p>tl;dr AsyncStream is replacing Spool.</p>
 
 <p>Big shoutout to <a href="https://github.com/luciferous">Neuman Vong</a>, who designed and built AsyncStream soup to nuts ✧٩(•́⌄•́๑)</p>
 
@@ -148,148 +146,147 @@ user of Spool, you should strongly consider migrating to AsyncStream.</p>
 them as conduits for moving objects through.  The first one (like asyncStream) measures how fast an
 operation is on average, and the second one (like asyncStream:·gc.alloc.rate.norm) measures how many
 bytes are allocated per operation on average.  Lower is better.</p>
-<pre class="highlight plaintext"><code>                                        threads     score
+<pre class="highlight plaintext"><code>                                    threads   score
+asyncStream                               1   162.707  ±   39.933   ns/op
+asyncStream:·gc.alloc.rate.norm           1   232.000  ±    0.001    B/op
+spool                                     1   11.280   ±  324.364   ns/op
+spool:·gc.alloc.rate.norm                 1   752.001  ±    0.003    B/op
+
+asyncStream                               2   514.126  ±   87.914   ns/op
+asyncStream:·gc.alloc.rate.norm           2   688.001  ±    0.003    B/op
+spool                                     2   942.653  ±  111.403   ns/op
+spool:·gc.alloc.rate.norm                 2   1344.001 ±   0.005     B/op
+
+asyncStream                               5   1609.987 ±  718.745   ns/op
+asyncStream:·gc.alloc.rate.norm           5   2248.003 ±    0.009    B/op
+spool                                     5   2792.601 ± 1238.565   ns/op
+spool:·gc.alloc.rate.norm                 5   3120.005 ±    0.019    B/op
+
+asyncStream                              10   3214.592 ±  843.915   ns/op
+asyncStream:·gc.alloc.rate.norm          10   4848.005 ±    0.016    B/op
+spool                                    10   4235.138 ± 1448.331   ns/op
+spool:·gc.alloc.rate.norm                10   6080.006 ±    0.020    B/op
 </code></pre>
-
-<p>asyncStream                                         1       162.707 ±   39.933   ns/op
-asyncStream:·gc.alloc.rate.norm            1       232.000 ±    0.001    B/op
-spool                                               1       611.280 ±  324.364   ns/op
-spool:·gc.alloc.rate.norm                      1       752.001 ±    0.003    B/op</p>
-
-<p>asyncStream                                         2       514.126 ±   87.914   ns/op
-asyncStream:·gc.alloc.rate.norm            2       688.001 ±    0.003    B/op
-spool                                               2       942.653 ±  111.403   ns/op
-spool:·gc.alloc.rate.norm                      2       1344.001 ±    0.005    B/op</p>
-
-<p>asyncStream                                         5       1609.987 ±  718.745   ns/op
-asyncStream:·gc.alloc.rate.norm            5       2248.003 ±    0.009    B/op
-spool                                               5       2792.601 ± 1238.565   ns/op
-spool:·gc.alloc.rate.norm                      5       3120.005 ±    0.019    B/op</p>
-
-<p>asyncStream                                         10      3214.592 ±  843.915   ns/op
-asyncStream:·gc.alloc.rate.norm                10      4848.005 ±    0.016    B/op
-spool                                               10      4235.138 ± 1448.331   ns/op
-spool:·gc.alloc.rate.norm                      10      6080.006 ±    0.020    B/op</p>
 
 <p>As you can see, we have improvements across the board for every number of threads.</p>
 
 <h2>Migration guide:</h2>
 
 <h3>Stream construction with Spool</h3>
-<pre class="highlight plaintext"><code>import com.twitter.concurrent.Spool
-import com.twitter.util.Future
+<pre class="highlight scala"><code><span class="k">import</span> <span class="nn">com.twitter.concurrent.Spool</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
 
-// Construction from a materialized value
-val result: String = "wonderful string" // materialized wonderful string
-val spool: Spool[String] = result *:: Spool.empty
+<span class="c1">// Construction from a materialized value
+</span><span class="k">val</span> <span class="n">result</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">"wonderful string"</span> <span class="c1">// materialized wonderful string
+</span><span class="k">val</span> <span class="n">spool</span><span class="k">:</span> <span class="kt">Spool</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">result</span> <span class="o">*::</span> <span class="nc">Spool</span><span class="o">.</span><span class="n">empty</span>
 
-// Construction from a Future
-def getString(): Future[String] = myService.getString("wonderful string") // gets a wonderful string
-val unforced: () =&gt; Future[Spool[String]] =
-  () =&gt; getString().map { string =&gt; string *:: Spool.empty }
+<span class="c1">// Construction from a Future
+</span><span class="k">def</span> <span class="n">getString</span><span class="o">()</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">myService</span><span class="o">.</span><span class="n">getString</span><span class="o">(</span><span class="s">"wonderful string"</span><span class="o">)</span> <span class="c1">// gets a wonderful string
+</span><span class="k">val</span> <span class="n">unforced</span><span class="k">:</span> <span class="o">()</span> <span class="o">=&gt;</span> <span class="nc">Future</span><span class="o">[</span><span class="kt">Spool</span><span class="o">[</span><span class="kt">String</span><span class="o">]]</span> <span class="k">=</span>
+  <span class="o">()</span> <span class="k">=&gt;</span> <span class="n">getString</span><span class="o">().</span><span class="n">map</span> <span class="o">{</span> <span class="n">string</span> <span class="k">=&gt;</span> <span class="n">string</span> <span class="o">*::</span> <span class="nc">Spool</span><span class="o">.</span><span class="n">empty</span> <span class="o">}</span>
 
-// Construction from a Seq
-val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
-val spool: Spool[String] = Spool.fromSeq(results)
+<span class="c1">// Construction from a Seq
+</span><span class="k">val</span> <span class="n">results</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">"i"</span><span class="o">,</span> <span class="s">"have"</span><span class="o">,</span> <span class="s">"many"</span><span class="o">,</span> <span class="s">"wonderful"</span><span class="o">,</span> <span class="s">"strings"</span><span class="o">)</span> <span class="c1">// many nice strings
+</span><span class="k">val</span> <span class="n">spool</span><span class="k">:</span> <span class="kt">Spool</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Spool</span><span class="o">.</span><span class="n">fromSeq</span><span class="o">(</span><span class="n">results</span><span class="o">)</span>
 
-// Construction from a function
-def getNext(): Future[String] = myService.getNext()
-def mkStream(): Future[Spool[String]] = getNext().flatMap { string =&gt; new Spool.LazyCons(string, mkStream()) }
-val unforced: () =&gt; Future[Spool[String]] = () =&gt; mkStream()
+<span class="c1">// Construction from a function
+</span><span class="k">def</span> <span class="n">getNext</span><span class="o">()</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">myService</span><span class="o">.</span><span class="n">getNext</span><span class="o">()</span>
+<span class="k">def</span> <span class="n">mkStream</span><span class="o">()</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Spool</span><span class="o">[</span><span class="kt">String</span><span class="o">]]</span> <span class="k">=</span> <span class="n">getNext</span><span class="o">().</span><span class="n">flatMap</span> <span class="o">{</span> <span class="n">string</span> <span class="k">=&gt;</span> <span class="k">new</span> <span class="nc">Spool</span><span class="o">.</span><span class="nc">LazyCons</span><span class="o">(</span><span class="n">string</span><span class="o">,</span> <span class="n">mkStream</span><span class="o">())</span> <span class="o">}</span>
+<span class="k">val</span> <span class="n">unforced</span><span class="k">:</span> <span class="o">()</span> <span class="o">=&gt;</span> <span class="nc">Future</span><span class="o">[</span><span class="kt">Spool</span><span class="o">[</span><span class="kt">String</span><span class="o">]]</span> <span class="k">=</span> <span class="o">()</span> <span class="k">=&gt;</span> <span class="n">mkStream</span><span class="o">()</span>
 </code></pre>
 
 <h3>Stream construction with AsyncStream</h3>
-<pre class="highlight plaintext"><code>import com.twitter.concurrent.AsyncStream
-import com.twitter.util.Future
+<pre class="highlight scala"><code><span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
 
-// Construction from a materialized value
-val result: String = "wonderful string" // materialized wonderful string
-val spool: AsyncStream[String] = AsyncStream.of(result)
+<span class="c1">// Construction from a materialized value
+</span><span class="k">val</span> <span class="n">result</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">"wonderful string"</span> <span class="c1">// materialized wonderful string
+</span><span class="k">val</span> <span class="n">spool</span><span class="k">:</span> <span class="kt">AsyncStream</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">AsyncStream</span><span class="o">.</span><span class="n">of</span><span class="o">(</span><span class="n">result</span><span class="o">)</span>
 
-// Construction from a Future
-def getString(): Future[String] = myService.getString("wonderful string") // gets a wonderful string
-val unforced: () =&gt; AsyncStream =
-  () =&gt; AsyncStream.fromFuture(getString())
+<span class="c1">// Construction from a Future
+</span><span class="k">def</span> <span class="n">getString</span><span class="o">()</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">myService</span><span class="o">.</span><span class="n">getString</span><span class="o">(</span><span class="s">"wonderful string"</span><span class="o">)</span> <span class="c1">// gets a wonderful string
+</span><span class="k">val</span> <span class="n">unforced</span><span class="k">:</span> <span class="o">()</span> <span class="o">=&gt;</span> <span class="nc">AsyncStream</span> <span class="k">=</span>
+  <span class="o">()</span> <span class="k">=&gt;</span> <span class="nc">AsyncStream</span><span class="o">.</span><span class="n">fromFuture</span><span class="o">(</span><span class="n">getString</span><span class="o">())</span>
 
-// Construction from a Seq
-val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
-val spool: AsyncStream[String] = AsyncStream.fromSeq(results)
+<span class="c1">// Construction from a Seq
+</span><span class="k">val</span> <span class="n">results</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">"i"</span><span class="o">,</span> <span class="s">"have"</span><span class="o">,</span> <span class="s">"many"</span><span class="o">,</span> <span class="s">"wonderful"</span><span class="o">,</span> <span class="s">"strings"</span><span class="o">)</span> <span class="c1">// many nice strings
+</span><span class="k">val</span> <span class="n">spool</span><span class="k">:</span> <span class="kt">AsyncStream</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">AsyncStream</span><span class="o">.</span><span class="n">fromSeq</span><span class="o">(</span><span class="n">results</span><span class="o">)</span>
 
-// Construction from a function
-def getNext(): Future[String] = myService.getNext()
-def mkStream(): AsyncStream[String] = AsyncStream.fromFuture(getNext()) ++ mkStream()
-val unforced: () =&gt; AsyncStream[String] = () =&gt; mkStream()
+<span class="c1">// Construction from a function
+</span><span class="k">def</span> <span class="n">getNext</span><span class="o">()</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">myService</span><span class="o">.</span><span class="n">getNext</span><span class="o">()</span>
+<span class="k">def</span> <span class="n">mkStream</span><span class="o">()</span><span class="k">:</span> <span class="kt">AsyncStream</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">AsyncStream</span><span class="o">.</span><span class="n">fromFuture</span><span class="o">(</span><span class="n">getNext</span><span class="o">())</span> <span class="o">++</span> <span class="n">mkStream</span><span class="o">()</span>
+<span class="k">val</span> <span class="n">unforced</span><span class="k">:</span> <span class="o">()</span> <span class="o">=&gt;</span> <span class="nc">AsyncStream</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="o">()</span> <span class="k">=&gt;</span> <span class="n">mkStream</span><span class="o">()</span>
 </code></pre>
 
 <h3>Iteration with Spool</h3>
-<pre class="highlight plaintext"><code>import com.twitter.concurrent.Spool
-import com.twitter.util.Future
+<pre class="highlight scala"><code><span class="k">import</span> <span class="nn">com.twitter.concurrent.Spool</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
 
-val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
-val spool: Spool[String] = Spool.fromSeq(results)
-spool.foreach { string =&gt; log.info(s"love to log my string $string") }
+<span class="k">val</span> <span class="n">results</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">"i"</span><span class="o">,</span> <span class="s">"have"</span><span class="o">,</span> <span class="s">"many"</span><span class="o">,</span> <span class="s">"wonderful"</span><span class="o">,</span> <span class="s">"strings"</span><span class="o">)</span> <span class="c1">// many nice strings
+</span><span class="k">val</span> <span class="n">spool</span><span class="k">:</span> <span class="kt">Spool</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Spool</span><span class="o">.</span><span class="n">fromSeq</span><span class="o">(</span><span class="n">results</span><span class="o">)</span>
+<span class="n">spool</span><span class="o">.</span><span class="n">foreach</span> <span class="o">{</span> <span class="n">string</span> <span class="k">=&gt;</span> <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="o">(</span><span class="n">s</span><span class="s">"love to log my string $string"</span><span class="o">)</span> <span class="o">}</span>
 
-val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
-val spool: Spool[String] = Spool.fromSeq(results)
-val newSpool: Spool[Int] = spool.map { string =&gt; string.length }
+<span class="k">val</span> <span class="n">results</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">"i"</span><span class="o">,</span> <span class="s">"have"</span><span class="o">,</span> <span class="s">"many"</span><span class="o">,</span> <span class="s">"wonderful"</span><span class="o">,</span> <span class="s">"strings"</span><span class="o">)</span> <span class="c1">// many nice strings
+</span><span class="k">val</span> <span class="n">spool</span><span class="k">:</span> <span class="kt">Spool</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Spool</span><span class="o">.</span><span class="n">fromSeq</span><span class="o">(</span><span class="n">results</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">newSpool</span><span class="k">:</span> <span class="kt">Spool</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="n">spool</span><span class="o">.</span><span class="n">map</span> <span class="o">{</span> <span class="n">string</span> <span class="k">=&gt;</span> <span class="n">string</span><span class="o">.</span><span class="n">length</span> <span class="o">}</span>
 </code></pre>
 
 <h3>Iteration with AsyncStream</h3>
-<pre class="highlight plaintext"><code>import com.twitter.concurrent.AsyncStream
-import com.twitter.util.Future
+<pre class="highlight scala"><code><span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
 
-val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
-val stream: AsyncStream[String] = AsyncStream.fromSeq(results)
-stream.foreach { string =&gt; log.info(s"love to log my string $string") }
+<span class="k">val</span> <span class="n">results</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">"i"</span><span class="o">,</span> <span class="s">"have"</span><span class="o">,</span> <span class="s">"many"</span><span class="o">,</span> <span class="s">"wonderful"</span><span class="o">,</span> <span class="s">"strings"</span><span class="o">)</span> <span class="c1">// many nice strings
+</span><span class="k">val</span> <span class="n">stream</span><span class="k">:</span> <span class="kt">AsyncStream</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">AsyncStream</span><span class="o">.</span><span class="n">fromSeq</span><span class="o">(</span><span class="n">results</span><span class="o">)</span>
+<span class="n">stream</span><span class="o">.</span><span class="n">foreach</span> <span class="o">{</span> <span class="n">string</span> <span class="k">=&gt;</span> <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="o">(</span><span class="n">s</span><span class="s">"love to log my string $string"</span><span class="o">)</span> <span class="o">}</span>
 
-val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
-val stream: AsyncStream[String] = AsyncStream.fromSeq(results)
-val newStream: AsyncStream[Int] = stream.map { string =&gt; string.length }
+<span class="k">val</span> <span class="n">results</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">"i"</span><span class="o">,</span> <span class="s">"have"</span><span class="o">,</span> <span class="s">"many"</span><span class="o">,</span> <span class="s">"wonderful"</span><span class="o">,</span> <span class="s">"strings"</span><span class="o">)</span> <span class="c1">// many nice strings
+</span><span class="k">val</span> <span class="n">stream</span><span class="k">:</span> <span class="kt">AsyncStream</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">AsyncStream</span><span class="o">.</span><span class="n">fromSeq</span><span class="o">(</span><span class="n">results</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">newStream</span><span class="k">:</span> <span class="kt">AsyncStream</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">map</span> <span class="o">{</span> <span class="n">string</span> <span class="k">=&gt;</span> <span class="n">string</span><span class="o">.</span><span class="n">length</span> <span class="o">}</span>
 </code></pre>
 
 <h3>Aggregation with Spool</h3>
-<pre class="highlight plaintext"><code>import com.twitter.concurrent.Spool
-import com.twitter.util.Future
+<pre class="highlight scala"><code><span class="k">import</span> <span class="nn">com.twitter.concurrent.Spool</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
 
-val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
-val spool: Spool[String] = Spool.fromSeq(results)
-val fullyFolded: Future[String] = spool.foldLeft("") { (acc, item) =&gt; acc ++ item }
+<span class="k">val</span> <span class="n">results</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">"i"</span><span class="o">,</span> <span class="s">"have"</span><span class="o">,</span> <span class="s">"many"</span><span class="o">,</span> <span class="s">"wonderful"</span><span class="o">,</span> <span class="s">"strings"</span><span class="o">)</span> <span class="c1">// many nice strings
+</span><span class="k">val</span> <span class="n">spool</span><span class="k">:</span> <span class="kt">Spool</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Spool</span><span class="o">.</span><span class="n">fromSeq</span><span class="o">(</span><span class="n">results</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">fullyFolded</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">spool</span><span class="o">.</span><span class="n">foldLeft</span><span class="o">(</span><span class="s">""</span><span class="o">)</span> <span class="o">{</span> <span class="o">(</span><span class="n">acc</span><span class="o">,</span> <span class="n">item</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">acc</span> <span class="o">++</span> <span class="n">item</span> <span class="o">}</span>
 
-val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
-val spool: Spool[String] = Spool.fromSeq(results)
-def recursing(spool: Spool[String]): Future[String] = spool.headOption match {
-  case Some(head) =&gt; if (head.length &lt; 6) spool.tail.flatMap {
-    next =&gt; recursing(next).map { rest =&gt; spool.head ++ rest }
-  } else Future.value(head)
-  case None =&gt; Future.value("")
-}
-val partiallyForced: Future[String] = recursing(spool)
+<span class="k">val</span> <span class="n">results</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">"i"</span><span class="o">,</span> <span class="s">"have"</span><span class="o">,</span> <span class="s">"many"</span><span class="o">,</span> <span class="s">"wonderful"</span><span class="o">,</span> <span class="s">"strings"</span><span class="o">)</span> <span class="c1">// many nice strings
+</span><span class="k">val</span> <span class="n">spool</span><span class="k">:</span> <span class="kt">Spool</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Spool</span><span class="o">.</span><span class="n">fromSeq</span><span class="o">(</span><span class="n">results</span><span class="o">)</span>
+<span class="k">def</span> <span class="n">recursing</span><span class="o">(</span><span class="n">spool</span><span class="k">:</span> <span class="kt">Spool</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">spool</span><span class="o">.</span><span class="n">headOption</span> <span class="k">match</span> <span class="o">{</span>
+  <span class="k">case</span> <span class="nc">Some</span><span class="o">(</span><span class="n">head</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="k">if</span> <span class="o">(</span><span class="n">head</span><span class="o">.</span><span class="n">length</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="o">)</span> <span class="n">spool</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">flatMap</span> <span class="o">{</span>
+    <span class="n">next</span> <span class="k">=&gt;</span> <span class="n">recursing</span><span class="o">(</span><span class="n">next</span><span class="o">).</span><span class="n">map</span> <span class="o">{</span> <span class="n">rest</span> <span class="k">=&gt;</span> <span class="n">spool</span><span class="o">.</span><span class="n">head</span> <span class="o">++</span> <span class="n">rest</span> <span class="o">}</span>
+  <span class="o">}</span> <span class="k">else</span> <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="n">head</span><span class="o">)</span>
+  <span class="k">case</span> <span class="nc">None</span> <span class="k">=&gt;</span> <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="s">""</span><span class="o">)</span>
+<span class="o">}</span>
+<span class="k">val</span> <span class="n">partiallyForced</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">recursing</span><span class="o">(</span><span class="n">spool</span><span class="o">)</span>
 
-val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
-val spool: Spool[String] = Spool.fromSeq(results)
-def split(item: String): Spool[String] = Spool.fromSeq(item.grouped(1).toSeq)
-val result: Future[Spool[String]] = spool.flatMap { item =&gt; Future.value(split(item)) }
+<span class="k">val</span> <span class="n">results</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">"i"</span><span class="o">,</span> <span class="s">"have"</span><span class="o">,</span> <span class="s">"many"</span><span class="o">,</span> <span class="s">"wonderful"</span><span class="o">,</span> <span class="s">"strings"</span><span class="o">)</span> <span class="c1">// many nice strings
+</span><span class="k">val</span> <span class="n">spool</span><span class="k">:</span> <span class="kt">Spool</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Spool</span><span class="o">.</span><span class="n">fromSeq</span><span class="o">(</span><span class="n">results</span><span class="o">)</span>
+<span class="k">def</span> <span class="n">split</span><span class="o">(</span><span class="n">item</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Spool</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Spool</span><span class="o">.</span><span class="n">fromSeq</span><span class="o">(</span><span class="n">item</span><span class="o">.</span><span class="n">grouped</span><span class="o">(</span><span class="mi">1</span><span class="o">).</span><span class="n">toSeq</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">result</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Spool</span><span class="o">[</span><span class="kt">String</span><span class="o">]]</span> <span class="k">=</span> <span class="n">spool</span><span class="o">.</span><span class="n">flatMap</span> <span class="o">{</span> <span class="n">item</span> <span class="k">=&gt;</span> <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="n">split</span><span class="o">(</span><span class="n">item</span><span class="o">))</span> <span class="o">}</span>
 </code></pre>
 
 <h3>Aggregation with AsyncStream</h3>
-<pre class="highlight plaintext"><code>import com.twitter.concurrent.AsyncStream
-import com.twitter.util.Future
+<pre class="highlight scala"><code><span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
 
-val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
-val stream: AsyncStream[String] = AsyncStream.fromSeq(results)
-val fullyFolded: Future[String] = stream.foldLeft("") { (acc, item) =&gt; acc ++ item }
+<span class="k">val</span> <span class="n">results</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">"i"</span><span class="o">,</span> <span class="s">"have"</span><span class="o">,</span> <span class="s">"many"</span><span class="o">,</span> <span class="s">"wonderful"</span><span class="o">,</span> <span class="s">"strings"</span><span class="o">)</span> <span class="c1">// many nice strings
+</span><span class="k">val</span> <span class="n">stream</span><span class="k">:</span> <span class="kt">AsyncStream</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">AsyncStream</span><span class="o">.</span><span class="n">fromSeq</span><span class="o">(</span><span class="n">results</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">fullyFolded</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">foldLeft</span><span class="o">(</span><span class="s">""</span><span class="o">)</span> <span class="o">{</span> <span class="o">(</span><span class="n">acc</span><span class="o">,</span> <span class="n">item</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">acc</span> <span class="o">++</span> <span class="n">item</span> <span class="o">}</span>
 
-val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
-val stream: AsyncStream[String] = AsyncStream.fromSeq(results)
-def continue(next: String, acc: =&gt; Future[String]): Future[String] = if (next.length &gt; 6) Future.value(next) else acc.map {
-  string =&gt; next ++ string
-}
-val partiallyForced: Future[String] = stream.foldRight(Future.value(""))(continue _)
+<span class="k">val</span> <span class="n">results</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">"i"</span><span class="o">,</span> <span class="s">"have"</span><span class="o">,</span> <span class="s">"many"</span><span class="o">,</span> <span class="s">"wonderful"</span><span class="o">,</span> <span class="s">"strings"</span><span class="o">)</span> <span class="c1">// many nice strings
+</span><span class="k">val</span> <span class="n">stream</span><span class="k">:</span> <span class="kt">AsyncStream</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">AsyncStream</span><span class="o">.</span><span class="n">fromSeq</span><span class="o">(</span><span class="n">results</span><span class="o">)</span>
+<span class="k">def</span> <span class="n">continue</span><span class="o">(</span><span class="n">next</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">acc</span><span class="k">:</span> <span class="o">=&gt;</span> <span class="nc">Future</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="k">if</span> <span class="o">(</span><span class="n">next</span><span class="o">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="o">)</span> <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="n">next</span><span class="o">)</span> <span class="k">else</span> <span class="n">acc</span><span class="o">.</span><span class="n">map</span> <span class="o">{</span>
+  <span class="n">string</span> <span class="k">=&gt;</span> <span class="n">next</span> <span class="o">++</span> <span class="n">string</span>
+<span class="o">}</span>
+<span class="k">val</span> <span class="n">partiallyForced</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">foldRight</span><span class="o">(</span><span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="s">""</span><span class="o">))(</span><span class="n">continue</span> <span class="k">_</span><span class="o">)</span>
 
-val results: Seq[String] = Seq("i", "have", "many", "wonderful", "strings") // many nice strings
-val stream: AsyncStream[String] = AsyncStream.fromSeq(results)
-def split(item: String): AsyncStream[String] = AsyncStream.fromSeq(item.grouped(1).toSeq)
-val result: AsyncStream[String] = stream.flatMap(split)
+<span class="k">val</span> <span class="n">results</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">"i"</span><span class="o">,</span> <span class="s">"have"</span><span class="o">,</span> <span class="s">"many"</span><span class="o">,</span> <span class="s">"wonderful"</span><span class="o">,</span> <span class="s">"strings"</span><span class="o">)</span> <span class="c1">// many nice strings
+</span><span class="k">val</span> <span class="n">stream</span><span class="k">:</span> <span class="kt">AsyncStream</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">AsyncStream</span><span class="o">.</span><span class="n">fromSeq</span><span class="o">(</span><span class="n">results</span><span class="o">)</span>
+<span class="k">def</span> <span class="n">split</span><span class="o">(</span><span class="n">item</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">AsyncStream</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">AsyncStream</span><span class="o">.</span><span class="n">fromSeq</span><span class="o">(</span><span class="n">item</span><span class="o">.</span><span class="n">grouped</span><span class="o">(</span><span class="mi">1</span><span class="o">).</span><span class="n">toSeq</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">result</span><span class="k">:</span> <span class="kt">AsyncStream</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">flatMap</span><span class="o">(</span><span class="n">split</span><span class="o">)</span>
 </code></pre>
 
 </div>
