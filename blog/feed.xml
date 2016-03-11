@@ -4,16 +4,70 @@
   <id>https://finagle.github.io/blog</id>
   <link href="https://finagle.github.io/blog"/>
   <link href="https://finagle.github.io/blog/blog/feed.xml" rel="self"/>
-  <updated>2016-02-14T16:00:00-08:00</updated>
+  <updated>2016-03-10T16:00:00-08:00</updated>
   <author>
     <name>Blog Author</name>
   </author>
+  <entry>
+    <title>Finagle 6.34 Release Notes</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2016/03/11/release-notes-6-34/"/>
+    <id>https://finagle.github.io/blog/2016/03/11/release-notes-6-34/</id>
+    <published>2016-03-10T16:00:00-08:00</published>
+    <updated>2016-03-11T12:56:28-08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;This release we&amp;rsquo;ve been focusing on improving both overall stability of Finagle components and
+debugging features. We also reverted a patch that cased &lt;a href="https://groups.google.com/forum/#!topic/finaglers/tJUtxoaDGx8"&gt;duplicate tag error&lt;/a&gt; that looks as
+follows.&lt;/p&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;com.twitter.finagle.mux.ServerError: Duplicate tag 6
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;With that said, we highly recommend upgrading from 6.33 to 6.34.&lt;/p&gt;
+
+&lt;h3&gt;Highlights&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Finagle now includes downstream/upstream addresses in its exceptions (see &lt;a href="https://github.com/twitter/finagle/commit/6716980a5f313cdc4488c578ea3a642cdfb9d4fa"&gt;dfb9d4fa&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://twitter.github.io/finagle/guide/Servers.html#response-classification"&gt;Response classifiers&lt;/a&gt; are now enabled for HTTP servers (see &lt;a href="https://github.com/twitter/finagle/commit/28c03353024a2372513657030ba1c940c6f1b9b8"&gt;c6f1b9b8&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Two new histograms &lt;code&gt;request_payload_bytes&lt;/code&gt; and &lt;code&gt;response_payload_bytes&lt;/code&gt; are now reported for
+HTTP, Mux, Thrift, and ThriftMux protocols (see &lt;a href="https://github.com/twitter/finagle/commit/35e466ff35a1630c17aba6ee1fbd593aa0d9b697"&gt;a0d9b697&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;A number of deprecated methods were removed from the Finagle API (see &lt;a href="https://github.com/twitter/finagle/commit/6b230c7032efe4ac1f07118da19bb1d8eeb54869"&gt;eeb54869&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Stack overflow bug was fixed in &lt;code&gt;AsyncStream.concat&lt;/code&gt; (see &lt;a href="https://github.com/twitter/util/commit/dedad7027db8ea88c513b4c428b0dcdc5a039780"&gt;5a039780&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;Further Plans&lt;/h3&gt;
+
+&lt;p&gt;We&amp;rsquo;re actively working on migrating Finagle to Netty 4 (&lt;code&gt;finagle-core&lt;/code&gt; is mostly done,
+&lt;code&gt;finagle-http&lt;/code&gt; is our next target) and as part of this work we&amp;rsquo;re planing to completely
+replace &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/Codec.scala"&gt;codecs&lt;/a&gt;, which are pretty tied to Netty 3, with &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/Stack.scala"&gt;stacks&lt;/a&gt;. While this is
+a pretty wide internal change, it should not affect Finagle users.&lt;/p&gt;
+
+&lt;h3&gt;Changelog&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/finagle/releases/tag/finagle-6.34.0"&gt;Finagle 6.34&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/util/releases/tag/util-6.33.0"&gt;Util 6.33&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/scrooge/releases/tag/scrooge-4.6.0"&gt;Scrooge 4.6&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/twitter-server/releases/tag/twitter-server-1.19.0"&gt;TwitterServer 1.19&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/ostrich/releases/tag/ostrich-9.17.0"&gt;Ostrich 9.17&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;Contributors&lt;/h3&gt;
+
+&lt;p&gt;We deeply thank our awesome contributors who helped to make this release happen. According to
+&lt;code&gt;git shortlog -sn --no-merges finagle-6.33.0..finagle-6.34.0&lt;/code&gt;, 18 people contributed to this release:
+Kevin Oliver, Daniel Schobel, Eugene Ma, Vladimir Kostyukov, Ruben Oanta, Christopher Coco, Jillian
+Crossley, Eitan Adler, Ryan Greenberg, Stu Hood, Antoine Tollenaere, Yoshimasa Niwa, Bing Wei, Edward
+Samson, Liam Stewart, Lucas Langer, Miguel Cervera, Moses Nakamura, Peter Schuller.&lt;/p&gt;
+</content>
+  </entry>
   <entry>
     <title>Hello AsyncStream!</title>
     <link rel="alternate" href="https://finagle.github.io/blog/2016/02/15/asyncstream/"/>
     <id>https://finagle.github.io/blog/2016/02/15/asyncstream/</id>
     <published>2016-02-14T16:00:00-08:00</published>
-    <updated>2016-02-16T16:10:49-08:00</updated>
+    <updated>2016-03-11T12:56:23-08:00</updated>
     <author>
       <name>Article Author</name>
     </author>
@@ -199,7 +253,7 @@ spool:·gc.alloc.rate.norm                10   6080.006 ±    0.020    B/op
     <link rel="alternate" href="https://finagle.github.io/blog/2016/02/09/response-classification/"/>
     <id>https://finagle.github.io/blog/2016/02/09/response-classification/</id>
     <published>2016-02-08T16:00:00-08:00</published>
-    <updated>2016-02-09T14:26:55-08:00</updated>
+    <updated>2016-03-11T12:56:23-08:00</updated>
     <author>
       <name>Article Author</name>
     </author>
@@ -392,7 +446,7 @@ please get in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle
     <link rel="alternate" href="https://finagle.github.io/blog/2016/02/08/retry-budgets/"/>
     <id>https://finagle.github.io/blog/2016/02/08/retry-budgets/</id>
     <published>2016-02-07T16:00:00-08:00</published>
-    <updated>2016-02-08T09:43:17-08:00</updated>
+    <updated>2016-03-11T12:56:23-08:00</updated>
     <author>
       <name>Article Author</name>
     </author>
@@ -459,7 +513,7 @@ getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt
     <link rel="alternate" href="https://finagle.github.io/blog/2016/02/05/release-notes-6-33/"/>
     <id>https://finagle.github.io/blog/2016/02/05/release-notes-6-33/</id>
     <published>2016-02-04T16:00:00-08:00</published>
-    <updated>2016-02-04T19:19:00-08:00</updated>
+    <updated>2016-03-11T12:56:23-08:00</updated>
     <author>
       <name>Article Author</name>
     </author>
@@ -553,7 +607,7 @@ queue. All requests on top of 100 will be rejected by a client.&lt;/p&gt;
     <link rel="alternate" href="https://finagle.github.io/blog/2015/09/10/services-per-endpoint-in-scrooge/"/>
     <id>https://finagle.github.io/blog/2015/09/10/services-per-endpoint-in-scrooge/</id>
     <published>2015-09-09T17:00:00-07:00</published>
-    <updated>2016-02-09T17:23:51-08:00</updated>
+    <updated>2016-03-11T12:56:23-08:00</updated>
     <author>
       <name>Article Author</name>
     </author>
@@ -634,30 +688,6 @@ queue. All requests on top of 100 will be rejected by a client.&lt;/p&gt;
 &lt;p&gt;Please contact the &lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt; with questions or bug reports,
 and if you&amp;rsquo;re interested in working on projects like Scrooge, get in touch—the
 &lt;a href="https://about.twitter.com/careers/positions?jvi=oLxj1fwm,Job"&gt;Core System Libraries team at Twitter is hiring&lt;/a&gt;.&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>Lightning talks at FinagleCon</title>
-    <link rel="alternate" href="https://finagle.github.io/blog/2015/07/29/lightning-talks-at-finaglecon/"/>
-    <id>https://finagle.github.io/blog/2015/07/29/lightning-talks-at-finaglecon/</id>
-    <published>2015-07-28T17:00:00-07:00</published>
-    <updated>2016-02-09T17:23:51-08:00</updated>
-    <author>
-      <name>Article Author</name>
-    </author>
-    <content type="html">&lt;p&gt;&lt;a href="https://finagle.github.io/finaglecon/"&gt;FinagleCon&lt;/a&gt; is just over two weeks away, and we&amp;rsquo;re looking for a
-few attendees who are interested in giving lightning talks to kick off the
-afternoon. The talks will be capped at five minutes and can be on a wide range
-of Finagle-related topics: how you&amp;rsquo;re using Finagle, suggested changes,
-far-fetched experiments, integration with other libraries or tools, etc.
-&lt;/p&gt;
-
-&lt;p&gt;If you&amp;rsquo;d like to present a lightning talk,
-&lt;a href="mailto:finaglecon@twitter.com"&gt;email us&lt;/a&gt; a few sentences about your topic by
-12 PM PDT next Wednesday (August 5); we&amp;rsquo;ll be announcing the list of
-speakers that afternoon. Please let us know if you have any questions about the
-lightning talks, or about the conference more generally—we look forward to seeing
-you there!&lt;/p&gt;
 </content>
   </entry>
 </feed>
