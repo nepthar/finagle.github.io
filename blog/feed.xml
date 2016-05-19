@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Finagle blog</title>
+  <id>https://finagle.github.io/blog</id>
+  <link href="https://finagle.github.io/blog"/>
+  <link href="https://finagle.github.io/blog/blog/feed.xml" rel="self"/>
+  <updated>2016-05-18T17:00:00-07:00</updated>
+  <author>
+    <name>Blog Author</name>
+  </author>
+  <entry>
+    <title>Muxshark: A Wireshark plugin for the Mux protocol</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2016/05/19/mux-shark/"/>
+    <id>https://finagle.github.io/blog/2016/05/19/mux-shark/</id>
+    <published>2016-05-18T17:00:00-07:00</published>
+    <updated>2016-05-19T09:00:15-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;This &lt;a href="https://www.wireshark.org/"&gt;Wireshark&lt;/a&gt; dissector provides basic decoding of all
+&lt;a href="http://twitter.github.io/finagle/guide/Protocols.html#mux"&gt;Mux&lt;/a&gt; messages including:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Frame length&lt;/li&gt;
+&lt;li&gt;Message type&lt;/li&gt;
+&lt;li&gt;Tag number&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;sub&gt;Don&amp;rsquo;t know about &lt;a href="http://jvns.ca/blog/2016/03/16/tcpdump-is-amazing/"&gt;Wireshark&lt;/a&gt;
+or &lt;a href="http://twitter.github.io/finagle/guide/Protocols.html#mux"&gt;Mux&lt;/a&gt;?
+Follow the links for introductions.&lt;/sub&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;While this was released as part of Finagle 6.33.0 we never got around to properly announcing it. Now that Shark Week 2016 is about a month away, it felt like a good time to tell people about it.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;Tdispatch&lt;/code&gt; messages include decoding of our common
+&lt;a href="http://twitter.github.io/finagle/guide/Contexts.html"&gt;Contexts&lt;/a&gt;, destination,
+and &lt;a href="http://twitter.github.io/finagle/guide/Names.html#interpreting-paths-with-delegation-tables"&gt;Dtabs&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;See the
+&lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-mux/src/main/lua/README.md"&gt;README&lt;/a&gt;
+for installation and usage instructions.&lt;/p&gt;
+
+&lt;p align="center"&gt;
+  &lt;img src="/assets/img/muxshark.png" style="margin: 1em 0em;" alt="muxshark screenshot"/&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Please let us know if you have any questions, either by
+getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt;, the
+&lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;,
+or &lt;a href="https://gitter.im/twitter/finagle"&gt;chat&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Happy TCP-capturing!&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Final Scala 2.10 and Java 7 releases</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2016/04/20/scala-210-and-java7/"/>
+    <id>https://finagle.github.io/blog/2016/04/20/scala-210-and-java7/</id>
+    <published>2016-04-19T17:00:00-07:00</published>
+    <updated>2016-04-22T11:44:26-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;The upcoming releases of our family of projects will be the final release for
+Scala 2.10 and Java 7. These should be:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Finagle 6.35.0&lt;/li&gt;
+&lt;li&gt;Finatra 2.1.6&lt;/li&gt;
+&lt;li&gt;Util 6.34.0&lt;/li&gt;
+&lt;li&gt;Scrooge 4.7.0&lt;/li&gt;
+&lt;li&gt;TwitterServer 1.20.0&lt;/li&gt;
+&lt;li&gt;Ostrich 9.18.0&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Java 7 reached its &lt;a href="http://www.oracle.com/technetwork/java/eol-135779.html"&gt;end-of-life&lt;/a&gt;
+in April 2015 and we would like to begin using the Java 8 libraries as well as
+remove some Java 7 specific workarounds. Once Scala 2.12 is released, we plan
+to add support for cross-compiling Scala 2.11 and 2.12.&lt;/p&gt;
+
+&lt;p&gt;Note that the scrooge-sbt-plugin will continue to be published for only
+Scala 2.10 due to sbt plugin requirements.&lt;/p&gt;
+
+&lt;p&gt;If important patch releases become necessary we will try to accomodate these
+needs.&lt;/p&gt;
+
+&lt;p&gt;Please let us know if you have any questions, either by
+getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt;, the
+&lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;,
+or &lt;a href="https://gitter.im/twitter/finagle"&gt;chat&lt;/a&gt;. For Finatra get in touch through
+&lt;a href="https://twitter.com/finatra"&gt;@finatra&lt;/a&gt;, the
+&lt;a href="https://groups.google.com/forum/#!forum/finatra-users"&gt;Finatra mailing list&lt;/a&gt;,
+or &lt;a href="https://gitter.im/twitter/finatra"&gt;chat&lt;/a&gt;.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Finagle 6.34 Release Notes</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2016/03/11/release-notes-6-34/"/>
+    <id>https://finagle.github.io/blog/2016/03/11/release-notes-6-34/</id>
+    <published>2016-03-10T16:00:00-08:00</published>
+    <updated>2016-04-22T11:44:26-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;This release we&amp;rsquo;ve been focusing on improving both overall stability of Finagle components and
+debugging features. We also reverted a patch that cased &lt;a href="https://groups.google.com/forum/#!topic/finaglers/tJUtxoaDGx8"&gt;duplicate tag error&lt;/a&gt; that looks as
+follows.&lt;/p&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;com.twitter.finagle.mux.ServerError: Duplicate tag 6
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;With that said, we highly recommend upgrading from 6.33 to 6.34.&lt;/p&gt;
+
+&lt;h3&gt;Highlights&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Finagle now includes downstream/upstream addresses in its exceptions (see &lt;a href="https://github.com/twitter/finagle/commit/6716980a5f313cdc4488c578ea3a642cdfb9d4fa"&gt;dfb9d4fa&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://twitter.github.io/finagle/guide/Servers.html#response-classification"&gt;Response classifiers&lt;/a&gt; are now enabled for HTTP servers (see &lt;a href="https://github.com/twitter/finagle/commit/28c03353024a2372513657030ba1c940c6f1b9b8"&gt;c6f1b9b8&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Two new histograms &lt;code&gt;request_payload_bytes&lt;/code&gt; and &lt;code&gt;response_payload_bytes&lt;/code&gt; are now reported for
+HTTP, Mux, Thrift, and ThriftMux protocols (see &lt;a href="https://github.com/twitter/finagle/commit/35e466ff35a1630c17aba6ee1fbd593aa0d9b697"&gt;a0d9b697&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;A number of deprecated methods were removed from the Finagle API (see &lt;a href="https://github.com/twitter/finagle/commit/6b230c7032efe4ac1f07118da19bb1d8eeb54869"&gt;eeb54869&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Stack overflow bug was fixed in &lt;code&gt;AsyncStream.concat&lt;/code&gt; (see &lt;a href="https://github.com/twitter/util/commit/dedad7027db8ea88c513b4c428b0dcdc5a039780"&gt;5a039780&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;Further Plans&lt;/h3&gt;
+
+&lt;p&gt;We&amp;rsquo;re actively working on migrating Finagle to Netty 4 (&lt;code&gt;finagle-core&lt;/code&gt; is mostly done,
+&lt;code&gt;finagle-http&lt;/code&gt; is our next target) and as part of this work we&amp;rsquo;re planing to completely
+replace &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/Codec.scala"&gt;codecs&lt;/a&gt;, which are pretty tied to Netty 3, with &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/Stack.scala"&gt;stacks&lt;/a&gt;. While this is
+a pretty wide internal change, it should not affect Finagle users.&lt;/p&gt;
+
+&lt;h3&gt;Changelog&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/finagle/releases/tag/finagle-6.34.0"&gt;Finagle 6.34&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/util/releases/tag/util-6.33.0"&gt;Util 6.33&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/scrooge/releases/tag/scrooge-4.6.0"&gt;Scrooge 4.6&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/twitter-server/releases/tag/twitter-server-1.19.0"&gt;TwitterServer 1.19&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/ostrich/releases/tag/ostrich-9.17.0"&gt;Ostrich 9.17&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;Contributors&lt;/h3&gt;
+
+&lt;p&gt;We deeply thank our awesome contributors who helped to make this release happen. According to
+&lt;code&gt;git shortlog -sn --no-merges finagle-6.33.0..finagle-6.34.0&lt;/code&gt;, 18 people contributed to this release:
+Kevin Oliver, Daniel Schobel, Eugene Ma, Vladimir Kostyukov, Ruben Oanta, Christopher Coco, Jillian
+Crossley, Eitan Adler, Ryan Greenberg, Stu Hood, Antoine Tollenaere, Yoshimasa Niwa, Bing Wei, Edward
+Samson, Liam Stewart, Lucas Langer, Miguel Cervera, Moses Nakamura, Peter Schuller.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Hello AsyncStream!</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2016/02/15/asyncstream/"/>
+    <id>https://finagle.github.io/blog/2016/02/15/asyncstream/</id>
+    <published>2016-02-14T16:00:00-08:00</published>
+    <updated>2016-04-22T11:44:26-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;tl;dr AsyncStream is replacing Spool.&lt;/p&gt;
+
+&lt;p&gt;Big shoutout to &lt;a href="https://github.com/luciferous"&gt;Neuman Vong&lt;/a&gt;, who designed and built AsyncStream soup to nuts ✧٩(•́⌄•́๑)&lt;/p&gt;
+
+&lt;p&gt;We know and love &lt;a href="https://github.com/twitter/util/blob/develop/util-core/src/main/scala/com/twitter/concurrent/Spool.scala"&gt;Spool&lt;/a&gt;, the Twitter &lt;a href="https://github.com/twitter/util"&gt;util&lt;/a&gt; tool for asynchronous object streaming.  The main
+advantages of asynchronous stream processing are that it makes it easy to exert backpressure by no
+longer reading from the stream, it’s easy to map over it lazily and asynchronously, and unlike a
+Stream of Futures, it’s simple to discover the end of the collection without having to resort to
+making it blocking, or allowing users to grab Futures past the end of the stream.&lt;/p&gt;
+
+&lt;p&gt;However, since we’ve had a long time to experiment with it, we’ve found that there are places where
+Spool is a little clumsy.  For example, the &lt;code&gt;flatMap&lt;/code&gt; operation in Spool isn’t associative, some of
+the flatMap behavior is unintuitive, and the API is a little messy.  Taking lessons from our
+experience with Spool, we are proud to announce &lt;a href="https://github.com/twitter/util/blob/develop/util-core/src/main/scala/com/twitter/concurrent/AsyncStream.scala"&gt;&lt;em&gt;~AsyncStream~&lt;/em&gt;&lt;/a&gt;, as an improved API for
+asynchronous object streaming.  Several twitter services spent months experimenting with it, and we
+decided we were confident enough in it a few months ago to consider it stable.  We like it a lot,
+and we hope you like it too.&lt;/p&gt;
+
+&lt;p&gt;We’ve taken care with the API to make it more pleasant to use, while still keeping the APIs that
+worked well with Spool, so migration shouldn&amp;rsquo;t be too painful (migration guide in appendix below).
+We’ve also benchmarked it carefully, to ensure that we don’t regress–in fact, it should be faster
+and entail less GC pressure than before.  We aren’t planning to deprecate Spool immediately, but
+we’re targeting all new features and performance optimizations for AsyncStream, so if you’re a heavy
+user of Spool, you should strongly consider migrating to AsyncStream.&lt;/p&gt;
+
+&lt;h1&gt;Appendix&lt;/h1&gt;
+
+&lt;h2&gt;Perf&lt;/h2&gt;
+
+&lt;p&gt;Here are the differences in microbenchmark results between AsyncStream and Spool, when trying to use
+them as conduits for moving objects through.  The first one (like asyncStream) measures how fast an
+operation is on average, and the second one (like asyncStream:·gc.alloc.rate.norm) measures how many
+bytes are allocated per operation on average.  Lower is better.&lt;/p&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;                                    threads   score
+asyncStream                               1   162.707  ±   39.933   ns/op
+asyncStream:·gc.alloc.rate.norm           1   232.000  ±    0.001    B/op
+spool                                     1   11.280   ±  324.364   ns/op
+spool:·gc.alloc.rate.norm                 1   752.001  ±    0.003    B/op
+
+asyncStream                               2   514.126  ±   87.914   ns/op
+asyncStream:·gc.alloc.rate.norm           2   688.001  ±    0.003    B/op
+spool                                     2   942.653  ±  111.403   ns/op
+spool:·gc.alloc.rate.norm                 2   1344.001 ±   0.005     B/op
+
+asyncStream                               5   1609.987 ±  718.745   ns/op
+asyncStream:·gc.alloc.rate.norm           5   2248.003 ±    0.009    B/op
+spool                                     5   2792.601 ± 1238.565   ns/op
+spool:·gc.alloc.rate.norm                 5   3120.005 ±    0.019    B/op
+
+asyncStream                              10   3214.592 ±  843.915   ns/op
+asyncStream:·gc.alloc.rate.norm          10   4848.005 ±    0.016    B/op
+spool                                    10   4235.138 ± 1448.331   ns/op
+spool:·gc.alloc.rate.norm                10   6080.006 ±    0.020    B/op
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As you can see, we have improvements across the board for every number of threads.&lt;/p&gt;
+
+&lt;h2&gt;Migration guide:&lt;/h2&gt;
+
+&lt;h3&gt;Stream construction with Spool&lt;/h3&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.concurrent.Spool&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.util.Future&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Construction from a materialized value
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;String&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;"wonderful string"&lt;/span&gt; &lt;span class="c1"&gt;// materialized wonderful string
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;*::&lt;/span&gt; &lt;span class="nc"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;empty&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Construction from a Future
+&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;getString&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;myService&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getString&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"wonderful string"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;// gets a wonderful string
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;unforced&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nc"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt;
+  &lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;getString&lt;/span&gt;&lt;span class="o"&gt;().&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="o"&gt;*::&lt;/span&gt; &lt;span class="nc"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;empty&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Construction from a Seq
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"i"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"have"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"many"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"wonderful"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"strings"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;// many nice strings
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromSeq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Construction from a function
+&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;getNext&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;myService&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getNext&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;mkStream&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;getNext&lt;/span&gt;&lt;span class="o"&gt;().&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="o"&gt;*::&lt;/span&gt; &lt;span class="n"&gt;mkStream&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;unforced&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nc"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;mkStream&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Stream construction with AsyncStream&lt;/h3&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.concurrent.AsyncStream&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.util.Future&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Construction from a materialized value
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;String&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;"wonderful string"&lt;/span&gt; &lt;span class="c1"&gt;// materialized wonderful string
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;of&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Construction from a Future
+&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;getString&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;myService&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getString&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"wonderful string"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;// gets a wonderful string
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;unforced&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nc"&gt;AsyncStream&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt;
+  &lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nc"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromFuture&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;getString&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Construction from a Seq
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"i"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"have"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"many"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"wonderful"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"strings"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;// many nice strings
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromSeq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Construction from a function
+&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;getNext&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;myService&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getNext&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;mkStream&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromFuture&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;getNext&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt; &lt;span class="n"&gt;mkStream&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;unforced&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nc"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;mkStream&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Iteration with Spool&lt;/h3&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.concurrent.Spool&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.util.Future&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"i"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"have"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"many"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"wonderful"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"strings"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;// many nice strings
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromSeq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;foreach&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;info&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="s"&gt;"love to log my string $string"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"i"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"have"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"many"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"wonderful"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"strings"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;// many nice strings
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromSeq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;newSpool&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Int&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;length&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Iteration with AsyncStream&lt;/h3&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.concurrent.AsyncStream&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.util.Future&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"i"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"have"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"many"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"wonderful"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"strings"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;// many nice strings
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromSeq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;stream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;foreach&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;info&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="s"&gt;"love to log my string $string"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"i"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"have"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"many"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"wonderful"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"strings"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;// many nice strings
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromSeq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;newStream&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Int&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;length&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Aggregation with Spool&lt;/h3&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.concurrent.Spool&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.util.Future&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"i"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"have"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"many"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"wonderful"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"strings"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;// many nice strings
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromSeq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;fullyFolded&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;foldLeft&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;""&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;acc&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;acc&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"i"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"have"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"many"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"wonderful"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"strings"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;// many nice strings
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromSeq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;recursing&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;])&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;headOption&lt;/span&gt; &lt;span class="k"&gt;match&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;Some&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;length&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tail&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;flatMap&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;next&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;recursing&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;next&lt;/span&gt;&lt;span class="o"&gt;).&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;rest&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt; &lt;span class="n"&gt;rest&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+  &lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="nc"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;None&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nc"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;""&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;partiallyForced&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;recursing&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"i"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"have"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"many"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"wonderful"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"strings"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;// many nice strings
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromSeq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromSeq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;).&lt;/span&gt;&lt;span class="n"&gt;toSeq&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Spool&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;spool&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;flatMap&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nc"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Aggregation with AsyncStream&lt;/h3&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.concurrent.AsyncStream&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.util.Future&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"i"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"have"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"many"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"wonderful"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"strings"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;// many nice strings
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromSeq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;fullyFolded&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;foldLeft&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;""&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;acc&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;acc&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"i"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"have"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"many"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"wonderful"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"strings"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;// many nice strings
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromSeq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;continue&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;next&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;acc&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nc"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;])&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;next&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;length&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="nc"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;next&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="n"&gt;acc&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;next&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;partiallyForced&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;foldRight&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;""&lt;/span&gt;&lt;span class="o"&gt;))(&lt;/span&gt;&lt;span class="n"&gt;continue&lt;/span&gt; &lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Seq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"i"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"have"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"many"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"wonderful"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;"strings"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;// many nice strings
+&lt;/span&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromSeq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;results&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromSeq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;).&lt;/span&gt;&lt;span class="n"&gt;toSeq&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;flatMap&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Make application errors great again</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2016/02/09/response-classification/"/>
+    <id>https://finagle.github.io/blog/2016/02/09/response-classification/</id>
+    <published>2016-02-08T16:00:00-08:00</published>
+    <updated>2016-04-22T11:44:26-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p align="center"&gt;
+  &lt;img src="/assets/img/make.png" style="margin: 1em 0em;" alt="make application errors great again"/&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Finagle’s new response classifiers improve client’s avoidance of
+faulty nodes thus increasing your success rate. To get this benefit,
+you must wire up the application’s rules into your clients and how to
+do so is explained below.&lt;/p&gt;
+
+&lt;p&gt;First, a pop quiz — does Finagle treat an HTTP 500 response as a
+success or failure? How about a Thrift Exception?&lt;/p&gt;
+
+&lt;p&gt;If you answered &lt;strong&gt;failures&lt;/strong&gt;, sadly, you are in for a surprise. Finagle
+lacks application level domain knowledge of what kinds of responses
+are failures. Without this, Finagle uses a conservative policy and
+treats all &lt;a href="https://github.com/twitter/util/blob/8e33b34a0379f920ccb2dfae531a5c003db36152/util-core/src/main/scala/com/twitter/util/Try.scala#L64-L68"&gt;&lt;code&gt;Returns&lt;/code&gt;&lt;/a&gt; as successful
+and all &lt;a href="https://github.com/twitter/util/blob/8e33b34a0379f920ccb2dfae531a5c003db36152/util-core/src/main/scala/com/twitter/util/Try.scala#L64-L68"&gt;&lt;code&gt;Throws&lt;/code&gt;&lt;/a&gt; as failures. Unfortunately, both HTTP 500s and Thrift
+Exceptions are &lt;code&gt;Returns&lt;/code&gt;, and thus, successful responses.&lt;/p&gt;
+
+&lt;p&gt;By having you, the developers, give Finagle this application level
+knowledge, it can then accurately track failures in its &lt;a href="http://twitter.github.io/finagle/guide/Clients.html#failure-accrual"&gt;failure
+accrual module&lt;/a&gt; which directly helps your client’s success rate.
+Finagle’s built-in &lt;a href="http://twitter.github.io/finagle/guide/Metrics.html#statsfilter"&gt;success rate&lt;/a&gt; metrics (e.g. &lt;code&gt;clnt/tweetsvc/success&lt;/code&gt;)
+also become accurate and this in turn means you may be able remove
+additional success rate metrics you may be wrapping on top of a
+Finagle client.&lt;/p&gt;
+
+&lt;p&gt;In the future, we are considering wiring this into load balancing
+which enables us to penalize servers which are returning failures or
+&lt;a href="http://www.control.lth.se/media/Staff/AlessandroPapadopoulos/publications/2014-SRDS-KPDDMAHRE.pdf"&gt;partial results&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3&gt;Cool story. How do I use it?&lt;/h3&gt;
+
+&lt;p&gt;As of &lt;a href="http://finagle.github.io/blog/2016/02/05/release-notes-6-33/"&gt;release 6.33&lt;/a&gt; you wire up a &lt;a href="https://github.com/twitter/finagle/blob/bb91e967618f8884af98e655eb989dd20cd79e61/finagle-core/src/main/scala/com/twitter/finagle/service/package.scala#L5-L35"&gt;&lt;code&gt;ResponseClassifier&lt;/code&gt;&lt;/a&gt;
+to your client. For HTTP clients, using
+&lt;a href="https://github.com/twitter/finagle/blob/bb91e967618f8884af98e655eb989dd20cd79e61/finagle-http/src/main/scala/com/twitter/finagle/http/service/HttpResponseClassifier.scala#L15-L19"&gt;&lt;code&gt;HttpResponseClassifier.ServerErrorsAsFailures&lt;/code&gt;&lt;/a&gt; often works great as it
+classifies any HTTP 5xx response code as a failure. For
+Thrift/ThriftMux clients you may want to use
+&lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-thriftmux/src/main/scala/com/twitter/finagle/thriftmux/service/ThriftMuxResponseClassifier.scala"&gt;&lt;code&gt;ThriftResponseClassifier.ThriftExceptionsAsFailures&lt;/code&gt;&lt;/a&gt; which classifies
+any deserialized Thrift Exception as a failure. For a large set of use
+cases these should suffice. Classifiers get wired up to your client in
+a straightforward manner, for example:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Scala
+&lt;/span&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.ThriftMux&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.builder.ClientBuilder&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.thrift.service.ThriftResponseClassifier&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Discoverable Parameters API
+&lt;/span&gt;&lt;span class="nc"&gt;ThriftMux&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;
+  &lt;span class="o"&gt;...&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;ThriftResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;ThriftExceptionsAsFailures&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;// ClientBuilder API
+&lt;/span&gt;&lt;span class="nc"&gt;ClientBuilder&lt;/span&gt;
+  &lt;span class="o"&gt;...&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;responseClassifier&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;ThriftResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;ThriftExceptionsAsFailures&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="highlight java"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Java&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.builder.ClientBuilder&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.http.service.HttpResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Discoverable Parameters API&lt;/span&gt;
+&lt;span class="n"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;client&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;
+  &lt;span class="o"&gt;...&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;withResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;HttpResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;ServerErrorsAsFailures&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+
+&lt;span class="c1"&gt;// ClientBuilder API&lt;/span&gt;
+&lt;span class="n"&gt;ClientBuilder&lt;/span&gt;
+  &lt;span class="o"&gt;...&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;responseClassifier&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;HttpResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;ServerErrorsAsFailures&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If a classifier is not specified on a client or if a user’s classifier
+isn’t defined for a given request/response pair then
+&lt;a href="https://github.com/twitter/finagle/blob/246986aa055e865f521eba0e09d7c0b42880e0ac/finagle-core/src/main/scala/com/twitter/finagle/service/ResponseClassifier.scala#L18-L36"&gt;&lt;code&gt;ResponseClassifier.Default&lt;/code&gt;&lt;/a&gt; is used. This gives us the same behavior
+Finagle had prior to classification — responses that are &lt;code&gt;Returns&lt;/code&gt; are
+successful and &lt;code&gt;Throws&lt;/code&gt; are failures.&lt;/p&gt;
+
+&lt;h3&gt;Rad. How do I write a custom classifier?&lt;/h3&gt;
+
+&lt;p&gt;To do this we should understand the few classes used. A
+&lt;code&gt;ResponseClassifier&lt;/code&gt; is a &lt;code&gt;PartialFunction&lt;/code&gt; from &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/service/ReqRep.scala"&gt;&lt;code&gt;ReqRep&lt;/code&gt;&lt;/a&gt; to
+&lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/service/ResponseClass.scala"&gt;&lt;code&gt;ResponseClass&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Let’s work our way backwards through those, beginning with
+&lt;code&gt;ResponseClass&lt;/code&gt;. This can be either &lt;code&gt;Successful&lt;/code&gt; or &lt;code&gt;Failed&lt;/code&gt; and those
+values are self-explanatory. There are three constants which will
+cover the vast majority of usage: &lt;code&gt;Success&lt;/code&gt;, &lt;code&gt;NonRetryableFailure&lt;/code&gt; and
+&lt;code&gt;RetryableFailure&lt;/code&gt;. While as of today there is no distinction made
+between retryable and non-retryable failures, it was a good
+opportunity to lay the groundwork for use in the future.&lt;/p&gt;
+
+&lt;p&gt;A &lt;code&gt;ReqRep&lt;/code&gt; is a request/response struct with a request of type &lt;code&gt;Any&lt;/code&gt;
+and a response of type &lt;code&gt;Try[Any]&lt;/code&gt;. While the lack of typing may
+initially disturb you, our hope is that it is not an issue in
+practice. While all of this functionality is called response
+classification, you’ll note that classifiers make judgements on both a
+request and response.&lt;/p&gt;
+
+&lt;p&gt;Writing a custom &lt;code&gt;PartialFunction&lt;/code&gt; is easy in Scala given its syntactic
+sugar. As with many things it is a bit more work from Java but is
+doable. Here is an example that counts HTTP 503s as failures (for Java
+examples, take a look at &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-http/src/test/java/com/twitter/finagle/http/service/HttpResponseClassifierCompilationTest.java"&gt;&lt;code&gt;HttpResponseClassifierCompilationTest&lt;/code&gt;&lt;/a&gt;
+and &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/test/java/com/twitter/finagle/service/ResponseClassifierCompilationTest.java"&gt;&lt;code&gt;ResponseClassifierCompilationTest&lt;/code&gt;&lt;/a&gt;):&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Scala
+&lt;/span&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.http&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.service.&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="nc"&gt;ReqRep&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;ResponseClass&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;ResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.util.Return&lt;/span&gt;
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;classifier&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;ResponseClassifier&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;ReqRep&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;Return&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;r&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;http.Response&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;statusCode&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;503&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
+    &lt;span class="nc"&gt;ResponseClass&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;NonRetryableFailure&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that this &lt;code&gt;PartialFunction&lt;/code&gt; isn’t total which is ok due to
+Finagle always using user defined classifiers in combination with
+&lt;code&gt;ResponseClassifier.Default&lt;/code&gt; which will cover all cases.&lt;/p&gt;
+
+&lt;p&gt;Thrift and ThriftMux classifiers require a bit more care as the
+request and response types are not as obvious. This is because there
+is only a single &lt;code&gt;Service&lt;/code&gt; from &lt;code&gt;Array[Byte]&lt;/code&gt; to &lt;code&gt;Array[Byte]&lt;/code&gt; for all the
+methods of an IDL’s service. To make this workable, there is support
+in &lt;a href="http://twitter.github.io/scrooge/"&gt;Scrooge&lt;/a&gt; and &lt;code&gt;Thrift&lt;/code&gt;/&lt;code&gt;ThriftMux.newService&lt;/code&gt; and
+&lt;code&gt;Thrift&lt;/code&gt;/&lt;code&gt;ThriftMux.newClient&lt;/code&gt; code to deserialize the responses into the
+expected application types so that classifiers can be written in terms
+of the Scrooge generated request type, &lt;code&gt;$Service.$Method.Args&lt;/code&gt;, and the
+method&amp;rsquo;s response type. Given an IDL:&lt;/p&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;exception NotFoundException { 1: string reason }
+
+service SocialGraph {
+  i32 follow(1: i64 follower, 2: i64 followee) throws (1: NotFoundException ex)
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;One possible classifier would be:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;classifier&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;ResponseClassifier&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="c1"&gt;// #1
+&lt;/span&gt;  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;ReqRep&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;Throw&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;_:&lt;/span&gt; &lt;span class="kt"&gt;NotFoundException&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
+    &lt;span class="nc"&gt;ResponseClass&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;NonRetryableFailure&lt;/span&gt;
+  &lt;span class="c1"&gt;// #2
+&lt;/span&gt;  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;ReqRep&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;Return&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Int&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
+    &lt;span class="nc"&gt;ResponseClass&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;NonRetryableFailure&lt;/span&gt;
+  &lt;span class="c1"&gt;// #3
+&lt;/span&gt;  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;ReqRep&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;SocialGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Follow&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Args&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="o"&gt;),&lt;/span&gt; &lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
+    &lt;span class="nc"&gt;ResponseClass&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;NonRetryableFailure&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you examine that classifier you’ll note a few things. First (#1),
+the deserialized &lt;code&gt;NotFoundException&lt;/code&gt; can be treated as a failure. Next
+(#2), a “successful” response can be examined to enable services using
+status codes to classify errors. Lastly (#3), the request can be
+  introspected to make the decision.&lt;/p&gt;
+
+&lt;h3&gt;But what’s it really gonna do?&lt;/h3&gt;
+
+&lt;p&gt;It’s important to understand what the impact will be if you customize
+response classification for your client. Perhaps most importantly,
+when responses are classified as failures, this affects how failure
+accrual sees responses. In the past, you may have had a Thrift service
+returning nothing but exceptions, but this node would continue getting
+traffic due to failure accrual’s lack of visibility. While this
+changes lets you fix this visibility, you should consider what causes
+those responses. For example, if the service is simply proxying a
+failure from its downstream service, you may not want to count that as
+a failure.&lt;/p&gt;
+
+&lt;p&gt;There isn’t a strict rule on what is the right thing to do with
+classification. However, with some minimal thought, many services can
+improve their success rate both in terms of how it’s reported as well
+as through avoidance of bad nodes.&lt;/p&gt;
+
+&lt;h3&gt;Alright.&lt;/h3&gt;
+
+&lt;p&gt;We’re really hopeful that this makes a significant difference in how
+well Finagle works for you but it needs you, the application
+developers, to make these choices.&lt;/p&gt;
+
+&lt;p&gt;If you have any questions on how to use this or feedback on how it’s working,
+please get in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt; or the
+&lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Retry Budgets</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2016/02/08/retry-budgets/"/>
+    <id>https://finagle.github.io/blog/2016/02/08/retry-budgets/</id>
+    <published>2016-02-07T16:00:00-08:00</published>
+    <updated>2016-04-22T11:44:26-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;Ever had your service attacked by a retry storm from your clients? Or
+your clients’ clients? Or has your service ever been the attacker in
+one of those situations?&lt;/p&gt;
+
+&lt;p&gt;Thought so.&lt;/p&gt;
+
+&lt;p&gt;To help you avoid this, in release 6.31 we’ve introduced the notion of
+a &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/service/RetryBudget.scala"&gt;&lt;code&gt;RetryBudget&lt;/code&gt;&lt;/a&gt;
+that controls when it is okay for a client to retry a failed request.&lt;/p&gt;
+
+&lt;p&gt;The default budget allows for 20% of requests to be retried on top of
+a minimum of 10 retries per second. This is built on top of a token
+bucket where credits expire after 10 seconds. In practice this should
+allow for plenty of retries in the face of transient errors without
+causing cascading failures when there are persistent issues.&lt;/p&gt;
+
+&lt;p&gt;Developers can wire up their own budget:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.service.RetryBudget&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;budget&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RetryBudget&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;twitter&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withRetryBudget&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;budget&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newService&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"twitter.com"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The following code shows how to use the factory method
+&lt;code&gt;RetryBudget.apply&lt;/code&gt; in order to construct a custom instance of
+&lt;code&gt;RetryBudget&lt;/code&gt;:&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.conversions.time._&lt;/span&gt;
+&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.service.RetryBudget&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;budget&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RetryBudget&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;RetryBudget&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+  &lt;span class="n"&gt;ttl&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;10.&lt;/span&gt;&lt;span class="n"&gt;seconds&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+  &lt;span class="n"&gt;minRetriesPerSec&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+  &lt;span class="n"&gt;percentCanRetry&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;
+&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code&gt;RetryBudget&lt;/code&gt; factory method takes three arguments:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;ttl&lt;/code&gt; — a time to live for deposited tokens&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;minRetriesPerSec&lt;/code&gt; — the minimum rate of retries allowed&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;percentCanRetry&lt;/code&gt; — the percentage of requests that might be retried&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;code&gt;RetryBudgets&lt;/code&gt; are wired up to &lt;code&gt;RetryFilter&lt;/code&gt; and &lt;code&gt;RetryExceptionsFilter&lt;/code&gt;
+which allows them to be used outside of a Finagle client as well.
+Further details on retries and retry budgets are covered in the
+&lt;a href="http://twitter.github.io/finagle/guide/Clients.html#retries"&gt;user guide&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Please let us know if you have any questions, either by filing a GitHub issue or
+getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt; or the
+&lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;.&lt;/p&gt;
+</content>
+  </entry>
+</feed>
