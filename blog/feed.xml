@@ -4,16 +4,156 @@
   <id>https://finagle.github.io/blog</id>
   <link href="https://finagle.github.io/blog"/>
   <link href="https://finagle.github.io/blog/blog/feed.xml" rel="self"/>
-  <updated>2016-03-10T16:00:00-08:00</updated>
+  <updated>2016-07-07T17:00:00-07:00</updated>
   <author>
     <name>Blog Author</name>
   </author>
+  <entry>
+    <title>Finagle 6.36 Release Notes</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2016/07/08/release-notes-6-36/"/>
+    <id>https://finagle.github.io/blog/2016/07/08/release-notes-6-36/</id>
+    <published>2016-07-07T17:00:00-07:00</published>
+    <updated>2016-07-11T14:03:35-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;This is Finagle&amp;rsquo;s first release only for Java 8 and Scala 2.11. Since the previous release, the team
+has been focusing on the Netty 4 migration as well as eliminating some technical debt.&lt;/p&gt;
+
+&lt;h3&gt;Towards Netty 4&lt;/h3&gt;
+
+&lt;p&gt;The team is firing on all cylinders towards Netty 4 support in Finagle. This milestone brings
+&lt;em&gt;beta&lt;/em&gt; (not yet widely used in production) Netty 4 support to Mux/ThriftMux, HTTP 1.1, and
+SOCKS5 (proxy).&lt;/p&gt;
+
+&lt;p&gt;In the meantime, we&amp;rsquo;re part way through migrating the MySQL, Memcached, and Redis protocol.
+Everything is going quite smoothly (except for a couple of
+&lt;a href="https://groups.google.com/forum/#!topic/finaglers/LOCVA0nhcaU"&gt;shortcuts we had to take with Redis&lt;/a&gt;) and we&amp;rsquo;re super positive about having an
+experimental Netty 4 support for those protocols in the next release.&lt;/p&gt;
+
+&lt;h3&gt;Killing Tech Debt&lt;/h3&gt;
+
+&lt;p&gt;There was a tech debt sprint this milestone where we fixed plenty of broken windows. To mention a few: &lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;replace our own version of &lt;code&gt;NoStacktrace&lt;/code&gt; with the Scala version&lt;/li&gt;
+&lt;li&gt;replace our own fork of JSR166e with the JDK8 version&lt;/li&gt;
+&lt;li&gt;clean up duplicated stats: &lt;code&gt;closechans&lt;/code&gt;, &lt;code&gt;closed&lt;/code&gt;, and &lt;code&gt;load&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;finagle-zipkin is now split into two packages: finagle-zipkin (implementation) and
+finagle-zipkin-core (core data types and interfaces)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;Side Effects are Side Effects&lt;/h3&gt;
+
+&lt;p&gt;There is one runtime change we think it&amp;rsquo;s worth highlighting here. We changed the behaviour of
+&lt;code&gt;.onSuccess&lt;/code&gt;/&lt;code&gt;.onFailure&lt;/code&gt; combinators so that they don&amp;rsquo;t fail a request if the passed function
+throws an exception. Please, consider refactoring if your application has been relying on that
+behaviour.&lt;/p&gt;
+
+&lt;h3&gt;Changelog&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/finagle/releases/tag/finagle-6.36.0"&gt;Finagle 6.36&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/util/releases/tag/util-6.35.0"&gt;Util 6.35&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/scrooge/releases/tag/scrooge-4.8.0"&gt;Scrooge 4.8&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/twitter-server/releases/tag/twitter-server-1.21.0"&gt;TwitterServer 1.21&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Ostrich 9.19 (no changes, only dependency bump)&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Muxshark: A Wireshark plugin for the Mux protocol</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2016/05/19/mux-shark/"/>
+    <id>https://finagle.github.io/blog/2016/05/19/mux-shark/</id>
+    <published>2016-05-18T17:00:00-07:00</published>
+    <updated>2016-07-08T11:12:34-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;This &lt;a href="https://www.wireshark.org/"&gt;Wireshark&lt;/a&gt; dissector provides basic decoding of all
+&lt;a href="http://twitter.github.io/finagle/guide/Protocols.html#mux"&gt;Mux&lt;/a&gt; messages including:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Frame length&lt;/li&gt;
+&lt;li&gt;Message type&lt;/li&gt;
+&lt;li&gt;Tag number&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;sub&gt;Don&amp;rsquo;t know about &lt;a href="http://jvns.ca/blog/2016/03/16/tcpdump-is-amazing/"&gt;Wireshark&lt;/a&gt;
+or &lt;a href="http://twitter.github.io/finagle/guide/Protocols.html#mux"&gt;Mux&lt;/a&gt;?
+Follow the links for introductions.&lt;/sub&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;While this was released as part of Finagle 6.33.0 we never got around to properly announcing it. Now that Shark Week 2016 is about a month away, it felt like a good time to tell people about it.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;Tdispatch&lt;/code&gt; messages include decoding of our common
+&lt;a href="http://twitter.github.io/finagle/guide/Contexts.html"&gt;Contexts&lt;/a&gt;, destination,
+and &lt;a href="http://twitter.github.io/finagle/guide/Names.html#interpreting-paths-with-delegation-tables"&gt;Dtabs&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;See the
+&lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-mux/src/main/lua/README.md"&gt;README&lt;/a&gt;
+for installation and usage instructions.&lt;/p&gt;
+
+&lt;p align="center"&gt;
+  &lt;img src="/assets/img/muxshark.png" style="margin: 1em 0em;" alt="muxshark screenshot"/&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Please let us know if you have any questions, either by
+getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt;, the
+&lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;,
+or &lt;a href="https://gitter.im/twitter/finagle"&gt;chat&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Happy TCP-capturing!&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Final Scala 2.10 and Java 7 releases</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2016/04/20/scala-210-and-java7/"/>
+    <id>https://finagle.github.io/blog/2016/04/20/scala-210-and-java7/</id>
+    <published>2016-04-19T17:00:00-07:00</published>
+    <updated>2016-07-08T11:12:30-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;The upcoming releases of our family of projects will be the final release for
+Scala 2.10 and Java 7. These should be:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Finagle 6.35.0&lt;/li&gt;
+&lt;li&gt;Finatra 2.1.6&lt;/li&gt;
+&lt;li&gt;Util 6.34.0&lt;/li&gt;
+&lt;li&gt;Scrooge 4.7.0&lt;/li&gt;
+&lt;li&gt;TwitterServer 1.20.0&lt;/li&gt;
+&lt;li&gt;Ostrich 9.18.0&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Java 7 reached its &lt;a href="http://www.oracle.com/technetwork/java/eol-135779.html"&gt;end-of-life&lt;/a&gt;
+in April 2015 and we would like to begin using the Java 8 libraries as well as
+remove some Java 7 specific workarounds. Once Scala 2.12 is released, we plan
+to add support for cross-compiling Scala 2.11 and 2.12.&lt;/p&gt;
+
+&lt;p&gt;Note that the scrooge-sbt-plugin will continue to be published for only
+Scala 2.10 due to sbt plugin requirements.&lt;/p&gt;
+
+&lt;p&gt;If important patch releases become necessary we will try to accomodate these
+needs.&lt;/p&gt;
+
+&lt;p&gt;Please let us know if you have any questions, either by
+getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt;, the
+&lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;,
+or &lt;a href="https://gitter.im/twitter/finagle"&gt;chat&lt;/a&gt;. For Finatra get in touch through
+&lt;a href="https://twitter.com/finatra"&gt;@finatra&lt;/a&gt;, the
+&lt;a href="https://groups.google.com/forum/#!forum/finatra-users"&gt;Finatra mailing list&lt;/a&gt;,
+or &lt;a href="https://gitter.im/twitter/finatra"&gt;chat&lt;/a&gt;.&lt;/p&gt;
+</content>
+  </entry>
   <entry>
     <title>Finagle 6.34 Release Notes</title>
     <link rel="alternate" href="https://finagle.github.io/blog/2016/03/11/release-notes-6-34/"/>
     <id>https://finagle.github.io/blog/2016/03/11/release-notes-6-34/</id>
     <published>2016-03-10T16:00:00-08:00</published>
-    <updated>2016-03-11T12:56:28-08:00</updated>
+    <updated>2016-07-08T11:12:30-07:00</updated>
     <author>
       <name>Article Author</name>
     </author>
@@ -67,7 +207,7 @@ Samson, Liam Stewart, Lucas Langer, Miguel Cervera, Moses Nakamura, Peter Schull
     <link rel="alternate" href="https://finagle.github.io/blog/2016/02/15/asyncstream/"/>
     <id>https://finagle.github.io/blog/2016/02/15/asyncstream/</id>
     <published>2016-02-14T16:00:00-08:00</published>
-    <updated>2016-03-11T12:56:23-08:00</updated>
+    <updated>2016-07-08T11:12:30-07:00</updated>
     <author>
       <name>Article Author</name>
     </author>
@@ -253,7 +393,7 @@ spool:·gc.alloc.rate.norm                10   6080.006 ±    0.020    B/op
     <link rel="alternate" href="https://finagle.github.io/blog/2016/02/09/response-classification/"/>
     <id>https://finagle.github.io/blog/2016/02/09/response-classification/</id>
     <published>2016-02-08T16:00:00-08:00</published>
-    <updated>2016-03-11T12:56:23-08:00</updated>
+    <updated>2016-07-08T11:12:30-07:00</updated>
     <author>
       <name>Article Author</name>
     </author>
@@ -439,255 +579,6 @@ developers, to make these choices.&lt;/p&gt;
 &lt;p&gt;If you have any questions on how to use this or feedback on how it’s working,
 please get in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt; or the
 &lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;.&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>Retry Budgets</title>
-    <link rel="alternate" href="https://finagle.github.io/blog/2016/02/08/retry-budgets/"/>
-    <id>https://finagle.github.io/blog/2016/02/08/retry-budgets/</id>
-    <published>2016-02-07T16:00:00-08:00</published>
-    <updated>2016-03-11T12:56:23-08:00</updated>
-    <author>
-      <name>Article Author</name>
-    </author>
-    <content type="html">&lt;p&gt;Ever had your service attacked by a retry storm from your clients? Or
-your clients’ clients? Or has your service ever been the attacker in
-one of those situations?&lt;/p&gt;
-
-&lt;p&gt;Thought so.&lt;/p&gt;
-
-&lt;p&gt;To help you avoid this, in release 6.31 we’ve introduced the notion of
-a &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/service/RetryBudget.scala"&gt;&lt;code&gt;RetryBudget&lt;/code&gt;&lt;/a&gt;
-that controls when it is okay for a client to retry a failed request.&lt;/p&gt;
-
-&lt;p&gt;The default budget allows for 20% of requests to be retried on top of
-a minimum of 10 retries per second. This is built on top of a token
-bucket where credits expire after 10 seconds. In practice this should
-allow for plenty of retries in the face of transient errors without
-causing cascading failures when there are persistent issues.&lt;/p&gt;
-
-&lt;p&gt;Developers can wire up their own budget:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;
-&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.service.RetryBudget&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;budget&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RetryBudget&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;twitter&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;
-  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withRetryBudget&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;budget&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newService&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"twitter.com"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The following code shows how to use the factory method
-&lt;code&gt;RetryBudget.apply&lt;/code&gt; in order to construct a custom instance of
-&lt;code&gt;RetryBudget&lt;/code&gt;:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.conversions.time._&lt;/span&gt;
-&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.service.RetryBudget&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;budget&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RetryBudget&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;RetryBudget&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
-  &lt;span class="n"&gt;ttl&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;10.&lt;/span&gt;&lt;span class="n"&gt;seconds&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
-  &lt;span class="n"&gt;minRetriesPerSec&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
-  &lt;span class="n"&gt;percentCanRetry&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;
-&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The &lt;code&gt;RetryBudget&lt;/code&gt; factory method takes three arguments:&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;&lt;code&gt;ttl&lt;/code&gt; — a time to live for deposited tokens&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;minRetriesPerSec&lt;/code&gt; — the minimum rate of retries allowed&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;percentCanRetry&lt;/code&gt; — the percentage of requests that might be retried&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;&lt;code&gt;RetryBudgets&lt;/code&gt; are wired up to &lt;code&gt;RetryFilter&lt;/code&gt; and &lt;code&gt;RetryExceptionsFilter&lt;/code&gt;
-which allows them to be used outside of a Finagle client as well.
-Further details on retries and retry budgets are covered in the
-&lt;a href="http://twitter.github.io/finagle/guide/Clients.html#retries"&gt;user guide&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Please let us know if you have any questions, either by filing a GitHub issue or
-getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt; or the
-&lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;.&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>Finagle 6.33 Release Notes</title>
-    <link rel="alternate" href="https://finagle.github.io/blog/2016/02/05/release-notes-6-33/"/>
-    <id>https://finagle.github.io/blog/2016/02/05/release-notes-6-33/</id>
-    <published>2016-02-04T16:00:00-08:00</published>
-    <updated>2016-03-11T12:56:23-08:00</updated>
-    <author>
-      <name>Article Author</name>
-    </author>
-    <content type="html">&lt;p&gt;In this milestone, we&amp;rsquo;ve been focusing on two major directions:&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;Improving the user experience by providing friendly APIs and updating docs&lt;/li&gt;
-&lt;li&gt;Continuing to improve Finagle&amp;rsquo;s resiliency&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h3&gt;Discoverable Params&lt;/h3&gt;
-
-&lt;p&gt;There is a new user-friendly API for configuring Finagle clients and servers using &lt;code&gt;with&lt;/code&gt;-prefixed
-methods (&lt;code&gt;.withClientId&lt;/code&gt;, &lt;code&gt;.withStatsReceiver&lt;/code&gt;, etc). Discoverable configuration parameters are a
-modern alternative to ClientBuilder/ServerBuilder which provides an easy to use, type safe, and IDE
-discoverable API on top of &lt;code&gt;$Protocol.{client,server}.configured&lt;/code&gt; through a collection of
-&lt;code&gt;with&lt;/code&gt;-prefixed methods available on both clients and servers. It’s already in master and we
-encourage you to open your favorite IDE and type &lt;code&gt;client.with&lt;/code&gt; or &lt;code&gt;server.with&lt;/code&gt; and start discovering.&lt;/p&gt;
-
-&lt;p&gt;Example:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;
-&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.conversions.time._&lt;/span&gt;
-
-&lt;span class="nc"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;
-  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withLabel&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"http-client"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withSessionQualifier&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;noFailFast&lt;/span&gt;
-  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withSession&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;acquisitionTimeout&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;10.&lt;/span&gt;&lt;span class="n"&gt;seconds&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;See it in action!&lt;/p&gt;
-
-&lt;p&gt;&lt;center&gt;&lt;img src="http://i.imgur.com/yIE7iy8.gif" /&gt;&lt;/center&gt;&lt;/p&gt;
-
-&lt;p&gt;We thought carefully about how to make these clear and easy to use. If you&amp;rsquo;re curious about the
-design, please feel free to take a look at the &lt;a href="http://twitter.github.io/finagle/guide/Configuration.html#design-principles"&gt;design principles&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;The new API is fully documented so that every method has an up-to-date scaladoc comment explaining
-the parameters it configures as well as mentioning their default values.&lt;/p&gt;
-
-&lt;p&gt;Also, it&amp;rsquo;s worth mentioning that this API is 100% Java-friendly. You can now forget about
-&lt;code&gt;new Param(...).mk(...)&lt;/code&gt; and focus on what’s important–values, not the wrappers around them.&lt;/p&gt;
-
-&lt;h3&gt;New User Guide&lt;/h3&gt;
-
-&lt;p&gt;We updated/reworked &lt;a href="http://twitter.github.io/finagle/guide/"&gt;Finagle’s User Guide&lt;/a&gt; recently to capture the current state of
-Finagle. For example, we updated both &lt;a href="http://twitter.github.io/finagle/guide/Clients.html"&gt;Clients&lt;/a&gt; and &lt;a href="http://twitter.github.io/finagle/guide/Servers.html"&gt;Servers&lt;/a&gt; with example
-configurations of their modules.&lt;/p&gt;
-
-&lt;h3&gt;Response Classifiers&lt;/h3&gt;
-
-&lt;p&gt;Finagle’s new &lt;a href="http://twitter.github.io/finagle/guide/Clients.html#response-classification"&gt;response classifiers&lt;/a&gt; improve client’s avoidance of faulty nodes, and
-thus, increase your success rate. To get this benefit, you must wire up the application’s rules into
-your clients. There are already basic classifiers in Finagle available for HTTP and Thrift.&lt;/p&gt;
-
-&lt;p&gt;For example, the following configuration advises a Finagle client treat 500s HTTP responses as
-non-retriable failures.&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;
-&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.http.service.HttpResponseClassifier&lt;/span&gt;
-
-&lt;span class="nc"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;
-  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;HttpResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;ServerErrorsAsFailures&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3&gt;Pending Requests Limit&lt;/h3&gt;
-
-&lt;p&gt;As part of our work on client-side admission control, there is a new client module maintaining the
-limit of pending requests (i.e., requests that haven&amp;rsquo;t been yet written to a wire). The limit is
-unbounded by default.&lt;/p&gt;
-
-&lt;p&gt;In the following example, an HTTP client is configured to have at most 100 pending requests in the
-queue. All requests on top of 100 will be rejected by a client.&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;
-
-&lt;span class="nc"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;
-  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withAdmissionControl&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;maxPendingRequests&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3&gt;Changelog&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://github.com/twitter/finagle/blob/develop/CHANGES"&gt;Finagle 6.33&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/twitter/util/blob/develop/CHANGES"&gt;Util 6.32&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/twitter/scrooge/blob/develop/CHANGES"&gt;Scrooge 4.5&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/twitter/twitter-server/blob/develop/CHANGES"&gt;TwitterServer 1.18&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/twitter/ostrich/blob/develop/CHANGES"&gt;Ostrich 9.16&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</content>
-  </entry>
-  <entry>
-    <title>Services-per-endpoint in Scrooge</title>
-    <link rel="alternate" href="https://finagle.github.io/blog/2015/09/10/services-per-endpoint-in-scrooge/"/>
-    <id>https://finagle.github.io/blog/2015/09/10/services-per-endpoint-in-scrooge/</id>
-    <published>2015-09-09T17:00:00-07:00</published>
-    <updated>2016-03-11T12:56:23-08:00</updated>
-    <author>
-      <name>Article Author</name>
-    </author>
-    <content type="html">&lt;p&gt;We&amp;rsquo;ve released &lt;a href="https://github.com/twitter/scrooge/commit/3fbb635936d82c00456b332647ea9136841f3227"&gt;Service-per-endpoint support&lt;/a&gt; for Scala Thrift clients generated by Scrooge. This change has been introduced in &lt;a href="https://github.com/twitter/scrooge/releases/tag/scrooge-4.0.0"&gt;Scrooge 4.0.0&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;This allows the use of Finagle filters with &lt;a href="https://thrift.apache.org/"&gt;Thrift&lt;/a&gt; services to do retries, timeouts, etc. in a Finagle-idiomatic way. Scrooge generates a &lt;code&gt;Service&lt;/code&gt; for each Thrift method, so different filter chains can be built for different methods. Typical examples of this are per-method timeout and retry policies.&lt;/p&gt;
-
-&lt;h2&gt;An example&lt;/h2&gt;
-
-&lt;p&gt;Here&amp;rsquo;s a Thrift service definition:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="n"&gt;service&lt;/span&gt; &lt;span class="nc"&gt;LoggerService&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-  &lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;string&lt;/span&gt; &lt;span class="kt"&gt;message&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;i32&lt;/span&gt; &lt;span class="kt"&gt;logLevel&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
-  &lt;span class="n"&gt;i32&lt;/span&gt; &lt;span class="n"&gt;getLogSize&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Before this patch, Scrooge would generate this method-based interface:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;trait&lt;/span&gt; &lt;span class="nc"&gt;FutureIface&lt;/span&gt; &lt;span class="k"&gt;extends&lt;/span&gt; &lt;span class="nc"&gt;LoggerService&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;logLevel&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Int&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
-  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;getLogSize&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Int&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;With the patch, Scrooge also generates the following:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;ServiceIface&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
-  &lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Service&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Log.Args&lt;/span&gt;, &lt;span class="kt"&gt;Log.Result&lt;/span&gt;&lt;span class="o"&gt;],&lt;/span&gt;
-  &lt;span class="n"&gt;getLogSize&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Service&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;GetLogSize.Args&lt;/span&gt;, &lt;span class="kt"&gt;GetLogSize.Result&lt;/span&gt;&lt;span class="o"&gt;])&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Note that every method in the IDL becomes a &lt;code&gt;Service&lt;/code&gt; for the corresponding &lt;code&gt;Args&lt;/code&gt; and &lt;code&gt;Result&lt;/code&gt; structures. The wrappers are needed to wrap multiple method arguments into one type. &lt;/p&gt;
-
-&lt;p&gt;To construct a client, we use &lt;code&gt;newServiceIFace&lt;/code&gt;:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;clientServiceIface&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;LoggerService.ServiceIface&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;
-  &lt;span class="nc"&gt;Thrift&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newServiceIface&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;LoggerService.ServiceIface&lt;/span&gt;&lt;span class="o"&gt;](&lt;/span&gt;&lt;span class="s"&gt;"localhost:1234"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Because every Thrift method is a Finagle &lt;code&gt;Service&lt;/code&gt;, you can decorate them with &lt;code&gt;Filter&lt;/code&gt;s:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;uppercaseFilter&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;SimpleFilter&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Log.Args&lt;/span&gt;, &lt;span class="kt"&gt;Log.Result&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;apply&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Log.Args&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;service&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Service&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Log.Args&lt;/span&gt;, &lt;span class="kt"&gt;Log.Result&lt;/span&gt;&lt;span class="o"&gt;])&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Log.Result&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-    &lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;uppercaseRequest&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;copy&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;req&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;toUpperCase&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-    &lt;span class="n"&gt;service&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;uppercaseRequest&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-  &lt;span class="o"&gt;}&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-
-&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;timeoutFilter&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Req&lt;/span&gt;, &lt;span class="kt"&gt;Rep&lt;/span&gt;&lt;span class="o"&gt;](&lt;/span&gt;&lt;span class="n"&gt;duration&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Duration&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-  &lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;exc&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;IndividualRequestTimeoutException&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;duration&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-  &lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;timer&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;DefaultTimer&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;twitter&lt;/span&gt;
-  &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;TimeoutFilter&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Req&lt;/span&gt;, &lt;span class="kt"&gt;Rep&lt;/span&gt;&lt;span class="o"&gt;](&lt;/span&gt;&lt;span class="n"&gt;duration&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;exc&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;timer&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;filteredLog&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;timeoutFilter&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;2.&lt;/span&gt;&lt;span class="n"&gt;seconds&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="n"&gt;andThen&lt;/span&gt;
-  &lt;span class="n"&gt;uppercaseFilter&lt;/span&gt; &lt;span class="n"&gt;andThen&lt;/span&gt;
-  &lt;span class="n"&gt;clientServiceIface&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;log&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Log.Result&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;filteredLog&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Log&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Args&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"hello"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Sometimes different Thrift methods have different latencies; for example the &lt;code&gt;log&lt;/code&gt; method typically completes in two second, and the &lt;code&gt;getLogSize&lt;/code&gt; method completes in 500 milliseconds. Then we can use a shorter timeout duration for &lt;code&gt;getLogSize&lt;/code&gt;:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;filteredGetLogSize&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;timeoutFilter&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mf"&gt;500.&lt;/span&gt;&lt;span class="n"&gt;milliseconds&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="n"&gt;andThen&lt;/span&gt;
-  &lt;span class="n"&gt;clientServiceIface&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getLogSize&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;GetLogSize.Result&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;filteredGetLogSize&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;GetLogSize&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Args&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2&gt;Backwards compatibility&lt;/h2&gt;
-
-&lt;p&gt;Existing code works without changes. We don’t plan to deprecate or remove the method-based interfaces.&lt;/p&gt;
-
-&lt;p&gt;Additionally, there is a bridge constructor to wrap the old-style method interface around the new service interface.&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;filteredMethodIface&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;LoggerService&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt;
-  &lt;span class="nc"&gt;Thrift&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newMethodIface&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;clientServiceIface&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;copy&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;log&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;filteredLog&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
-
-&lt;span class="nc"&gt;Await&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;filteredMethodIface&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"ping"&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="o"&gt;).&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;println&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;This can be used to insert filters into existing Thrift clients.&lt;/p&gt;
-
-&lt;p&gt;Please contact the &lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt; with questions or bug reports,
-and if you&amp;rsquo;re interested in working on projects like Scrooge, get in touch—the
-&lt;a href="https://about.twitter.com/careers/positions?jvi=oLxj1fwm,Job"&gt;Core System Libraries team at Twitter is hiring&lt;/a&gt;.&lt;/p&gt;
 </content>
   </entry>
 </feed>
