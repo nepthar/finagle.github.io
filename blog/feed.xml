@@ -4,10 +4,158 @@
   <id>https://finagle.github.io/blog</id>
   <link href="https://finagle.github.io/blog"/>
   <link href="https://finagle.github.io/blog/blog/feed.xml" rel="self"/>
-  <updated>2016-05-18T17:00:00-07:00</updated>
+  <updated>2016-08-31T17:00:00-07:00</updated>
   <author>
     <name>Blog Author</name>
   </author>
+  <entry>
+    <title>Finagle Block Party</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2016/09/01/block-party/"/>
+    <id>https://finagle.github.io/blog/2016/09/01/block-party/</id>
+    <published>2016-08-31T17:00:00-07:00</published>
+    <updated>2016-09-01T09:30:58-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;💔 &lt;strong&gt;SPOILER ALERT:&lt;/strong&gt; you do not want to go to this party 💔&lt;/p&gt;
+
+&lt;p&gt;Blocking Finagle&amp;rsquo;s event loop via calls to
+&lt;a href="http://twitter.github.io/util/docs/index.html#com.twitter.util.Await$@result[T](awaitable:com.twitter.util.Awaitable[T],timeout:com.twitter.util.Duration):T"&gt;Await.result&lt;/a&gt;
+or
+&lt;a href="http://twitter.github.io/util/docs/index.html#com.twitter.util.Await$@ready[T%3C:com.twitter.util.Awaitable[_]](awaitable:T):T"&gt;Await.ready&lt;/a&gt;
+will cause your application to experience unexpected slowness, a
+decrease in throughput, and potentially deadlocks. Find out if our new
+tools that identify the calls that cause service sadness are right for
+you.&lt;/p&gt;
+
+&lt;p&gt;✮ &lt;em&gt;Why is blocking bad?&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Finagle uses Netty which is a network library built on an event loop.
+When an event loop thread blocks, that thread can no longer do its
+other asynchronous work. As such, blocking has effects that span
+beyond the line of code that is doing the blocking. Removing blocking
+code should help your service with throughput and latency.&lt;/p&gt;
+
+&lt;p&gt;✮ &lt;em&gt;How do I find out if my service is blocking?&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Blocking can happen in two ways, explicitly and implicitly. Explicit
+blocking is when code synchronously waits on a Future from an event
+loop thread. In Finagle, this is done by making calls to
+&lt;a href="http://twitter.github.io/util/docs/index.html#com.twitter.util.Await$@result[T](awaitable:com.twitter.util.Awaitable[T],timeout:com.twitter.util.Duration):T"&gt;Await.result&lt;/a&gt;
+or
+&lt;a href="http://twitter.github.io/util/docs/index.html#com.twitter.util.Await$@ready[T%3C:com.twitter.util.Awaitable[_]](awaitable:T):T"&gt;Await.ready&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;If your service is running Finagle 6.37, there is now a gauge exported
+as
+&lt;a href="http://twitter.github.io/finagle/guide/Metrics#scheduler"&gt;scheduler/blocking_ms&lt;/a&gt;
+which can be used to identify how much time is being spent. You can
+verify that your service continues to operate correctly by checking
+the new lint rule added to TwitterServer&amp;rsquo;s
+&lt;a href="http://twitter.github.io/twitter-server/Admin.html#admin-lint"&gt;/admin/lint&lt;/a&gt;
+admin endpoint.&lt;/p&gt;
+
+&lt;p&gt;Implicit blocking happens when your code runs a potentially expensive
+operation, for example making network calls on the event loop thread
+using a synchronous API. Unfortunately, these calls are difficult to
+track down and we do not yet have any tooling to help on this front.&lt;/p&gt;
+
+&lt;p&gt;✮ &lt;em&gt;Bummer, it is blocking. How do I find out what’s blocking?&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;You can do a deploy with an extra system property set that will log
+the stacktraces for a fraction of the blocking calls. Given that the
+code is about to block, the extra overhead of logging the stacktrace
+shouldn&amp;rsquo;t be a significant overhead. However, if your service has a
+large amount of blocking, you may want to limit this fraction to avoid
+filling up your logs. You can set it via
+&lt;code&gt;-Dcom.twitter.concurrent.schedulerSampleBlockingFraction=$fraction&lt;/code&gt;
+where &lt;code&gt;$fraction&lt;/code&gt; must be between &lt;code&gt;0.0&lt;/code&gt; and &lt;code&gt;1.0&lt;/code&gt;, inclusive.&lt;/p&gt;
+
+&lt;p&gt;This will output a log that should point you to the code doing the
+blocking. For example in the stacktrace below, HttpServer.scala would
+be the cause:&lt;/p&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;I 0812 21:39:31.743 THREAD18 TraceId:a2c1d94ae0029777: Scheduler blocked for 5004957 micros via the following stacktrace
+com.twitter.concurrent.LocalScheduler$BlockingHere
+  at com.twitter.concurrent.LocalScheduler$Activation.blocking(Scheduler.scala:216)
+  at com.twitter.concurrent.LocalScheduler.blocking(Scheduler.scala:285)
+  at com.twitter.concurrent.Scheduler$.blocking(Scheduler.scala:115)
+  at com.twitter.util.Await$.result(Awaitable.scala:151)
+  at com.twitter.util.Await$.result(Awaitable.scala:140)
+  at com.twitter.example.HttpServer$$anonfun$4.apply(HttpServer.scala:28)
+  at com.twitter.example.HttpServer$$anonfun$4.apply(HttpServer.scala:24)
+  ...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;✮ &lt;em&gt;How can I fix the blocking code?&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;We recommend that applications use the &lt;a href="http://twitter.github.io/finagle/guide/Futures.html#sequential-composition"&gt;Future
+combinators&lt;/a&gt;
+such as &lt;code&gt;flatMap&lt;/code&gt;, &lt;code&gt;onSuccess&lt;/code&gt;, &lt;code&gt;transform&lt;/code&gt;, and so on. Sometimes this type
+of change may not be feasible and in those cases you can use a
+&lt;a href="https://github.com/twitter/util/blob/master/util-core/src/main/scala/com/twitter/util/FuturePool.scala"&gt;FuturePool&lt;/a&gt;
+to shift the blocking off of the event loop and onto a thread pool
+that your application controls.&lt;/p&gt;
+
+&lt;p&gt;Please let us know if you have any questions, either by
+getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt;, the
+&lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;,
+or &lt;a href="https://gitter.im/twitter/finagle"&gt;chat&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Thanks for reading and we sincerely hope you don’t RSVP.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Finagle 6.36 Release Notes</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2016/07/08/release-notes-6-36/"/>
+    <id>https://finagle.github.io/blog/2016/07/08/release-notes-6-36/</id>
+    <published>2016-07-07T17:00:00-07:00</published>
+    <updated>2016-08-31T10:39:18-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;This is Finagle&amp;rsquo;s first release only for Java 8 and Scala 2.11. Since the previous release, the team
+has been focusing on the Netty 4 migration as well as eliminating some technical debt.&lt;/p&gt;
+
+&lt;h3&gt;Towards Netty 4&lt;/h3&gt;
+
+&lt;p&gt;The team is firing on all cylinders towards Netty 4 support in Finagle. This milestone brings
+&lt;em&gt;beta&lt;/em&gt; (not yet widely used in production) Netty 4 support to Mux/ThriftMux, HTTP 1.1, and
+SOCKS5 (proxy).&lt;/p&gt;
+
+&lt;p&gt;In the meantime, we&amp;rsquo;re part way through migrating the MySQL, Memcached, and Redis protocol.
+Everything is going quite smoothly (except for a couple of
+&lt;a href="https://groups.google.com/forum/#!topic/finaglers/LOCVA0nhcaU"&gt;shortcuts we had to take with Redis&lt;/a&gt;) and we&amp;rsquo;re super positive about having an
+experimental Netty 4 support for those protocols in the next release.&lt;/p&gt;
+
+&lt;h3&gt;Killing Tech Debt&lt;/h3&gt;
+
+&lt;p&gt;There was a tech debt sprint this milestone where we fixed plenty of broken windows. To mention a few: &lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;replace our own version of &lt;code&gt;NoStacktrace&lt;/code&gt; with the Scala version&lt;/li&gt;
+&lt;li&gt;replace our own fork of JSR166e with the JDK8 version&lt;/li&gt;
+&lt;li&gt;clean up duplicated stats: &lt;code&gt;closechans&lt;/code&gt;, &lt;code&gt;closed&lt;/code&gt;, and &lt;code&gt;load&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;finagle-zipkin is now split into two packages: finagle-zipkin (implementation) and
+finagle-zipkin-core (core data types and interfaces)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;Side Effects are Side Effects&lt;/h3&gt;
+
+&lt;p&gt;There is one runtime change we think it&amp;rsquo;s worth highlighting here. We changed the behaviour of
+&lt;code&gt;.onSuccess&lt;/code&gt;/&lt;code&gt;.onFailure&lt;/code&gt; combinators so that they don&amp;rsquo;t fail a request if the passed function
+throws an exception. Please, consider refactoring if your application has been relying on that
+behaviour.&lt;/p&gt;
+
+&lt;h3&gt;Changelog&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/finagle/releases/tag/finagle-6.36.0"&gt;Finagle 6.36&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/util/releases/tag/util-6.35.0"&gt;Util 6.35&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/scrooge/releases/tag/scrooge-4.8.0"&gt;Scrooge 4.8&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/twitter-server/releases/tag/twitter-server-1.21.0"&gt;TwitterServer 1.21&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Ostrich 9.19 (no changes, only dependency bump)&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+  </entry>
   <entry>
     <title>Muxshark: A Wireshark plugin for the Mux protocol</title>
     <link rel="alternate" href="https://finagle.github.io/blog/2016/05/19/mux-shark/"/>
@@ -333,266 +481,6 @@ spool:·gc.alloc.rate.norm                10   6080.006 ±    0.020    B/op
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fromSeq&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;).&lt;/span&gt;&lt;span class="n"&gt;toSeq&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
 &lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;AsyncStream&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="kt"&gt;String&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;flatMap&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-</content>
-  </entry>
-  <entry>
-    <title>Make application errors great again</title>
-    <link rel="alternate" href="https://finagle.github.io/blog/2016/02/09/response-classification/"/>
-    <id>https://finagle.github.io/blog/2016/02/09/response-classification/</id>
-    <published>2016-02-08T16:00:00-08:00</published>
-    <updated>2016-04-22T11:44:26-07:00</updated>
-    <author>
-      <name>Article Author</name>
-    </author>
-    <content type="html">&lt;p align="center"&gt;
-  &lt;img src="/assets/img/make.png" style="margin: 1em 0em;" alt="make application errors great again"/&gt;
-&lt;/p&gt;
-
-&lt;p&gt;Finagle’s new response classifiers improve client’s avoidance of
-faulty nodes thus increasing your success rate. To get this benefit,
-you must wire up the application’s rules into your clients and how to
-do so is explained below.&lt;/p&gt;
-
-&lt;p&gt;First, a pop quiz — does Finagle treat an HTTP 500 response as a
-success or failure? How about a Thrift Exception?&lt;/p&gt;
-
-&lt;p&gt;If you answered &lt;strong&gt;failures&lt;/strong&gt;, sadly, you are in for a surprise. Finagle
-lacks application level domain knowledge of what kinds of responses
-are failures. Without this, Finagle uses a conservative policy and
-treats all &lt;a href="https://github.com/twitter/util/blob/8e33b34a0379f920ccb2dfae531a5c003db36152/util-core/src/main/scala/com/twitter/util/Try.scala#L64-L68"&gt;&lt;code&gt;Returns&lt;/code&gt;&lt;/a&gt; as successful
-and all &lt;a href="https://github.com/twitter/util/blob/8e33b34a0379f920ccb2dfae531a5c003db36152/util-core/src/main/scala/com/twitter/util/Try.scala#L64-L68"&gt;&lt;code&gt;Throws&lt;/code&gt;&lt;/a&gt; as failures. Unfortunately, both HTTP 500s and Thrift
-Exceptions are &lt;code&gt;Returns&lt;/code&gt;, and thus, successful responses.&lt;/p&gt;
-
-&lt;p&gt;By having you, the developers, give Finagle this application level
-knowledge, it can then accurately track failures in its &lt;a href="http://twitter.github.io/finagle/guide/Clients.html#failure-accrual"&gt;failure
-accrual module&lt;/a&gt; which directly helps your client’s success rate.
-Finagle’s built-in &lt;a href="http://twitter.github.io/finagle/guide/Metrics.html#statsfilter"&gt;success rate&lt;/a&gt; metrics (e.g. &lt;code&gt;clnt/tweetsvc/success&lt;/code&gt;)
-also become accurate and this in turn means you may be able remove
-additional success rate metrics you may be wrapping on top of a
-Finagle client.&lt;/p&gt;
-
-&lt;p&gt;In the future, we are considering wiring this into load balancing
-which enables us to penalize servers which are returning failures or
-&lt;a href="http://www.control.lth.se/media/Staff/AlessandroPapadopoulos/publications/2014-SRDS-KPDDMAHRE.pdf"&gt;partial results&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h3&gt;Cool story. How do I use it?&lt;/h3&gt;
-
-&lt;p&gt;As of &lt;a href="http://finagle.github.io/blog/2016/02/05/release-notes-6-33/"&gt;release 6.33&lt;/a&gt; you wire up a &lt;a href="https://github.com/twitter/finagle/blob/bb91e967618f8884af98e655eb989dd20cd79e61/finagle-core/src/main/scala/com/twitter/finagle/service/package.scala#L5-L35"&gt;&lt;code&gt;ResponseClassifier&lt;/code&gt;&lt;/a&gt;
-to your client. For HTTP clients, using
-&lt;a href="https://github.com/twitter/finagle/blob/bb91e967618f8884af98e655eb989dd20cd79e61/finagle-http/src/main/scala/com/twitter/finagle/http/service/HttpResponseClassifier.scala#L15-L19"&gt;&lt;code&gt;HttpResponseClassifier.ServerErrorsAsFailures&lt;/code&gt;&lt;/a&gt; often works great as it
-classifies any HTTP 5xx response code as a failure. For
-Thrift/ThriftMux clients you may want to use
-&lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-thriftmux/src/main/scala/com/twitter/finagle/thriftmux/service/ThriftMuxResponseClassifier.scala"&gt;&lt;code&gt;ThriftResponseClassifier.ThriftExceptionsAsFailures&lt;/code&gt;&lt;/a&gt; which classifies
-any deserialized Thrift Exception as a failure. For a large set of use
-cases these should suffice. Classifiers get wired up to your client in
-a straightforward manner, for example:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Scala
-&lt;/span&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.ThriftMux&lt;/span&gt;
-&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.builder.ClientBuilder&lt;/span&gt;
-&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.thrift.service.ThriftResponseClassifier&lt;/span&gt;
-
-&lt;span class="c1"&gt;// Discoverable Parameters API
-&lt;/span&gt;&lt;span class="nc"&gt;ThriftMux&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;
-  &lt;span class="o"&gt;...&lt;/span&gt;
-  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;ThriftResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;ThriftExceptionsAsFailures&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-
-&lt;span class="c1"&gt;// ClientBuilder API
-&lt;/span&gt;&lt;span class="nc"&gt;ClientBuilder&lt;/span&gt;
-  &lt;span class="o"&gt;...&lt;/span&gt;
-  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;responseClassifier&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;ThriftResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;ThriftExceptionsAsFailures&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="highlight java"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Java&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.builder.ClientBuilder&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.http.service.HttpResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
-
-&lt;span class="c1"&gt;// Discoverable Parameters API&lt;/span&gt;
-&lt;span class="n"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;client&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;
-  &lt;span class="o"&gt;...&lt;/span&gt;
-  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;withResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;HttpResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;ServerErrorsAsFailures&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
-
-&lt;span class="c1"&gt;// ClientBuilder API&lt;/span&gt;
-&lt;span class="n"&gt;ClientBuilder&lt;/span&gt;
-  &lt;span class="o"&gt;...&lt;/span&gt;
-  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;responseClassifier&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;HttpResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;ServerErrorsAsFailures&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If a classifier is not specified on a client or if a user’s classifier
-isn’t defined for a given request/response pair then
-&lt;a href="https://github.com/twitter/finagle/blob/246986aa055e865f521eba0e09d7c0b42880e0ac/finagle-core/src/main/scala/com/twitter/finagle/service/ResponseClassifier.scala#L18-L36"&gt;&lt;code&gt;ResponseClassifier.Default&lt;/code&gt;&lt;/a&gt; is used. This gives us the same behavior
-Finagle had prior to classification — responses that are &lt;code&gt;Returns&lt;/code&gt; are
-successful and &lt;code&gt;Throws&lt;/code&gt; are failures.&lt;/p&gt;
-
-&lt;h3&gt;Rad. How do I write a custom classifier?&lt;/h3&gt;
-
-&lt;p&gt;To do this we should understand the few classes used. A
-&lt;code&gt;ResponseClassifier&lt;/code&gt; is a &lt;code&gt;PartialFunction&lt;/code&gt; from &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/service/ReqRep.scala"&gt;&lt;code&gt;ReqRep&lt;/code&gt;&lt;/a&gt; to
-&lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/service/ResponseClass.scala"&gt;&lt;code&gt;ResponseClass&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Let’s work our way backwards through those, beginning with
-&lt;code&gt;ResponseClass&lt;/code&gt;. This can be either &lt;code&gt;Successful&lt;/code&gt; or &lt;code&gt;Failed&lt;/code&gt; and those
-values are self-explanatory. There are three constants which will
-cover the vast majority of usage: &lt;code&gt;Success&lt;/code&gt;, &lt;code&gt;NonRetryableFailure&lt;/code&gt; and
-&lt;code&gt;RetryableFailure&lt;/code&gt;. While as of today there is no distinction made
-between retryable and non-retryable failures, it was a good
-opportunity to lay the groundwork for use in the future.&lt;/p&gt;
-
-&lt;p&gt;A &lt;code&gt;ReqRep&lt;/code&gt; is a request/response struct with a request of type &lt;code&gt;Any&lt;/code&gt;
-and a response of type &lt;code&gt;Try[Any]&lt;/code&gt;. While the lack of typing may
-initially disturb you, our hope is that it is not an issue in
-practice. While all of this functionality is called response
-classification, you’ll note that classifiers make judgements on both a
-request and response.&lt;/p&gt;
-
-&lt;p&gt;Writing a custom &lt;code&gt;PartialFunction&lt;/code&gt; is easy in Scala given its syntactic
-sugar. As with many things it is a bit more work from Java but is
-doable. Here is an example that counts HTTP 503s as failures (for Java
-examples, take a look at &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-http/src/test/java/com/twitter/finagle/http/service/HttpResponseClassifierCompilationTest.java"&gt;&lt;code&gt;HttpResponseClassifierCompilationTest&lt;/code&gt;&lt;/a&gt;
-and &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/test/java/com/twitter/finagle/service/ResponseClassifierCompilationTest.java"&gt;&lt;code&gt;ResponseClassifierCompilationTest&lt;/code&gt;&lt;/a&gt;):&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="c1"&gt;// Scala
-&lt;/span&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.http&lt;/span&gt;
-&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.service.&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="nc"&gt;ReqRep&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;ResponseClass&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;ResponseClassifier&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
-&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.util.Return&lt;/span&gt;
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;classifier&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;ResponseClassifier&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;ReqRep&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;Return&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;r&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;http.Response&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;statusCode&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;503&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
-    &lt;span class="nc"&gt;ResponseClass&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;NonRetryableFailure&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Note that this &lt;code&gt;PartialFunction&lt;/code&gt; isn’t total which is ok due to
-Finagle always using user defined classifiers in combination with
-&lt;code&gt;ResponseClassifier.Default&lt;/code&gt; which will cover all cases.&lt;/p&gt;
-
-&lt;p&gt;Thrift and ThriftMux classifiers require a bit more care as the
-request and response types are not as obvious. This is because there
-is only a single &lt;code&gt;Service&lt;/code&gt; from &lt;code&gt;Array[Byte]&lt;/code&gt; to &lt;code&gt;Array[Byte]&lt;/code&gt; for all the
-methods of an IDL’s service. To make this workable, there is support
-in &lt;a href="http://twitter.github.io/scrooge/"&gt;Scrooge&lt;/a&gt; and &lt;code&gt;Thrift&lt;/code&gt;/&lt;code&gt;ThriftMux.newService&lt;/code&gt; and
-&lt;code&gt;Thrift&lt;/code&gt;/&lt;code&gt;ThriftMux.newClient&lt;/code&gt; code to deserialize the responses into the
-expected application types so that classifiers can be written in terms
-of the Scrooge generated request type, &lt;code&gt;$Service.$Method.Args&lt;/code&gt;, and the
-method&amp;rsquo;s response type. Given an IDL:&lt;/p&gt;
-&lt;pre class="highlight plaintext"&gt;&lt;code&gt;exception NotFoundException { 1: string reason }
-
-service SocialGraph {
-  i32 follow(1: i64 follower, 2: i64 followee) throws (1: NotFoundException ex)
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;One possible classifier would be:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;classifier&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;ResponseClassifier&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
-  &lt;span class="c1"&gt;// #1
-&lt;/span&gt;  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;ReqRep&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;Throw&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;_:&lt;/span&gt; &lt;span class="kt"&gt;NotFoundException&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
-    &lt;span class="nc"&gt;ResponseClass&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;NonRetryableFailure&lt;/span&gt;
-  &lt;span class="c1"&gt;// #2
-&lt;/span&gt;  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;ReqRep&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nc"&gt;Return&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;Int&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
-    &lt;span class="nc"&gt;ResponseClass&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;NonRetryableFailure&lt;/span&gt;
-  &lt;span class="c1"&gt;// #3
-&lt;/span&gt;  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nc"&gt;ReqRep&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;SocialGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Follow&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Args&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="o"&gt;),&lt;/span&gt; &lt;span class="k"&gt;_&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="k"&gt;=&amp;gt;&lt;/span&gt;
-    &lt;span class="nc"&gt;ResponseClass&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;NonRetryableFailure&lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;If you examine that classifier you’ll note a few things. First (#1),
-the deserialized &lt;code&gt;NotFoundException&lt;/code&gt; can be treated as a failure. Next
-(#2), a “successful” response can be examined to enable services using
-status codes to classify errors. Lastly (#3), the request can be
-  introspected to make the decision.&lt;/p&gt;
-
-&lt;h3&gt;But what’s it really gonna do?&lt;/h3&gt;
-
-&lt;p&gt;It’s important to understand what the impact will be if you customize
-response classification for your client. Perhaps most importantly,
-when responses are classified as failures, this affects how failure
-accrual sees responses. In the past, you may have had a Thrift service
-returning nothing but exceptions, but this node would continue getting
-traffic due to failure accrual’s lack of visibility. While this
-changes lets you fix this visibility, you should consider what causes
-those responses. For example, if the service is simply proxying a
-failure from its downstream service, you may not want to count that as
-a failure.&lt;/p&gt;
-
-&lt;p&gt;There isn’t a strict rule on what is the right thing to do with
-classification. However, with some minimal thought, many services can
-improve their success rate both in terms of how it’s reported as well
-as through avoidance of bad nodes.&lt;/p&gt;
-
-&lt;h3&gt;Alright.&lt;/h3&gt;
-
-&lt;p&gt;We’re really hopeful that this makes a significant difference in how
-well Finagle works for you but it needs you, the application
-developers, to make these choices.&lt;/p&gt;
-
-&lt;p&gt;If you have any questions on how to use this or feedback on how it’s working,
-please get in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt; or the
-&lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;.&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>Retry Budgets</title>
-    <link rel="alternate" href="https://finagle.github.io/blog/2016/02/08/retry-budgets/"/>
-    <id>https://finagle.github.io/blog/2016/02/08/retry-budgets/</id>
-    <published>2016-02-07T16:00:00-08:00</published>
-    <updated>2016-04-22T11:44:26-07:00</updated>
-    <author>
-      <name>Article Author</name>
-    </author>
-    <content type="html">&lt;p&gt;Ever had your service attacked by a retry storm from your clients? Or
-your clients’ clients? Or has your service ever been the attacker in
-one of those situations?&lt;/p&gt;
-
-&lt;p&gt;Thought so.&lt;/p&gt;
-
-&lt;p&gt;To help you avoid this, in release 6.31 we’ve introduced the notion of
-a &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/service/RetryBudget.scala"&gt;&lt;code&gt;RetryBudget&lt;/code&gt;&lt;/a&gt;
-that controls when it is okay for a client to retry a failed request.&lt;/p&gt;
-
-&lt;p&gt;The default budget allows for 20% of requests to be retried on top of
-a minimum of 10 retries per second. This is built on top of a token
-bucket where credits expire after 10 seconds. In practice this should
-allow for plenty of retries in the face of transient errors without
-causing cascading failures when there are persistent issues.&lt;/p&gt;
-
-&lt;p&gt;Developers can wire up their own budget:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;
-&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.service.RetryBudget&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;budget&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RetryBudget&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;???&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;twitter&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;
-  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;withRetryBudget&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;budget&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newService&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"twitter.com"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The following code shows how to use the factory method
-&lt;code&gt;RetryBudget.apply&lt;/code&gt; in order to construct a custom instance of
-&lt;code&gt;RetryBudget&lt;/code&gt;:&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.conversions.time._&lt;/span&gt;
-&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.service.RetryBudget&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;budget&lt;/span&gt;&lt;span class="k"&gt;:&lt;/span&gt; &lt;span class="kt"&gt;RetryBudget&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;RetryBudget&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
-  &lt;span class="n"&gt;ttl&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;10.&lt;/span&gt;&lt;span class="n"&gt;seconds&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
-  &lt;span class="n"&gt;minRetriesPerSec&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
-  &lt;span class="n"&gt;percentCanRetry&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;
-&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The &lt;code&gt;RetryBudget&lt;/code&gt; factory method takes three arguments:&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;&lt;code&gt;ttl&lt;/code&gt; — a time to live for deposited tokens&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;minRetriesPerSec&lt;/code&gt; — the minimum rate of retries allowed&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;percentCanRetry&lt;/code&gt; — the percentage of requests that might be retried&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;&lt;code&gt;RetryBudgets&lt;/code&gt; are wired up to &lt;code&gt;RetryFilter&lt;/code&gt; and &lt;code&gt;RetryExceptionsFilter&lt;/code&gt;
-which allows them to be used outside of a Finagle client as well.
-Further details on retries and retry budgets are covered in the
-&lt;a href="http://twitter.github.io/finagle/guide/Clients.html#retries"&gt;user guide&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Please let us know if you have any questions, either by filing a GitHub issue or
-getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt; or the
-&lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;.&lt;/p&gt;
 </content>
   </entry>
 </feed>
