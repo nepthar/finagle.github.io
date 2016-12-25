@@ -106,6 +106,41 @@
   </div>
   <div class="col-md-9">
       <article>
+        <h2><a href="/blog/2016/12/23/release-notes-6-41/">Finagle 6.41 Release Notes</a></h2>
+      <p><em>Posted by <a href="https://twitter.com/jillyfish">Jillian Crossley</a> on December 23, 2016</em></p>
+      <p>As the year ends, we’ve got an exciting new release for you! Here’s a quick rundown
+of what we’ve been up to.</p>
+
+<h3>Scala 2.12 Support is Here</h3>
+
+<p>Finagle, Util, Ostrich, Scrooge, and Twitter-Server are all now cross-compiled for Scala 2.11 and 2.12(!)</p>
+
+<h3>Dynamic...</h3>
+      <a href="/blog/2016/12/23/release-notes-6-41/">Read more...</a>
+      </article>
+      <article>
+        <h2><a href="/blog/2016/11/29/central-libthrift/">Farewell, maven.twttr.com!</a></h2>
+      <p><em>Posted by <a href="https://twitter.com/banderson">Bryce Anderson</a> on November 29, 2016</em></p>
+      <p>Historically Finagle has depended on a forked org.apache.thrift libthrift
+version 0.5.x, which happens to not be published to the Central
+Repository. We have published the artifact to maven.twttr.com,
+but this requires users to add the maven.twttr...</p>
+      <a href="/blog/2016/11/29/central-libthrift/">Read more...</a>
+      </article>
+      <article>
+        <h2><a href="/blog/2016/09/01/block-party/">Finagle Block Party</a></h2>
+      <p><em>Posted by <a href="https://twitter.com/kevino">Kevin Oliver</a> on September  1, 2016</em></p>
+      <p>💔 <strong>SPOILER ALERT:</strong> you do not want to go to this party 💔</p>
+
+<p>Blocking Finagle’s event loop via calls to
+<a href="http://twitter.github.io/util/docs/index.html#com.twitter.util.Await%24@result%5BT%5D(awaitable:com.twitter.util.Awaitable%5BT%5D,timeout:com.twitter.util.Duration):T">Await.result</a>
+or
+<a href="http://twitter.github.io/util/docs/index.html#com.twitter.util.Await%24@ready%5BT%3C:com.twitter.util.Awaitable%5B_%5D%5D(awaitable:T):T">Await.ready</a>
+will cause your application to experience unexpected slowness, a
+decrease in throughput, and potentially deadlocks. Find...</p>
+      <a href="/blog/2016/09/01/block-party/">Read more...</a>
+      </article>
+      <article>
         <h2><a href="/blog/2016/07/08/release-notes-6-36/">Finagle 6.36 Release Notes</a></h2>
       <p><em>Posted by <a href="https://twitter.com/vkostyukov">Vladimir Kostyukov</a> on July  8, 2016</em></p>
       <p>This is Finagle’s first release only for Java 8 and Scala 2.11. Since the previous release, the team
