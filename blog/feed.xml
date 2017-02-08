@@ -4,10 +4,82 @@
   <id>https://finagle.github.io/blog</id>
   <link href="https://finagle.github.io/blog"/>
   <link href="https://finagle.github.io/blog/blog/feed.xml" rel="self"/>
-  <updated>2016-12-22T16:00:00-08:00</updated>
+  <updated>2017-02-05T16:00:00-08:00</updated>
   <author>
     <name>Blog Author</name>
   </author>
+  <entry>
+    <title>Netty 4 support in Finagle</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2017/02/06/finagle-loves-netty4/"/>
+    <id>https://finagle.github.io/blog/2017/02/06/finagle-loves-netty4/</id>
+    <published>2017-02-05T16:00:00-08:00</published>
+    <updated>2017-02-07T17:17:17-08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;It&amp;rsquo;s been quite a while since the &lt;a href="http://finagle.github.io/blog/2014/10/20/upgrading-finagle-to-netty-4/"&gt;Netty 4 migration in Finagle&lt;/a&gt; was initially
+announced. We&amp;rsquo;ve travelled a long way and are happy to announce that there is now (as of
+&lt;a href="https://github.com/twitter/finagle/releases/tag/finagle-6.42.0"&gt;Finagle 6.42&lt;/a&gt;) support for Netty 4 transports in most of the protocols: Thrift, ThriftMux,
+Memcached, MySQL, Kestrel, and Redis. Both HTTP/1.1 and HTTP/2 are coming soon!&lt;/p&gt;
+
+&lt;h2&gt;How to enable Netty 4?&lt;/h2&gt;
+
+&lt;p&gt;While we have not yet defaulted to Netty 4, we&amp;rsquo;ve been running it in production for several months
+and have gained enough confidence to publicize the availability of the alternative transports in
+Finagle.&lt;/p&gt;
+
+&lt;p&gt;We encourage Finagle users to try out the new Netty 4 transports for their protocols and jump on the
+fast track to upcoming changes around resiliency (think of HTTP/2) and performance (think of a
+reduced allocation profile and better threading model in Netty 4).&lt;/p&gt;
+
+&lt;p&gt;To switch the transport over to Netty 4 supply the following command line flag:&lt;/p&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;-Dcom.twitter.finagle.toggle.flag.overrides=com.twitter.$protocol.UseNetty4=1.0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Where &lt;code&gt;$protocol&lt;/code&gt; is one of the following: &lt;code&gt;mux&lt;/code&gt; (use this for ThriftMux), &lt;code&gt;thrift&lt;/code&gt;, &lt;code&gt;mysql&lt;/code&gt;,
+&lt;code&gt;memcached&lt;/code&gt;, &lt;code&gt;kestrel&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;This command line flag overrides &lt;a href="https://twitter.github.io/finagle/guide/Configuration.html#feature-toggles"&gt;a feature toggle&lt;/a&gt; that is evaluated at application
+startup and is &lt;em&gt;global for all clients/servers running on the same JVM instance&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Note that Netty 4 is already enabled by default in &lt;code&gt;finagle-redis&lt;/code&gt; so no need for an extra CLI flag.&lt;/p&gt;
+
+&lt;h2&gt;What about HTTP/1.1?&lt;/h2&gt;
+
+&lt;p&gt;HTTP/1.1 on Netty 4 is still a work in progress. There are known limitations for HTTP clients, but
+we&amp;rsquo;ve been successfully running &lt;code&gt;finagle-http&lt;/code&gt; servers with Netty 4 in production for several weeks
+and on &lt;a href="https://github.com/twitter/twitter-server"&gt;TwitterServer&lt;/a&gt;&amp;rsquo;s admin interface for several months.&lt;/p&gt;
+
+&lt;p&gt;We feel confident in HTTP/1.1 servers running Netty 4 and encourage you to migrate now using the
+toggle override. Please note that this will also switch HTTP clients running in the same JVM
+process over to Netty 4, which we do not recommend at this point.&lt;/p&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;-Dcom.twitter.finagle.toggle.flag.overrides=com.twitter.http.UseNetty4=1.0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;What about HTTP/2?&lt;/h2&gt;
+
+&lt;p&gt;HTTP/2 (i.e., &lt;code&gt;finagle-http2&lt;/code&gt;) should be considered beta as there are known issues with the ALPN
+support. We&amp;rsquo;re hoping to roll out a feature-complete HTTP/2 implementation in the next couple of
+months. In the meantime, HTTP/2 support can be experimentally enabled on any Finagle HTTP client
+or server as shown below.&lt;/p&gt;
+&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;
+
+&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;configured&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Http2&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newService&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"www.example.com:80"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;What&amp;rsquo;s next?&lt;/h2&gt;
+
+&lt;p&gt;We&amp;rsquo;re quite optimistic about enabling Netty 4 by default in the next couple of months. Even though
+we&amp;rsquo;re not there yet, we feel very proud of the work we&amp;rsquo;ve done and the progress we&amp;rsquo;ve made. It took
+us several years of engineering effort to be able to start serving Netty 4 traffic in production.&lt;/p&gt;
+
+&lt;h2&gt;Where to report problems?&lt;/h2&gt;
+
+&lt;p&gt;Please file a &lt;a href="https://github.com/twitter/finagle/issues"&gt;Github issue&lt;/a&gt; if anything doesn&amp;rsquo;t look right when Netty 4 is enabled.&lt;/p&gt;
+</content>
+  </entry>
   <entry>
     <title>Finagle 6.41 Release Notes</title>
     <link rel="alternate" href="https://finagle.github.io/blog/2016/12/23/release-notes-6-41/"/>
@@ -291,47 +363,6 @@ getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt
 or &lt;a href="https://gitter.im/twitter/finagle"&gt;chat&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Happy TCP-capturing!&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>Final Scala 2.10 and Java 7 releases</title>
-    <link rel="alternate" href="https://finagle.github.io/blog/2016/04/20/scala-210-and-java7/"/>
-    <id>https://finagle.github.io/blog/2016/04/20/scala-210-and-java7/</id>
-    <published>2016-04-19T17:00:00-07:00</published>
-    <updated>2016-07-08T11:12:30-07:00</updated>
-    <author>
-      <name>Article Author</name>
-    </author>
-    <content type="html">&lt;p&gt;The upcoming releases of our family of projects will be the final release for
-Scala 2.10 and Java 7. These should be:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Finagle 6.35.0&lt;/li&gt;
-&lt;li&gt;Finatra 2.1.6&lt;/li&gt;
-&lt;li&gt;Util 6.34.0&lt;/li&gt;
-&lt;li&gt;Scrooge 4.7.0&lt;/li&gt;
-&lt;li&gt;TwitterServer 1.20.0&lt;/li&gt;
-&lt;li&gt;Ostrich 9.18.0&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Java 7 reached its &lt;a href="http://www.oracle.com/technetwork/java/eol-135779.html"&gt;end-of-life&lt;/a&gt;
-in April 2015 and we would like to begin using the Java 8 libraries as well as
-remove some Java 7 specific workarounds. Once Scala 2.12 is released, we plan
-to add support for cross-compiling Scala 2.11 and 2.12.&lt;/p&gt;
-
-&lt;p&gt;Note that the scrooge-sbt-plugin will continue to be published for only
-Scala 2.10 due to sbt plugin requirements.&lt;/p&gt;
-
-&lt;p&gt;If important patch releases become necessary we will try to accomodate these
-needs.&lt;/p&gt;
-
-&lt;p&gt;Please let us know if you have any questions, either by
-getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt;, the
-&lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;,
-or &lt;a href="https://gitter.im/twitter/finagle"&gt;chat&lt;/a&gt;. For Finatra get in touch through
-&lt;a href="https://twitter.com/finatra"&gt;@finatra&lt;/a&gt;, the
-&lt;a href="https://groups.google.com/forum/#!forum/finatra-users"&gt;Finatra mailing list&lt;/a&gt;,
-or &lt;a href="https://gitter.im/twitter/finatra"&gt;chat&lt;/a&gt;.&lt;/p&gt;
 </content>
   </entry>
 </feed>
