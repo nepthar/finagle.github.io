@@ -13,7 +13,7 @@
     <link rel="alternate" href="https://finagle.github.io/blog/2017/03/14/release-notes-6-43/"/>
     <id>https://finagle.github.io/blog/2017/03/14/release-notes-6-43/</id>
     <published>2017-03-13T17:00:00-07:00</published>
-    <updated>2017-03-14T10:10:39-07:00</updated>
+    <updated>2017-03-14T10:32:38-07:00</updated>
     <author>
       <name>Article Author</name>
     </author>
@@ -30,7 +30,7 @@
 &lt;ul&gt;
 &lt;li&gt;finagle-http now classifies server error status codes (500s) as failures. This affects success rate metrics and failure accrual. See the &lt;code&gt;com.twitter.finagle.http.serverErrorsAsFailuresV2&lt;/code&gt; &lt;a href="http://twitter.github.io/finagle/guide/Configuration.html#feature-toggles"&gt;toggle&lt;/a&gt; for opting out of this behavior. &lt;a href="https://github.com/twitter/finagle/commit/f34a73443679ac4fe76bc011bfb36a5b1abe9e5e"&gt;f34a7344&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;The finagle-http APIs continue their trek to rid themselves of having Netty 3 in its public API.&lt;/li&gt;
-&lt;li&gt;finagle-http now has experimental http/2 support. To try it out, pass the command line parameter &lt;code&gt;-com.twitter.finagle.http.UseHttp2=1.0&lt;/code&gt;. Please let us know of any issues that you run into!&lt;/li&gt;
+&lt;li&gt;finagle-http now has experimental http/2 support. To try it out, pass the command line parameter &lt;code&gt;-com.twitter.finagle.toggle.flag.overrides=com.twitter.finagle.http.UseHttp2=1.0&lt;/code&gt;. Please let us know of any issues that you run into!&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h3&gt;Scrooge&lt;/h3&gt;
