@@ -4,10 +4,54 @@
   <id>https://finagle.github.io/blog</id>
   <link href="https://finagle.github.io/blog"/>
   <link href="https://finagle.github.io/blog/blog/feed.xml" rel="self"/>
-  <updated>2017-03-13T17:00:00-07:00</updated>
+  <updated>2017-03-19T17:00:00-07:00</updated>
   <author>
     <name>Blog Author</name>
   </author>
+  <entry>
+    <title>🌻 Spring Planning 🌻</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2017/03/20/spring-planning/"/>
+    <id>https://finagle.github.io/blog/2017/03/20/spring-planning/</id>
+    <published>2017-03-19T17:00:00-07:00</published>
+    <updated>2017-03-20T16:42:40-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;The team working on &lt;a href="https://twitter.github.io/finagle/"&gt;Finagle&lt;/a&gt;, &lt;a href="https://twitter.github.io/finatra/"&gt;Finatra&lt;/a&gt;, and related libraries met last week and did our planning for the next three months. These are high-level goals and as such, have varying degrees of confidence and certainty.&lt;/p&gt;
+
+&lt;h4&gt;In the spirit of Spring cleaning:&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Remove Netty 3 support from most protocols. We expect to complete most protocols, however HTTP is a long shot.&lt;/li&gt;
+&lt;li&gt;Upgrade &lt;a href="https://thrift.apache.org/"&gt;libthrift&lt;/a&gt; to 0.10.0 from the ancient fork of 0.5.0. (&lt;a href="https://github.com/twitter/scrooge/issues/85"&gt;twitter/scrooge#85&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Deprecate and then remove modules that are unsupported or exist in a zombie-like state. This includes &lt;a href="https://github.com/twitter/ostrich"&gt;ostrich&lt;/a&gt;, &lt;a href="https://github.com/twitter/finagle/tree/develop/finagle-ostrich4"&gt;finagle-ostrich4&lt;/a&gt;, &lt;a href="https://github.com/twitter/finagle/tree/develop/finagle-kestrel"&gt;finagle-kestrel&lt;/a&gt;, &lt;a href="https://github.com/twitter/finagle/tree/develop/finagle-stream"&gt;finagle-stream&lt;/a&gt;, &lt;a href="https://github.com/twitter/finagle/tree/develop/finagle-native"&gt;finagle-native&lt;/a&gt;, &lt;a href="https://github.com/twitter/finagle/tree/develop/finagle-mdns"&gt;finagle-mdns&lt;/a&gt;, and &lt;a href="https://github.com/twitter/util/tree/develop/util-eval"&gt;util-eval&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Minimize dependencies on &lt;a href="https://github.com/twitter/commons"&gt;twitter-commons&lt;/a&gt; with the eventual goal of removing all of them.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4&gt;For those interested in the shiny and new:&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Get HTTP/2 to production level quality so that it becomes the default HTTP implementation.&lt;/li&gt;
+&lt;li&gt;Continued SSL/TLS work, including STARTTLS support for Mux.&lt;/li&gt;
+&lt;li&gt;Finish the work on &lt;a href="https://github.com/twitter/util/tree/develop/util-tunable"&gt;Tunables&lt;/a&gt; such that service owners can dynamically change configuration.&lt;/li&gt;
+&lt;li&gt;Finish the work on &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/client/MethodBuilder.scala"&gt;MethodBuilder&lt;/a&gt; as a replacement for ClientBuilder and the foundation for more enhancements.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4&gt;For those who like their tools polished:&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Throughput improvements via changes to Futures, defaulting to the Netty 4 native transport, Netty 4 buffer pooling, and more.&lt;/li&gt;
+&lt;li&gt;Switch the default &lt;a href="https://twitter.github.io/finagle/guide/Clients.html#load-balancing"&gt;load balancer&lt;/a&gt; to Aperture.&lt;/li&gt;
+&lt;li&gt;Switch the default &lt;a href="https://twitter.github.io/finagle/guide/Clients.html#failure-accrual"&gt;failure accrual&lt;/a&gt; policy to success rate instead of consecutive failures.&lt;/li&gt;
+&lt;li&gt;Move TwitterServer to use &lt;a href="https://www.slf4j.org/"&gt;slf4j&lt;/a&gt; for logging and begin the process of moving Util and Finagle.&lt;/li&gt;
+&lt;li&gt;A handful of Scrooge changes to make the Scala generated code more composable, fixing &lt;a href="https://twitter.github.io/finagle/guide/Clients.html#response-classification"&gt;ResponseClassification&lt;/a&gt; for servers for example.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Please feel free to ask questions on the &lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;mailing list&lt;/a&gt; about anything that is unclear and we’ll help clarify if you would like to know more.&lt;/p&gt;
+
+&lt;p&gt;Kevin Oliver and the Core Systems Libraries team&lt;/p&gt;
+</content>
+  </entry>
   <entry>
     <title>Finagle 6.43 Release Notes</title>
     <link rel="alternate" href="https://finagle.github.io/blog/2017/03/14/release-notes-6-43/"/>
@@ -322,59 +366,6 @@ getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt
 or &lt;a href="https://gitter.im/twitter/finagle"&gt;chat&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Thanks for reading and we sincerely hope you don’t RSVP.&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>Finagle 6.36 Release Notes</title>
-    <link rel="alternate" href="https://finagle.github.io/blog/2016/07/08/release-notes-6-36/"/>
-    <id>https://finagle.github.io/blog/2016/07/08/release-notes-6-36/</id>
-    <published>2016-07-07T17:00:00-07:00</published>
-    <updated>2016-08-31T10:39:18-07:00</updated>
-    <author>
-      <name>Article Author</name>
-    </author>
-    <content type="html">&lt;p&gt;This is Finagle&amp;rsquo;s first release only for Java 8 and Scala 2.11. Since the previous release, the team
-has been focusing on the Netty 4 migration as well as eliminating some technical debt.&lt;/p&gt;
-
-&lt;h3&gt;Towards Netty 4&lt;/h3&gt;
-
-&lt;p&gt;The team is firing on all cylinders towards Netty 4 support in Finagle. This milestone brings
-&lt;em&gt;beta&lt;/em&gt; (not yet widely used in production) Netty 4 support to Mux/ThriftMux, HTTP 1.1, and
-SOCKS5 (proxy).&lt;/p&gt;
-
-&lt;p&gt;In the meantime, we&amp;rsquo;re part way through migrating the MySQL, Memcached, and Redis protocol.
-Everything is going quite smoothly (except for a couple of
-&lt;a href="https://groups.google.com/forum/#!topic/finaglers/LOCVA0nhcaU"&gt;shortcuts we had to take with Redis&lt;/a&gt;) and we&amp;rsquo;re super positive about having an
-experimental Netty 4 support for those protocols in the next release.&lt;/p&gt;
-
-&lt;h3&gt;Killing Tech Debt&lt;/h3&gt;
-
-&lt;p&gt;There was a tech debt sprint this milestone where we fixed plenty of broken windows. To mention a few: &lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;replace our own version of &lt;code&gt;NoStacktrace&lt;/code&gt; with the Scala version&lt;/li&gt;
-&lt;li&gt;replace our own fork of JSR166e with the JDK8 version&lt;/li&gt;
-&lt;li&gt;clean up duplicated stats: &lt;code&gt;closechans&lt;/code&gt;, &lt;code&gt;closed&lt;/code&gt;, and &lt;code&gt;load&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;finagle-zipkin is now split into two packages: finagle-zipkin (implementation) and
-finagle-zipkin-core (core data types and interfaces)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3&gt;Side Effects are Side Effects&lt;/h3&gt;
-
-&lt;p&gt;There is one runtime change we think it&amp;rsquo;s worth highlighting here. We changed the behaviour of
-&lt;code&gt;.onSuccess&lt;/code&gt;/&lt;code&gt;.onFailure&lt;/code&gt; combinators so that they don&amp;rsquo;t fail a request if the passed function
-throws an exception. Please, consider refactoring if your application has been relying on that
-behaviour.&lt;/p&gt;
-
-&lt;h3&gt;Changelog&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://github.com/twitter/finagle/releases/tag/finagle-6.36.0"&gt;Finagle 6.36&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/twitter/util/releases/tag/util-6.35.0"&gt;Util 6.35&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/twitter/scrooge/releases/tag/scrooge-4.8.0"&gt;Scrooge 4.8&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/twitter/twitter-server/releases/tag/twitter-server-1.21.0"&gt;TwitterServer 1.21&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Ostrich 9.19 (no changes, only dependency bump)&lt;/li&gt;
-&lt;/ul&gt;
 </content>
   </entry>
 </feed>
