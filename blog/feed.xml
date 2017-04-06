@@ -4,10 +4,38 @@
   <id>https://finagle.github.io/blog</id>
   <link href="https://finagle.github.io/blog"/>
   <link href="https://finagle.github.io/blog/blog/feed.xml" rel="self"/>
-  <updated>2017-03-19T17:00:00-07:00</updated>
+  <updated>2017-04-05T17:00:00-07:00</updated>
   <author>
     <name>Blog Author</name>
   </author>
+  <entry>
+    <title>🌇 Upcoming module removals 🌇</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2017/04/06/announce-removals/"/>
+    <id>https://finagle.github.io/blog/2017/04/06/announce-removals/</id>
+    <published>2017-04-05T17:00:00-07:00</published>
+    <updated>2017-04-06T10:52:00-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;As mentioned in our &lt;a href="https://finagle.github.io/blog/2017/03/20/spring-planning/"&gt;spring planning notes&lt;/a&gt;, we are sunsetting a number of modules that have been unsupported or exist in a zombie-like state.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;finagle-ostrich4&lt;/li&gt;
+&lt;li&gt;finagle-kestrel&lt;/li&gt;
+&lt;li&gt;finagle-stream&lt;/li&gt;
+&lt;li&gt;finagle-native&lt;/li&gt;
+&lt;li&gt;finagle-mdns&lt;/li&gt;
+&lt;li&gt;util-eval&lt;/li&gt;
+&lt;li&gt;ostrich&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The upcoming April release will be their final one. Due to Ostrich being a separate project it will not be removed immediately.&lt;/p&gt;
+
+&lt;p&gt;Please feel free to ask questions on the &lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;mailing list&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Kevin Oliver and the Core Systems Libraries team&lt;/p&gt;
+</content>
+  </entry>
   <entry>
     <title>🌻 Spring Planning 🌻</title>
     <link rel="alternate" href="https://finagle.github.io/blog/2017/03/20/spring-planning/"/>
@@ -271,101 +299,6 @@ organization names:&lt;/p&gt;
 
 &lt;p&gt;See the &lt;a href="http://www.scala-sbt.org/0.13/docs/Library-Management.html"&gt;sbt documentation on library management&lt;/a&gt;
 for more details.&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>Finagle Block Party</title>
-    <link rel="alternate" href="https://finagle.github.io/blog/2016/09/01/block-party/"/>
-    <id>https://finagle.github.io/blog/2016/09/01/block-party/</id>
-    <published>2016-08-31T17:00:00-07:00</published>
-    <updated>2016-09-01T09:30:58-07:00</updated>
-    <author>
-      <name>Article Author</name>
-    </author>
-    <content type="html">&lt;p&gt;💔 &lt;strong&gt;SPOILER ALERT:&lt;/strong&gt; you do not want to go to this party 💔&lt;/p&gt;
-
-&lt;p&gt;Blocking Finagle&amp;rsquo;s event loop via calls to
-&lt;a href="http://twitter.github.io/util/docs/index.html#com.twitter.util.Await$@result[T](awaitable:com.twitter.util.Awaitable[T],timeout:com.twitter.util.Duration):T"&gt;Await.result&lt;/a&gt;
-or
-&lt;a href="http://twitter.github.io/util/docs/index.html#com.twitter.util.Await$@ready[T%3C:com.twitter.util.Awaitable[_]](awaitable:T):T"&gt;Await.ready&lt;/a&gt;
-will cause your application to experience unexpected slowness, a
-decrease in throughput, and potentially deadlocks. Find out if our new
-tools that identify the calls that cause service sadness are right for
-you.&lt;/p&gt;
-
-&lt;p&gt;✮ &lt;em&gt;Why is blocking bad?&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;Finagle uses Netty which is a network library built on an event loop.
-When an event loop thread blocks, that thread can no longer do its
-other asynchronous work. As such, blocking has effects that span
-beyond the line of code that is doing the blocking. Removing blocking
-code should help your service with throughput and latency.&lt;/p&gt;
-
-&lt;p&gt;✮ &lt;em&gt;How do I find out if my service is blocking?&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;Blocking can happen in two ways, explicitly and implicitly. Explicit
-blocking is when code synchronously waits on a Future from an event
-loop thread. In Finagle, this is done by making calls to
-&lt;a href="http://twitter.github.io/util/docs/index.html#com.twitter.util.Await$@result[T](awaitable:com.twitter.util.Awaitable[T],timeout:com.twitter.util.Duration):T"&gt;Await.result&lt;/a&gt;
-or
-&lt;a href="http://twitter.github.io/util/docs/index.html#com.twitter.util.Await$@ready[T%3C:com.twitter.util.Awaitable[_]](awaitable:T):T"&gt;Await.ready&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;If your service is running Finagle 6.37, there is now a gauge exported
-as
-&lt;a href="http://twitter.github.io/finagle/guide/Metrics#scheduler"&gt;scheduler/blocking_ms&lt;/a&gt;
-which can be used to identify how much time is being spent. You can
-verify that your service continues to operate correctly by checking
-the new lint rule added to TwitterServer&amp;rsquo;s
-&lt;a href="http://twitter.github.io/twitter-server/Admin.html#admin-lint"&gt;/admin/lint&lt;/a&gt;
-admin endpoint.&lt;/p&gt;
-
-&lt;p&gt;Implicit blocking happens when your code runs a potentially expensive
-operation, for example making network calls on the event loop thread
-using a synchronous API. Unfortunately, these calls are difficult to
-track down and we do not yet have any tooling to help on this front.&lt;/p&gt;
-
-&lt;p&gt;✮ &lt;em&gt;Bummer, it is blocking. How do I find out what’s blocking?&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;You can do a deploy with an extra system property set that will log
-the stacktraces for a fraction of the blocking calls. Given that the
-code is about to block, the extra overhead of logging the stacktrace
-shouldn&amp;rsquo;t be a significant overhead. However, if your service has a
-large amount of blocking, you may want to limit this fraction to avoid
-filling up your logs. You can set it via
-&lt;code&gt;-Dcom.twitter.concurrent.schedulerSampleBlockingFraction=$fraction&lt;/code&gt;
-where &lt;code&gt;$fraction&lt;/code&gt; must be between &lt;code&gt;0.0&lt;/code&gt; and &lt;code&gt;1.0&lt;/code&gt;, inclusive.&lt;/p&gt;
-
-&lt;p&gt;This will output a log that should point you to the code doing the
-blocking. For example in the stacktrace below, HttpServer.scala would
-be the cause:&lt;/p&gt;
-&lt;pre class="highlight plaintext"&gt;&lt;code&gt;I 0812 21:39:31.743 THREAD18 TraceId:a2c1d94ae0029777: Scheduler blocked for 5004957 micros via the following stacktrace
-com.twitter.concurrent.LocalScheduler$BlockingHere
-  at com.twitter.concurrent.LocalScheduler$Activation.blocking(Scheduler.scala:216)
-  at com.twitter.concurrent.LocalScheduler.blocking(Scheduler.scala:285)
-  at com.twitter.concurrent.Scheduler$.blocking(Scheduler.scala:115)
-  at com.twitter.util.Await$.result(Awaitable.scala:151)
-  at com.twitter.util.Await$.result(Awaitable.scala:140)
-  at com.twitter.example.HttpServer$$anonfun$4.apply(HttpServer.scala:28)
-  at com.twitter.example.HttpServer$$anonfun$4.apply(HttpServer.scala:24)
-  ...
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;✮ &lt;em&gt;How can I fix the blocking code?&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;We recommend that applications use the &lt;a href="http://twitter.github.io/finagle/guide/Futures.html#sequential-composition"&gt;Future
-combinators&lt;/a&gt;
-such as &lt;code&gt;flatMap&lt;/code&gt;, &lt;code&gt;onSuccess&lt;/code&gt;, &lt;code&gt;transform&lt;/code&gt;, and so on. Sometimes this type
-of change may not be feasible and in those cases you can use a
-&lt;a href="https://github.com/twitter/util/blob/master/util-core/src/main/scala/com/twitter/util/FuturePool.scala"&gt;FuturePool&lt;/a&gt;
-to shift the blocking off of the event loop and onto a thread pool
-that your application controls.&lt;/p&gt;
-
-&lt;p&gt;Please let us know if you have any questions, either by
-getting in touch through &lt;a href="https://twitter.com/finagle"&gt;@finagle&lt;/a&gt;, the
-&lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finaglers mailing list&lt;/a&gt;,
-or &lt;a href="https://gitter.im/twitter/finagle"&gt;chat&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Thanks for reading and we sincerely hope you don’t RSVP.&lt;/p&gt;
 </content>
   </entry>
 </feed>
