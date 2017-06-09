@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Finagle 6.34 Release Notes</title>
+    <title>Integration of CLA Assistant</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="" />
     <meta name="author" content="" />
@@ -97,10 +97,10 @@
   <div class="meta">
     <!---->
     <div class="author-contact">
-      <h4 class="author-name">Vladimir Kostyukov</h4>
-      <p class="author-twitter"><a href="https://twitter.com/vkostyukov">@vkostyukov</a></p>
+      <h4 class="author-name">Eitan Adler</h4>
+      <p class="author-twitter"><a href="https://twitter.com/">@</a></p>
     </div>
-    <p><em>Posted March 11, 2016</em></p>
+    <p><em>Posted June  9, 2017</em></p>
   </div>
   
   <div class="share">
@@ -111,51 +111,13 @@
 </div>
 
 <div class="post col-md-9">
-  <h1>Finagle 6.34 Release Notes</h1>
+  <h1>Integration of CLA Assistant</h1>
   
-  <p>This release we&rsquo;ve been focusing on improving both overall stability of Finagle components and
-debugging features. We also reverted a patch that cased <a href="https://groups.google.com/forum/#!topic/finaglers/tJUtxoaDGx8">duplicate tag error</a> that looks as
-follows.</p>
-<pre class="highlight plaintext"><code>com.twitter.finagle.mux.ServerError: Duplicate tag 6
-</code></pre>
+  <p>We have integrated <a href="CLA%20Assistant">cla-assistant.io</a> with the Finagle Github repository.</p>
 
-<p>With that said, we highly recommend upgrading from 6.33 to 6.34.</p>
+<p>Due to lack of discoverability, not everyone has been consistent about signing <a href="https://engineering.twitter.com/opensource/cla">Twitter&rsquo;s existing CLA</a>. We believe that this will be less of a burden than manually checking CLAs against an internal list.</p>
 
-<h3>Highlights</h3>
-
-<ul>
-<li>Finagle now includes downstream/upstream addresses in its exceptions (see <a href="https://github.com/twitter/finagle/commit/6716980a5f313cdc4488c578ea3a642cdfb9d4fa">dfb9d4fa</a>)</li>
-<li><a href="http://twitter.github.io/finagle/guide/Servers.html#response-classification">Response classifiers</a> are now enabled for HTTP servers (see <a href="https://github.com/twitter/finagle/commit/28c03353024a2372513657030ba1c940c6f1b9b8">c6f1b9b8</a>)</li>
-<li>Two new histograms <code>request_payload_bytes</code> and <code>response_payload_bytes</code> are now reported for
-HTTP, Mux, Thrift, and ThriftMux protocols (see <a href="https://github.com/twitter/finagle/commit/35e466ff35a1630c17aba6ee1fbd593aa0d9b697">a0d9b697</a>)</li>
-<li>A number of deprecated methods were removed from the Finagle API (see <a href="https://github.com/twitter/finagle/commit/6b230c7032efe4ac1f07118da19bb1d8eeb54869">eeb54869</a>)</li>
-<li>Stack overflow bug was fixed in <code>AsyncStream.concat</code> (see <a href="https://github.com/twitter/util/commit/dedad7027db8ea88c513b4c428b0dcdc5a039780">5a039780</a>)</li>
-</ul>
-
-<h3>Further Plans</h3>
-
-<p>We&rsquo;re actively working on migrating Finagle to Netty 4 (<code>finagle-core</code> is mostly done,
-<code>finagle-http</code> is our next target) and as part of this work we&rsquo;re planing to completely
-replace <a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/Codec.scala">codecs</a>, which are pretty tied to Netty 3, with <a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/Stack.scala">stacks</a>. While this is
-a pretty wide internal change, it should not affect Finagle users.</p>
-
-<h3>Changelog</h3>
-
-<ul>
-<li><a href="https://github.com/twitter/finagle/releases/tag/finagle-6.34.0">Finagle 6.34</a></li>
-<li><a href="https://github.com/twitter/util/releases/tag/util-6.33.0">Util 6.33</a></li>
-<li><a href="https://github.com/twitter/scrooge/releases/tag/scrooge-4.6.0">Scrooge 4.6</a></li>
-<li><a href="https://github.com/twitter/twitter-server/releases/tag/twitter-server-1.19.0">TwitterServer 1.19</a></li>
-<li><a href="https://github.com/twitter/ostrich/releases/tag/ostrich-9.17.0">Ostrich 9.17</a></li>
-</ul>
-
-<h3>Contributors</h3>
-
-<p>We deeply thank our awesome contributors who helped to make this release happen. According to
-<code>git shortlog -sn --no-merges finagle-6.33.0..finagle-6.34.0</code>, 18 people contributed to this release:
-Kevin Oliver, Daniel Schobel, Eugene Ma, Vladimir Kostyukov, Ruben Oanta, Christopher Coco, Jillian
-Crossley, Eitan Adler, Ryan Greenberg, Stu Hood, Antoine Tollenaere, Yoshimasa Niwa, Bing Wei, Edward
-Samson, Liam Stewart, Lucas Langer, Miguel Cervera, Moses Nakamura, Peter Schuller.</p>
+<p>Eitan Adler, Vlad Kostyukov, on behalf Twitter&rsquo;s Open Source Team</p>
 
 </div>
 </div>

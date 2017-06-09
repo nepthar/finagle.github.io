@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Finagle 6.34 Release Notes</title>
+    <title>🌻 Spring Planning 🌻</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="" />
     <meta name="author" content="" />
@@ -97,10 +97,10 @@
   <div class="meta">
     <!---->
     <div class="author-contact">
-      <h4 class="author-name">Vladimir Kostyukov</h4>
-      <p class="author-twitter"><a href="https://twitter.com/vkostyukov">@vkostyukov</a></p>
+      <h4 class="author-name">Kevin Oliver</h4>
+      <p class="author-twitter"><a href="https://twitter.com/kevino">@kevino</a></p>
     </div>
-    <p><em>Posted March 11, 2016</em></p>
+    <p><em>Posted March 20, 2017</em></p>
   </div>
   
   <div class="share">
@@ -111,51 +111,41 @@
 </div>
 
 <div class="post col-md-9">
-  <h1>Finagle 6.34 Release Notes</h1>
+  <h1>🌻 Spring Planning 🌻</h1>
   
-  <p>This release we&rsquo;ve been focusing on improving both overall stability of Finagle components and
-debugging features. We also reverted a patch that cased <a href="https://groups.google.com/forum/#!topic/finaglers/tJUtxoaDGx8">duplicate tag error</a> that looks as
-follows.</p>
-<pre class="highlight plaintext"><code>com.twitter.finagle.mux.ServerError: Duplicate tag 6
-</code></pre>
+  <p>The team working on <a href="https://twitter.github.io/finagle/">Finagle</a>, <a href="https://twitter.github.io/finatra/">Finatra</a>, and related libraries met last week and did our planning for the next three months. These are high-level goals and as such, have varying degrees of confidence and certainty.</p>
 
-<p>With that said, we highly recommend upgrading from 6.33 to 6.34.</p>
-
-<h3>Highlights</h3>
+<h4>In the spirit of Spring cleaning:</h4>
 
 <ul>
-<li>Finagle now includes downstream/upstream addresses in its exceptions (see <a href="https://github.com/twitter/finagle/commit/6716980a5f313cdc4488c578ea3a642cdfb9d4fa">dfb9d4fa</a>)</li>
-<li><a href="http://twitter.github.io/finagle/guide/Servers.html#response-classification">Response classifiers</a> are now enabled for HTTP servers (see <a href="https://github.com/twitter/finagle/commit/28c03353024a2372513657030ba1c940c6f1b9b8">c6f1b9b8</a>)</li>
-<li>Two new histograms <code>request_payload_bytes</code> and <code>response_payload_bytes</code> are now reported for
-HTTP, Mux, Thrift, and ThriftMux protocols (see <a href="https://github.com/twitter/finagle/commit/35e466ff35a1630c17aba6ee1fbd593aa0d9b697">a0d9b697</a>)</li>
-<li>A number of deprecated methods were removed from the Finagle API (see <a href="https://github.com/twitter/finagle/commit/6b230c7032efe4ac1f07118da19bb1d8eeb54869">eeb54869</a>)</li>
-<li>Stack overflow bug was fixed in <code>AsyncStream.concat</code> (see <a href="https://github.com/twitter/util/commit/dedad7027db8ea88c513b4c428b0dcdc5a039780">5a039780</a>)</li>
+<li>Remove Netty 3 support from most protocols. We expect to complete most protocols, however HTTP is a long shot.</li>
+<li>Upgrade <a href="https://thrift.apache.org/">libthrift</a> to 0.10.0 from the ancient fork of 0.5.0. (<a href="https://github.com/twitter/scrooge/issues/85">twitter/scrooge#85</a>)</li>
+<li>Deprecate and then remove modules that are unsupported or exist in a zombie-like state. This includes <a href="https://github.com/twitter/ostrich">ostrich</a>, <a href="https://github.com/twitter/finagle/tree/develop/finagle-ostrich4">finagle-ostrich4</a>, <a href="https://github.com/twitter/finagle/tree/develop/finagle-kestrel">finagle-kestrel</a>, <a href="https://github.com/twitter/finagle/tree/develop/finagle-stream">finagle-stream</a>, <a href="https://github.com/twitter/finagle/tree/develop/finagle-native">finagle-native</a>, <a href="https://github.com/twitter/finagle/tree/develop/finagle-mdns">finagle-mdns</a>, and <a href="https://github.com/twitter/util/tree/develop/util-eval">util-eval</a>.</li>
+<li>Minimize dependencies on <a href="https://github.com/twitter/commons">twitter-commons</a> with the eventual goal of removing all of them.</li>
 </ul>
 
-<h3>Further Plans</h3>
-
-<p>We&rsquo;re actively working on migrating Finagle to Netty 4 (<code>finagle-core</code> is mostly done,
-<code>finagle-http</code> is our next target) and as part of this work we&rsquo;re planing to completely
-replace <a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/Codec.scala">codecs</a>, which are pretty tied to Netty 3, with <a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/Stack.scala">stacks</a>. While this is
-a pretty wide internal change, it should not affect Finagle users.</p>
-
-<h3>Changelog</h3>
+<h4>For those interested in the shiny and new:</h4>
 
 <ul>
-<li><a href="https://github.com/twitter/finagle/releases/tag/finagle-6.34.0">Finagle 6.34</a></li>
-<li><a href="https://github.com/twitter/util/releases/tag/util-6.33.0">Util 6.33</a></li>
-<li><a href="https://github.com/twitter/scrooge/releases/tag/scrooge-4.6.0">Scrooge 4.6</a></li>
-<li><a href="https://github.com/twitter/twitter-server/releases/tag/twitter-server-1.19.0">TwitterServer 1.19</a></li>
-<li><a href="https://github.com/twitter/ostrich/releases/tag/ostrich-9.17.0">Ostrich 9.17</a></li>
+<li>Get HTTP/2 to production level quality so that it becomes the default HTTP implementation.</li>
+<li>Continued SSL/TLS work, including STARTTLS support for Mux.</li>
+<li>Finish the work on <a href="https://github.com/twitter/util/tree/develop/util-tunable">Tunables</a> such that service owners can dynamically change configuration.</li>
+<li>Finish the work on <a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/client/MethodBuilder.scala">MethodBuilder</a> as a replacement for ClientBuilder and the foundation for more enhancements.</li>
 </ul>
 
-<h3>Contributors</h3>
+<h4>For those who like their tools polished:</h4>
 
-<p>We deeply thank our awesome contributors who helped to make this release happen. According to
-<code>git shortlog -sn --no-merges finagle-6.33.0..finagle-6.34.0</code>, 18 people contributed to this release:
-Kevin Oliver, Daniel Schobel, Eugene Ma, Vladimir Kostyukov, Ruben Oanta, Christopher Coco, Jillian
-Crossley, Eitan Adler, Ryan Greenberg, Stu Hood, Antoine Tollenaere, Yoshimasa Niwa, Bing Wei, Edward
-Samson, Liam Stewart, Lucas Langer, Miguel Cervera, Moses Nakamura, Peter Schuller.</p>
+<ul>
+<li>Throughput improvements via changes to Futures, defaulting to the Netty 4 native transport, Netty 4 buffer pooling, and more.</li>
+<li>Switch the default <a href="https://twitter.github.io/finagle/guide/Clients.html#load-balancing">load balancer</a> to Aperture.</li>
+<li>Switch the default <a href="https://twitter.github.io/finagle/guide/Clients.html#failure-accrual">failure accrual</a> policy to success rate instead of consecutive failures.</li>
+<li>Move TwitterServer to use <a href="https://www.slf4j.org/">slf4j</a> for logging and begin the process of moving Util and Finagle.</li>
+<li>A handful of Scrooge changes to make the Scala generated code more composable, fixing <a href="https://twitter.github.io/finagle/guide/Clients.html#response-classification">ResponseClassification</a> for servers for example.</li>
+</ul>
+
+<p>Please feel free to ask questions on the <a href="https://groups.google.com/forum/#!forum/finaglers">mailing list</a> about anything that is unclear and we’ll help clarify if you would like to know more.</p>
+
+<p>Kevin Oliver and the Core Systems Libraries team</p>
 
 </div>
 </div>
