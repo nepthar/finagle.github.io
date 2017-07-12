@@ -13,7 +13,7 @@
     <link rel="alternate" href="https://finagle.github.io/blog/2017/07/12/summer-review/"/>
     <id>https://finagle.github.io/blog/2017/07/12/summer-review/</id>
     <published>2017-07-11T17:00:00-07:00</published>
-    <updated>2017-07-12T10:14:48-07:00</updated>
+    <updated>2017-07-12T15:04:19-07:00</updated>
     <author>
       <name>Article Author</name>
     </author>
@@ -121,7 +121,7 @@ Twitter Futures into &lt;a href="https://blog.jetbrains.com/idea/2017/02/intelli
 stacktraces&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Converting logging in TwitterServer over to slf4j is a large change
-that is in progress. land.&lt;/p&gt;
+that is in progress.&lt;/p&gt;
 
 &lt;h4&gt;Security&lt;/h4&gt;
 
