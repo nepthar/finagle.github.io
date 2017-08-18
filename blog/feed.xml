@@ -13,11 +13,11 @@
     <link rel="alternate" href="https://finagle.github.io/blog/2017/08/17/release-notes-7-00/"/>
     <id>https://finagle.github.io/blog/2017/08/17/release-notes-7-00/</id>
     <published>2017-08-16T17:00:00-07:00</published>
-    <updated>2017-08-17T17:13:41-07:00</updated>
+    <updated>2017-08-18T08:43:18-07:00</updated>
     <author>
       <name>Article Author</name>
     </author>
-    <content type="html">&lt;p&gt;The August release is here and brings a major version bump for both Finagle and Util to v7! :cake: :cake: :cake:&lt;/p&gt;
+    <content type="html">&lt;p&gt;The August release is here and brings a major version bump for both Finagle and Util to v7! 🍰🍰🍰&lt;/p&gt;
 
 &lt;p&gt;Over the last few years Finagle has had an extensive internal overhaul to support Netty 4 along with a rewrite of all its protocols so now as the last traces of Netty 3 have been removed from finagle-core we felt the time was right to celebrate with a shiny new major version.&lt;/p&gt;
 
