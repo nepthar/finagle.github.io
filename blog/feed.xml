@@ -4,10 +4,79 @@
   <id>https://finagle.github.io/blog</id>
   <link href="https://finagle.github.io/blog"/>
   <link href="https://finagle.github.io/blog/blog/feed.xml" rel="self"/>
-  <updated>2017-07-11T17:00:00-07:00</updated>
+  <updated>2017-08-16T17:00:00-07:00</updated>
   <author>
     <name>Blog Author</name>
   </author>
+  <entry>
+    <title>Finagle 7 Release Notes</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2017/08/17/release-notes-7-00/"/>
+    <id>https://finagle.github.io/blog/2017/08/17/release-notes-7-00/</id>
+    <published>2017-08-16T17:00:00-07:00</published>
+    <updated>2017-08-17T17:09:22-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;The August release is here and brings a major version bump for both Finagle and Util to v7! :cake::cake::cake:&lt;/p&gt;
+
+&lt;p&gt;Over the last few years Finagle has had an extensive internal overhaul to support Netty 4 along with a rewrite of all its protocols so now as the last traces of Netty 3 have been removed from finagle-core we felt the time was right to celebrate with a shiny new major version.&lt;/p&gt;
+
+&lt;p&gt;(Fun fact: Finagle&amp;rsquo;s last major version bump came almost 5 years ago, a simpler time when &amp;lsquo;Gangnam Style&amp;rsquo; was still dominating the charts.)&lt;/p&gt;
+
+&lt;p&gt;Without further ado, here are the highlights:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/twitter/finagle/blob/finagle-7.0.0/CHANGES"&gt;Finagle 7.0.0&lt;/a&gt;, &lt;a href="https://github.com/twitter/finatra/blob/finatra-2.12.0/CHANGELOG.md"&gt;Finatra 2.12.0&lt;/a&gt;, &lt;a href="https://github.com/twitter/scrooge/blob/scrooge-4.19.0/CHANGES"&gt;Scrooge 4.19.0&lt;/a&gt;, &lt;a href="https://github.com/twitter/twitter-server/blob/twitter-server-1.31.0/CHANGES"&gt;TwitterServer 1.31.0&lt;/a&gt;, and &lt;a href="https://github.com/twitter/util/blob/util-7.0.0/CHANGES"&gt;Util 7.0.0&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3&gt;Finagle&lt;/h3&gt;
+
+&lt;p&gt;In addition to the Netty dependency cleanup, Finagle gets new &lt;a href="https://twitter.github.io/finagle/guide/Configuration.html#tunables"&gt;Tunables&lt;/a&gt; api for configuring dynamic timeouts and finagle-stats drops a hard-to-kill legacy dependency on &lt;a href="https://github.com/twitter/commons"&gt;Commons&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;finagle-core: Finagle is now fully decoupled from Netty 3. &lt;a href="https://github.com/twitter/finagle/commit/49d4d0df6d7e0a5dcac85ca6564efcae101c8e04"&gt;49d4d0d&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;finagle-mux: Introduce a new more efficient message decoder. &lt;a href="https://github.com/twitter/finagle/commit/f432bd443c4998431e4cbfeb6934916e7310c9a8"&gt;f432bd4&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;finagle-netty4: Netty 4 transports now use pooled allocators by default. &lt;a href="https://github.com/twitter/finagle/commit/a70b4b92bf025e30284d4ef96d1d3150c298ef97"&gt;a70b4b9&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;finagle-stats: No longer backed by commons metrics, now its own thing. &lt;a href="https://github.com/twitter/finagle/commit/a647fb9cb051ddccaf8efff1533844264cdcc1d1"&gt;a647fb9&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;finagle-tunable: &lt;code&gt;StandardTunableMap&lt;/code&gt; is now public. Users can access file-based, in-memory,
+and service-loaded tunable values using the map.
+See &lt;a href="https://twitter.github.io/finagle/guide/Configuration.html#tunables"&gt;tunables&lt;/a&gt; for details. &lt;a href="https://github.com/twitter/finagle/commit/f07ebb6475ec38ee8ef77f526c724d98c2b2d95e"&gt;f07ebb6&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;Scrooge&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;scrooge-generator: Generated Java code now is using &lt;code&gt;c.t.s.TReusableBuffer&lt;/code&gt; to reduce
+object allocations. &lt;a href="https://github.com/twitter/scrooge/commit/4cd9ee7017d75cec068f5acf14b97bc2955474ec"&gt;4cd9ee7&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;scrooge-generator: Generated Cocoa code now supports modular frameworks and 
+removes some compiler warnings about implicit casts. &lt;a href="https://github.com/twitter/scrooge/commit/f48cd56e9398305ee7e280e161b0423da4131845"&gt;f48cd56&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;Util&lt;/h3&gt;
+
+&lt;p&gt;Util&amp;rsquo;s StatsReceivers learned about Verbosity Levels as a way to reduce the number of exported metrics during normal operations.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;util-stats: Introducing Verbosity Levels for StatsReceivers &lt;a href="https://github.com/twitter/finagle/commit/fa91412d243eae8146465a439d69c78a1caca9c6"&gt;fa91412&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;util-core: Added &lt;code&gt;c.t.util.SlowProbeProxyTimer&lt;/code&gt; for monitoring the duration
+of execution for timer tasks. &lt;a href="https://github.com/twitter/util/commit/7c8425d95e45771ff88e8d23857f9f8026bb09aa"&gt;7c8425d&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;util-events: This module is deprecated and will be removed in an upcoming
+release. &lt;a href="https://github.com/twitter/util/commit/c465fdbb2a781ad009f134305be74e49127e1cb1"&gt;c465fdb&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;Dependencies&lt;/h3&gt;
+
+&lt;p&gt;Netty has been upgraded to 4.1.12&lt;/p&gt;
+
+&lt;h3&gt;Changelogs&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/finagle/blob/finagle-7.0.0/CHANGES"&gt;Finagle 7.0.0&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/util/blob/util-7.0.0/CHANGES"&gt;Util 7.0.0&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/scrooge/blob/scrooge-4.19.0/CHANGES"&gt;Scrooge 4.19.0&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/twitter-server/blob/twitter-server-1.31.0/CHANGES"&gt;TwitterServer 1.31.0&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/finatra/blob/finatra-2.12.0/CHANGELOG.md"&gt;Finatra 2.12.0&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+  </entry>
   <entry>
     <title>🏖️ Summertime Review</title>
     <link rel="alternate" href="https://finagle.github.io/blog/2017/07/12/summer-review/"/>
@@ -294,78 +363,6 @@ will now be prompted into signing a CLA before their PRs are reviewed/accepted.&
 &lt;li&gt;&lt;a href="https://github.com/twitter/twitter-server/blob/twitter-server-1.28.0/CHANGES"&gt;TwitterServer 1.28.0&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://github.com/twitter/finatra/blob/finatra-2.9.0/CHANGELOG.md"&gt;Finatra 2.9.0&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</content>
-  </entry>
-  <entry>
-    <title>Netty 4 support in Finagle</title>
-    <link rel="alternate" href="https://finagle.github.io/blog/2017/02/06/finagle-loves-netty4/"/>
-    <id>https://finagle.github.io/blog/2017/02/06/finagle-loves-netty4/</id>
-    <published>2017-02-05T16:00:00-08:00</published>
-    <updated>2017-03-14T09:53:51-07:00</updated>
-    <author>
-      <name>Article Author</name>
-    </author>
-    <content type="html">&lt;p&gt;It&amp;rsquo;s been quite a while since the &lt;a href="http://finagle.github.io/blog/2014/10/20/upgrading-finagle-to-netty-4/"&gt;Netty 4 migration in Finagle&lt;/a&gt; was initially
-announced. We&amp;rsquo;ve travelled a long way and are happy to announce that there is now (as of
-&lt;a href="https://github.com/twitter/finagle/releases/tag/finagle-6.42.0"&gt;Finagle 6.42&lt;/a&gt;) support for Netty 4 transports in most of the protocols: Thrift, ThriftMux,
-Memcached, MySQL, Kestrel, and Redis. Both HTTP/1.1 and HTTP/2 are coming soon!&lt;/p&gt;
-
-&lt;h2&gt;How to enable Netty 4?&lt;/h2&gt;
-
-&lt;p&gt;While we have not yet defaulted to Netty 4, we&amp;rsquo;ve been running it in production for several months
-and have gained enough confidence to publicize the availability of the alternative transports in
-Finagle.&lt;/p&gt;
-
-&lt;p&gt;We encourage Finagle users to try out the new Netty 4 transports for their protocols and jump on the
-fast track to upcoming changes around resiliency (think of HTTP/2) and performance (think of a
-reduced allocation profile and better threading model in Netty 4).&lt;/p&gt;
-
-&lt;p&gt;To switch the transport over to Netty 4 supply the following command line flag:&lt;/p&gt;
-&lt;pre class="highlight plaintext"&gt;&lt;code&gt;-Dcom.twitter.finagle.toggle.flag.overrides=com.twitter.$protocol.UseNetty4=1.0
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Where &lt;code&gt;$protocol&lt;/code&gt; is one of the following: &lt;code&gt;mux&lt;/code&gt; (use this for ThriftMux), &lt;code&gt;thrift&lt;/code&gt;, &lt;code&gt;mysql&lt;/code&gt;,
-&lt;code&gt;memcached&lt;/code&gt;, &lt;code&gt;kestrel&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;This command line flag overrides &lt;a href="https://twitter.github.io/finagle/guide/Configuration.html#feature-toggles"&gt;a feature toggle&lt;/a&gt; that is evaluated at application
-startup and is &lt;em&gt;global for all clients/servers running on the same JVM instance&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;Note that Netty 4 is already enabled by default in &lt;code&gt;finagle-redis&lt;/code&gt; so no need for an extra CLI flag.&lt;/p&gt;
-
-&lt;h2&gt;What about HTTP/1.1?&lt;/h2&gt;
-
-&lt;p&gt;HTTP/1.1 on Netty 4 is still a work in progress. There are known limitations for HTTP clients, but
-we&amp;rsquo;ve been successfully running &lt;code&gt;finagle-http&lt;/code&gt; servers with Netty 4 in production for several weeks
-and on &lt;a href="https://github.com/twitter/twitter-server"&gt;TwitterServer&lt;/a&gt;&amp;rsquo;s admin interface for several months.&lt;/p&gt;
-
-&lt;p&gt;We feel confident in HTTP/1.1 servers running Netty 4 and encourage you to migrate now using the
-toggle override. Please note that this will also switch HTTP clients running in the same JVM
-process over to Netty 4, which we do not recommend at this point.&lt;/p&gt;
-&lt;pre class="highlight plaintext"&gt;&lt;code&gt;-Dcom.twitter.finagle.toggle.flag.overrides=com.twitter.http.UseNetty4=1.0
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2&gt;What about HTTP/2?&lt;/h2&gt;
-
-&lt;p&gt;HTTP/2 (i.e., &lt;code&gt;finagle-http2&lt;/code&gt;) should be considered beta as there are known issues with the ALPN
-support. We&amp;rsquo;re hoping to roll out a feature-complete HTTP/2 implementation in the next couple of
-months. In the meantime, HTTP/2 support can be experimentally enabled on any Finagle HTTP client
-or server as shown below.&lt;/p&gt;
-&lt;pre class="highlight scala"&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;com.twitter.finagle.Http&lt;/span&gt;
-
-&lt;span class="k"&gt;val&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt; &lt;span class="k"&gt;=&lt;/span&gt; &lt;span class="nc"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;client&lt;/span&gt;
-  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;configured&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nc"&gt;Http&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;Http2&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-  &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;newService&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;"www.example.com:80"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2&gt;What&amp;rsquo;s next?&lt;/h2&gt;
-
-&lt;p&gt;We&amp;rsquo;re quite optimistic about enabling Netty 4 by default in the next couple of months. Even though
-we&amp;rsquo;re not there yet, we feel very proud of the work we&amp;rsquo;ve done and the progress we&amp;rsquo;ve made. It took
-us several years of engineering effort to be able to start serving Netty 4 traffic in production.&lt;/p&gt;
-
-&lt;h2&gt;Where to report problems?&lt;/h2&gt;
-
-&lt;p&gt;Please file a &lt;a href="https://github.com/twitter/finagle/issues"&gt;Github issue&lt;/a&gt; if anything doesn&amp;rsquo;t look right when Netty 4 is enabled.&lt;/p&gt;
 </content>
   </entry>
 </feed>
