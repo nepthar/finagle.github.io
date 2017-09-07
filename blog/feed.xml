@@ -4,10 +4,81 @@
   <id>https://finagle.github.io/blog</id>
   <link href="https://finagle.github.io/blog"/>
   <link href="https://finagle.github.io/blog/blog/feed.xml" rel="self"/>
-  <updated>2017-08-16T17:00:00-07:00</updated>
+  <updated>2017-09-06T17:00:00-07:00</updated>
   <author>
     <name>Blog Author</name>
   </author>
+  <entry>
+    <title>September 2017 Release Notes</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2017/09/07/release-notes/"/>
+    <id>https://finagle.github.io/blog/2017/09/07/release-notes/</id>
+    <published>2017-09-06T17:00:00-07:00</published>
+    <updated>2017-09-07T14:58:23-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;The September releases are here.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/twitter/finagle/blob/finagle-7.1.0/CHANGES"&gt;Finagle 7.1.0&lt;/a&gt;, &lt;a href="https://github.com/twitter/finatra/blob/finatra-2.13.0/CHANGELOG.md"&gt;Finatra 2.13.0&lt;/a&gt;, &lt;a href="https://github.com/twitter/scrooge/blob/scrooge-4.20.0/CHANGES"&gt;Scrooge 4.20.0&lt;/a&gt;, &lt;a href="https://github.com/twitter/twitter-server/blob/twitter-server-1.32.0/CHANGES"&gt;TwitterServer 1.32.0&lt;/a&gt;, and &lt;a href="https://github.com/twitter/util/blob/util-7.1.0/CHANGES"&gt;Util 7.1.0&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3&gt;Finagle&lt;/h3&gt;
+
+&lt;p&gt;New Features:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;finagle-core: If a &lt;code&gt;c.t.u.tunable.Tunable&lt;/code&gt; request or total timeout has been configured
+on a client which uses &lt;code&gt;a c.t.f.client.DynamicTimeout&lt;/code&gt; filter, the current value of tunable will
+be used in the case of no dynamic timeout set for a request. &lt;a href="https://github.com/twitter/finagle/commit/4a419c5ec91f634c54d3d8577800100e4d7756be"&gt;4a419c5e&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;finagle-core: &lt;code&gt;FailedFastException&lt;/code&gt; now captures the throwable that caused it. &lt;a href="https://github.com/twitter/finagle/commit/f4efc2d10d080e950ca2bd96112f95caaa286db6"&gt;f4efc2d1&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;finagle-redis: Add support for &lt;code&gt;DBSIZE&lt;/code&gt; command. &lt;a href="https://github.com/twitter/finagle/commit/8f7efec0b860ab2dddff3beadf80c303bcb2522d"&gt;8f7efec0&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Bug Fixes:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;finagle-core: Unregister &lt;code&gt;ServerRegistry&lt;/code&gt; entry on &lt;code&gt;StackServer#close&lt;/code&gt;. A
+&lt;code&gt;StackServer&lt;/code&gt; entry is registered in the &lt;code&gt;ServerRegistry&lt;/code&gt; on serve of the
+server but never unregistered. It is now unregistered on close of
+the &lt;code&gt;StackServer&lt;/code&gt;. &lt;a href="https://github.com/twitter/finagle/commit/5d8dd660dd18ee58ea7cf470c7826145ae10cb05"&gt;5d8dd660&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;finagle-netty4: &lt;code&gt;Netty4ClientEngineFactory&lt;/code&gt; and &lt;code&gt;Netty4ServerEngineFactory&lt;/code&gt; now
+properly load all chain certificates when the &lt;code&gt;SslClientConfiguration&lt;/code&gt; or
+&lt;code&gt;SslServerConfiguration&lt;/code&gt; uses &lt;code&gt;KeyCredentials.CertKeyAndChain&lt;/code&gt; instead of just the
+first one in the file. &lt;a href="https://github.com/twitter/finagle/commit/93618f4fe7849d775e422d7c1d6bbb5b8f0ba1b5"&gt;93618f4f&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Runtime Behavior Changes:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;finagle-stats: Verbosity levels are now respected: debug-metrics aren&amp;rsquo;t exported
+by default. &lt;a href="https://github.com/twitter/finagle/commit/6c666ab5c3363ae5bd22b0fbd96f33995fe36ac7"&gt;6c666ab5&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;finagle-netty4: &lt;code&gt;ChannelTransport&lt;/code&gt; no longer considers the &lt;code&gt;Channel.isWritable&lt;/code&gt; result
+when determining status. &lt;a href="https://github.com/twitter/finagle/commit/ce811a206411ea61b0fb309306614e3056b88908"&gt;ce811a20&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;Finatra&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;finatra-http: No longer depends on &lt;code&gt;bijection-util&lt;/code&gt;. &lt;a href="https://github.com/twitter/finatra/commit/4afe23eba16d3b836637e84feedf28cb740290f7"&gt;4afe23eb&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;Dependencies&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Netty has been updated to 4.1.14 &lt;a href="https://github.com/twitter/finagle/commit/f28705d556077cbd56b19ce90eba35be7203ad07"&gt;f28705d5&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Guava has been updated to 23.0 &lt;a href="https://github.com/twitter/finagle/commit/ffdda1a0899e6a42082ad0ea81983dabb618d32f"&gt;ffdda1a0&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;Changelogs&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/finagle/blob/finagle-7.1.0/CHANGES"&gt;Finagle 7.1.0&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/finatra/blob/finatra-2.13.0/CHANGELOG.md"&gt;Finatra 2.13.0&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/scrooge/blob/scrooge-4.20.0/CHANGES"&gt;Scrooge 4.20.0&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/twitter-server/blob/twitter-server-1.32.0/CHANGES"&gt;TwitterServer 1.32.0&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/twitter/util/blob/util-7.1.0/CHANGES"&gt;Util 7.1.0&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+  </entry>
   <entry>
     <title>Finagle 7 Release Notes</title>
     <link rel="alternate" href="https://finagle.github.io/blog/2017/08/17/release-notes-7-00/"/>
@@ -305,64 +376,6 @@ will now be prompted into signing a CLA before their PRs are reviewed/accepted.&
 &lt;p&gt;Please feel free to ask questions on the &lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;mailing list&lt;/a&gt; about anything that is unclear and we’ll help clarify if you would like to know more.&lt;/p&gt;
 
 &lt;p&gt;Kevin Oliver and the Core Systems Libraries team&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>Finagle 6.43 Release Notes</title>
-    <link rel="alternate" href="https://finagle.github.io/blog/2017/03/14/release-notes-6-43/"/>
-    <id>https://finagle.github.io/blog/2017/03/14/release-notes-6-43/</id>
-    <published>2017-03-13T17:00:00-07:00</published>
-    <updated>2017-03-14T10:32:38-07:00</updated>
-    <author>
-      <name>Article Author</name>
-    </author>
-    <content type="html">&lt;p&gt;The March releases are hot off the printing press for &lt;a href="https://github.com/twitter/finagle/blob/finagle-6.43.0/CHANGES"&gt;Finagle 6.43.0&lt;/a&gt;, &lt;a href="https://github.com/twitter/finatra/blob/finatra-2.9.0/CHANGELOG.md"&gt;Finatra 2.9.0&lt;/a&gt;, &lt;a href="https://github.com/twitter/scrooge/blob/scrooge-4.15.0/CHANGES"&gt;Scrooge 4.15.0&lt;/a&gt;, &lt;a href="https://github.com/twitter/twitter-server/blob/twitter-server-1.28.0/CHANGES"&gt;TwitterServer 1.28.0&lt;/a&gt;, and &lt;a href="https://github.com/twitter/util/blob/util-6.42.0/CHANGES"&gt;Util 6.42.0&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Here’s a few of the highlights:&lt;/p&gt;
-
-&lt;h3&gt;Finatra&lt;/h3&gt;
-
-&lt;p&gt;See &lt;a href="https://twitter.github.io/finatra/blog/2017/03/13/announcing-the-release-of-finatra-2-dot-9-0/"&gt;accompanying blog post&lt;/a&gt; for details.&lt;/p&gt;
-
-&lt;h3&gt;Finagle&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;finagle-http now classifies server error status codes (500s) as failures. This affects success rate metrics and failure accrual. See the &lt;code&gt;com.twitter.finagle.http.serverErrorsAsFailuresV2&lt;/code&gt; &lt;a href="http://twitter.github.io/finagle/guide/Configuration.html#feature-toggles"&gt;toggle&lt;/a&gt; for opting out of this behavior. &lt;a href="https://github.com/twitter/finagle/commit/f34a73443679ac4fe76bc011bfb36a5b1abe9e5e"&gt;f34a7344&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;The finagle-http APIs continue their trek to rid themselves of having Netty 3 in its public API.&lt;/li&gt;
-&lt;li&gt;finagle-http now has experimental http/2 support. To try it out, pass the command line parameter &lt;code&gt;-com.twitter.finagle.toggle.flag.overrides=com.twitter.finagle.http.UseHttp2=1.0&lt;/code&gt;. Please let us know of any issues that you run into!&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3&gt;Scrooge&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;The Scala code generator now supports annotations on enums, enum fields, services, and service functions. &lt;a href="https://github.com/twitter/scrooge/commit/4821b46eec45f8235ed15f196c2649cee5715323"&gt;4821b46e&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Scala&amp;rsquo;s types for ServiceIfaces are now a &lt;code&gt;Service&lt;/code&gt; from &lt;code&gt;ThriftMethod.Args&lt;/code&gt; to &lt;code&gt;ThriftMethod.SuccessType&lt;/code&gt;, instead of &lt;code&gt;ThriftMethod.Args&lt;/code&gt; to &lt;code&gt;ThriftMethod.Result&lt;/code&gt;. This is a breaking API change though it should generally be easy to adapt existing code to it. &lt;a href="https://github.com/twitter/scrooge/commit/c5ea851546ba215b457fcf09b90e9f1857e954c3"&gt;c5ea8515&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3&gt;Util&lt;/h3&gt;
-
-&lt;p&gt;Our byte-level abstraction, &lt;code&gt;Buf&lt;/code&gt; got a fresh coat of paint:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Introduce &lt;code&gt;Buf.process&lt;/code&gt; for sequential processing of a &lt;code&gt;Buf&lt;/code&gt;. Finagle has been updated to use it where appropriate, leading to reductions in allocations. &lt;a href="https://github.com/twitter/util/commit/1df3646ffe420256516167591562f85c79498ec5"&gt;1df3646f&lt;/a&gt; and others&lt;/li&gt;
-&lt;li&gt;Introduce &lt;code&gt;Buf.write(java.nio.ByteBuffer)&lt;/code&gt; for writing to NIO &lt;code&gt;ByteBuffers&lt;/code&gt;. &lt;a href="https://github.com/twitter/util/commit/d6f7985e2014cc8c3dab71417a450900cd769f5d"&gt;d6f7985e&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;Buf.concat&lt;/code&gt; is now a constant time operation. &lt;a href="https://github.com/twitter/util/commit/bb05f425c6b12d1b2fe9f1a75658aba175fc51f8"&gt;bb05f425&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;ConcatBuf&lt;/code&gt; has been removed, replaced by &lt;code&gt;Buf.apply&lt;/code&gt; and &lt;code&gt;Buf.Composite&lt;/code&gt;. &lt;a href="https://github.com/twitter/util/commit/5833c5609b8ad72cd542e34d9d6edecd143e3bad"&gt;5833c560&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3&gt;Dependencies&lt;/h3&gt;
-
-&lt;p&gt;Guava has been upgraded to version 19.0 from 16.0.1 &lt;a href="https://github.com/twitter/util/commit/d6bdecc9269c34e477b1ce1a6e8f5d22a106e2f9"&gt;d6bdecc9&lt;/a&gt;&lt;/p&gt;
-
-&lt;h3&gt;Changelogs&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://github.com/twitter/finagle/blob/finagle-6.43.0/CHANGES"&gt;Finagle 6.43.0&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/twitter/util/blob/util-6.42.0/CHANGES"&gt;Util 6.42.0&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/twitter/scrooge/blob/scrooge-4.15.0/CHANGES"&gt;Scrooge 4.15.0&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/twitter/twitter-server/blob/twitter-server-1.28.0/CHANGES"&gt;TwitterServer 1.28.0&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/twitter/finatra/blob/finatra-2.9.0/CHANGELOG.md"&gt;Finatra 2.9.0&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
 </content>
   </entry>
 </feed>
