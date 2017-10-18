@@ -4,10 +4,225 @@
   <id>https://finagle.github.io/blog</id>
   <link href="https://finagle.github.io/blog"/>
   <link href="https://finagle.github.io/blog/blog/feed.xml" rel="self"/>
-  <updated>2017-09-06T17:00:00-07:00</updated>
+  <updated>2017-10-17T17:00:00-07:00</updated>
   <author>
     <name>Blog Author</name>
   </author>
+  <entry>
+    <title>🎂 Finagle’s 7th Birthday</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2017/10/18/happy-7th-birthday/"/>
+    <id>https://finagle.github.io/blog/2017/10/18/happy-7th-birthday/</id>
+    <published>2017-10-17T17:00:00-07:00</published>
+    <updated>2017-10-18T10:09:29-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;Seven years ago a &lt;a href="https://github.com/twitter/finagle/tree/e04e51645374f8d958d85de384142dd00f4b7574"&gt;simple commit&lt;/a&gt; got Finagle&amp;rsquo;s open source repository
+started. Finagle &lt;a href="https://blog.twitter.com/engineering/en_us/a/2011/finagle-a-protocol-agnostic-rpc-system.html"&gt;began&lt;/a&gt; as a means of dealing with the complexity and
+fragility of distributed systems issues here at Twitter. While
+distributed systems remain complex and it is not a silver bullet,
+Finagle has enabled a great many to build resilient, high throughput
+applications.&lt;/p&gt;
+
+&lt;p&gt;The pace of development remains high — with over 1,600 commits in the
+past year across &lt;a href="https://github.com/twitter/finagle"&gt;Finagle&lt;/a&gt;, &lt;a href="https://github.com/twitter/finatra"&gt;Finatra&lt;/a&gt;, &lt;a href="https://github.com/twitter/util"&gt;Util&lt;/a&gt;, &lt;a href="https://github.com/twitter/scrooge"&gt;Scrooge&lt;/a&gt;, and &lt;a href="https://github.com/twitter/twitter-server"&gt;TwitterServer&lt;/a&gt;.
+It is unlikely to slow down with 13 devs on the core team. Externally
+the community &lt;a href="https://github.com/twitter/finagle/blob/develop/ADOPTERS.md"&gt;adoption&lt;/a&gt; is broad, spawned a &lt;a href="https://buoyant.io/2016/02/18/linkerd-twitter-style-operability-for-microservices/"&gt;company&lt;/a&gt;, and inspired
+versions in &lt;a href="https://github.com/facebook/wangle"&gt;C++&lt;/a&gt; and &lt;a href="https://medium.com/@carllerche/announcing-tokio-df6bb4ddb34"&gt;Rust&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;With a wide user base numbering into the hundreds of services, our
+development philosophy has changed focus over the years. There has
+been a shift to capabilities that service owners get for free — simply
+redeploy with the latest version and voilà! Examples include retry
+budgets, HTTP/2, improved throughput, and admission control with
+automatic retries among others.&lt;/p&gt;
+
+&lt;p&gt;While you&amp;rsquo;d now consider a robust RPC library table stakes in
+microservice deployments, that was not the case in 2010. We&amp;rsquo;re proud of
+Finagle&amp;rsquo;s consistent progress and excited about Future[Finagle].&lt;/p&gt;
+
+&lt;p&gt;Here&amp;rsquo;s to the next 7 years,&lt;/p&gt;
+
+&lt;p&gt;Kevin Oliver and the Core Systems Libraries team&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>🍂 Fall-ing for Finagle</title>
+    <link rel="alternate" href="https://finagle.github.io/blog/2017/10/12/fall-ing-for-finagle/"/>
+    <id>https://finagle.github.io/blog/2017/10/12/fall-ing-for-finagle/</id>
+    <published>2017-10-11T17:00:00-07:00</published>
+    <updated>2017-10-18T10:09:29-07:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;As we move headlong into Autumn we thought this might be a good time to take a
+quick look back at some of the work from the previous quarter in
+&lt;a href="https://twitter.github.io/finagle/"&gt;Finagle&lt;/a&gt;,
+&lt;a href="https://twitter.github.io/finatra/"&gt;Finatra&lt;/a&gt;,
+&lt;a href="https://twitter.github.io/scrooge"&gt;Scrooge&lt;/a&gt;,
+&lt;a href="https://twitter.github.io/twitter-server"&gt;TwitterServer&lt;/a&gt;, and
+&lt;a href="https://twitter.github.io/util"&gt;Util&lt;/a&gt; and preview what we&amp;rsquo;re working on this
+quarter and beyond.&lt;/p&gt;
+
+&lt;p&gt;This covers the &lt;a href="https://github.com/twitter/finagle/tree/finagle-7.0.0"&gt;August&lt;/a&gt;
+and &lt;a href="https://github.com/twitter/finagle/tree/finagle-7.1.0"&gt;September&lt;/a&gt; releases
+as well as the upcoming release planned for this month. As mentioned before, we
+plan to continue this review regularly on a quarterly basis. You can start with
+a recap of what we were talking about &lt;a href="https://finagle.github.io/blog/2017/07/12/summer-review/"&gt;last
+time&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3&gt;News &amp;amp; Notes&lt;/h3&gt;
+
+&lt;hr&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Finagle&amp;rsquo;s 7th &amp;ldquo;birthday&amp;rdquo; (7th anniversary of the &lt;a href="https://github.com/twitter/finagle/tree/e04e51645374f8d958d85de384142dd00f4b7574"&gt;first public
+commit&lt;/a&gt;)
+is approaching. Stay tuned for a celebratory blog post! 🎉&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;We&amp;rsquo;re retiring the &lt;a href="https://github.com/twitter/finatra"&gt;Finatra&lt;/a&gt;-specific
+blog, formerly available
+&lt;a href="https://twitter.github.io/finatra/blog/archives/"&gt;here&lt;/a&gt;. This will happen with
+our release this month. Unfortunately, we won&amp;rsquo;t be
+keeping any of the old posts but any new information will be shared on the
+Finagle blog here.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr&gt;
+
+&lt;h4&gt;📣 New Features: HTTP/2 All The Things&lt;/h4&gt;
+
+&lt;p&gt;Transparently replacing HTTP/1.1 usage with HTTP/2 continues internally. We&amp;rsquo;re
+really excited about this change and the improvements it brings. HTTP/2
+gives you the resource reductions (a single multiplexed connection, request
+cancellations no longer require tearing down the connection) and resiliency
+features (fast rolling restarts without a success rate drop) that services are
+already accustomed to with Mux.&lt;/p&gt;
+
+&lt;p&gt;We encourage you to try it out by enabling the
+&lt;a href="https://github.com/twitter/finagle/blob/9cc08d15216497bb03a1cafda96b7266cfbbcff1/finagle-http/src/main/resources/com/twitter/toggles/configs/com.twitter.finagle.http.json"&gt;&lt;code&gt;com.twitter.finagle.http.UseHttp2v2&lt;/code&gt;&lt;/a&gt;
+toggle
+[&lt;a href="https://github.com/twitter/finagle/blob/9c69a0f16cd1e4bffb6a40844c2c8fed619c6bec/finagle-http/src/main/scala/com/twitter/finagle/Http.scala#L51"&gt;1&lt;/a&gt;].&lt;/p&gt;
+
+&lt;h4&gt;Efficiency&lt;/h4&gt;
+
+&lt;p&gt;Metrics ‘verbosity’ level. Similar to logging levels in a logging API, we&amp;rsquo;ve
+introduced the concept of a verbosity level for metrics exported by Finagle
+[&lt;a href="https://github.com/twitter/finagle/commit/6c666ab5c3363ae5bd22b0fbd96f33995fe36ac7"&gt;1&lt;/a&gt;,
+&lt;a href="https://github.com/twitter/util/commit/5e03745015693bc61fa2aace8da5eb452ff6e53d"&gt;2&lt;/a&gt;,
+&lt;a href="https://github.com/twitter/util/commit/d08661fe49377aafd8af60231d6112d546e55e01"&gt;3&lt;/a&gt;,
+&lt;a href="https://github.com/twitter/util/commit/1b3ce1eddbb2a9af9fa4f97f1fc1b20ac3ee6a40"&gt;4&lt;/a&gt;]
+with the ability for users to configure their service&amp;rsquo;s verbosity and to define
+a verbosity when creating a new metric.&lt;/p&gt;
+
+&lt;p&gt;For more information see the &lt;a href="https://twitter.github.io/util"&gt;Util&lt;/a&gt; User&amp;rsquo;s Guide
+section on &lt;a href="https://twitter.github.io/util/guide/util-stats/user_guide.html#leveraging-verbosity-levels"&gt;&lt;code&gt;Leveraging Verbosity
+Levels&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Our internal roll-out of our new load balancer, &lt;a href="https://github.com/twitter/finagle/blob/finagle-6.45.0/finagle-core/src/main/scala/com/twitter/finagle/loadbalancer/aperture/DeterministicOrdering.scala"&gt;Deterministic
+Aperture&lt;/a&gt;,
+continues and we’re excited about bringing this to the wider community soon!&lt;/p&gt;
+
+&lt;p&gt;We’ve completed the internal rollout of &lt;a href="https://github.com/twitter/finagle/search?utf8=%E2%9C%93&amp;amp;q=nativeEpoll&amp;amp;type="&gt;edge-triggered native
+transport&lt;/a&gt;
+using Netty’s JNI edge-triggered transport, instead of using the JDK’s NIO.
+Users can toggle on this feature by using the
+&lt;a href="https://github.com/twitter/finagle/blob/b89042a35ab0f39637e48bb89b170c80c95f03cf/finagle-netty4/src/main/resources/com/twitter/toggles/configs/com.twitter.finagle.netty4.json"&gt;&lt;code&gt;com.twitter.finagle.netty4.UseNativeEpollV2&lt;/code&gt;&lt;/a&gt;
+toggle
+[&lt;a href="https://github.com/twitter/finagle/blob/2d37c2c1684132121f15423b2f08054785f8e29c/finagle-netty4/src/main/scala/com/twitter/finagle/netty4/nativeEpoll.scala"&gt;1&lt;/a&gt;].&lt;/p&gt;
+
+&lt;h4&gt;Operability&lt;/h4&gt;
+
+&lt;p&gt;We’ll soon be open-sourcing the work done by our summer intern
+&lt;a href="https://twitter.com/McKardah"&gt;@McKardah&lt;/a&gt; to wire Twitter Futures into &lt;a href="https://blog.jetbrains.com/idea/2017/02/intellij-idea-2017-1-eap-extends-debugger-with-async-stacktraces/"&gt;IDEA’s
+async
+stacktraces&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4&gt;Security&lt;/h4&gt;
+
+&lt;p&gt;Secure Mux (smux). We&amp;rsquo;ve added a
+&lt;a href="https://en.wikipedia.org/wiki/Opportunistic_TLS"&gt;STARTTLS&lt;/a&gt; command into the Mux
+protocol in order to support opportunistic TLS for ThriftMux.&lt;/p&gt;
+
+&lt;h4&gt;Logging Improvements&lt;/h4&gt;
+
+&lt;p&gt;We&amp;rsquo;ve been working hard to move
+&lt;a href="https://github.com/twitter/twitter-server"&gt;TwitterServer&lt;/a&gt; to the &lt;a href="https://www.slf4j.org/"&gt;SLF4J
+API&lt;/a&gt; and this should be merging in the near
+future. Stay tuned for updates and documentation on the changes.&lt;/p&gt;
+
+&lt;h4&gt;Scrooge Updates&lt;/h4&gt;
+
+&lt;p&gt;We&amp;rsquo;ve been making lots of changes to improve the usability and performance of
+Scrooge and Scrooge-generated code. This includes a set of refactorings to
+modernize the generated code so that it’s written in terms of Filters and
+Services!&lt;/p&gt;
+
+&lt;p&gt;This will allow us to address some long standing issues like server-side
+response classification and correctly stating on serialization/deserialization
+failures.&lt;/p&gt;
+
+&lt;p&gt;Additionally, we&amp;rsquo;re going to try to update libthrift from 0.5.0 to 0.10.0. This
+is still exploratory and we’re working to understand the ramifications.&lt;/p&gt;
+
+&lt;h4&gt;Bringing Backup Requests Back&lt;/h4&gt;
+
+&lt;p&gt;Finagle has had a
+&lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-exp/src/main/scala/com/twitter/finagle/exp/BackupRequestFilter.scala"&gt;BackupRequestFilter&lt;/a&gt;
+since &lt;a href="https://github.com/twitter/finagle/commit/526e508579309711a9c56007eff2a783826d331c"&gt;late
+2012&lt;/a&gt;
+and it evolved into its current form in &lt;a href="https://github.com/twitter/finagle/commit/8ca92593aac1d3f5bd4741d6b8e6fcf26053dc44"&gt;early
+2013&lt;/a&gt;.
+The filter has a variety of what we would consider flaws (too many configuration
+knobs, less than ideal memory characteristics in many cases, lack of integration
+into the Stack-APIs and ClientBuilder to name a few) which has relegated it to
+Finagle&amp;rsquo;s experimental module.&lt;/p&gt;
+
+&lt;p&gt;We&amp;rsquo;re investigating what it would take to give users a single configuration
+variable &amp;ndash; ideally the percentage of additional requests to send &amp;ndash; to
+configure sending a backup request to another server.&lt;/p&gt;
+
+&lt;h4&gt;‘Push’ based API for Protocols&lt;/h4&gt;
+
+&lt;p&gt;Modern multiplexing protocols are characteristically very stateful and event
+driven which makes them challenging to implement with the current ‘pull’ based
+abstractions available in Finagle.&lt;/p&gt;
+
+&lt;p&gt;We are currently working towards the introduction of a Finagle ‘push’ based
+model which when coupled with a single threaded concurrency model will provide a
+more efficient and natural foundation for implementing multiplexing protocols.&lt;/p&gt;
+
+&lt;h4&gt;Application-Level Streaming Research&lt;/h4&gt;
+
+&lt;p&gt;Related to the above, Finagle has historically been dependent on
+request-response style protocols: a single request would be sent by the client
+and the server would reply with a single response. Then later multiplexing
+protocols to alleviate head-of-line blocking. However, all the protocols in
+Finagle are expressed as request-response APIs with some limited support for
+streaming through the use of Reader and AsyncStream
+[&lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-example/src/main/scala/com/twitter/finagle/example/http/HttpStreamingServer.scala"&gt;1&lt;/a&gt;].
+These are somewhat low-level constructs and can be hard to use properly.&lt;/p&gt;
+
+&lt;p&gt;We are investigating the design of an API for bidirectional streaming of objects
+not just bytes. Stay tuned.&lt;/p&gt;
+
+&lt;h4&gt;Blocking Code Detection&lt;/h4&gt;
+
+&lt;p&gt;Our newest intern &lt;a href="https://twitter.com/andrewmccree14"&gt;@andrewmccree14&lt;/a&gt; is
+working on a project to help detect blocking code in Finagle. This
+should not only help users of Finagle but also allow for instrumentation and
+reporting (linting) of the blocking code. We&amp;rsquo;re really excited about this work
+and can&amp;rsquo;t wait to share it with the community.&lt;/p&gt;
+
+&lt;hr&gt;
+
+&lt;p&gt;Thanks for following along. As always, please feel free to ask questions on
+either the &lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;Finagle&lt;/a&gt; or
+&lt;a href="https://groups.google.com/forum/#!forum/finatra-users"&gt;Finatra&lt;/a&gt; mailing lists
+about anything that is unclear or if you would just like to know more.&lt;/p&gt;
+
+&lt;p&gt;Christopher Coco and the Core Systems Libraries team&lt;/p&gt;
+</content>
+  </entry>
   <entry>
     <title>September 2017 Release Notes</title>
     <link rel="alternate" href="https://finagle.github.io/blog/2017/09/07/release-notes/"/>
@@ -304,78 +519,6 @@ know more.&lt;/p&gt;
 will now be prompted into signing a CLA before their PRs are reviewed/accepted.&lt;/p&gt;
 
 &lt;p&gt;Eitan Adler, Vladimir Kostyukov, on behalf of Twitter&amp;rsquo;s Open Source Team&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>🌇 Upcoming module removals 🌇</title>
-    <link rel="alternate" href="https://finagle.github.io/blog/2017/04/06/announce-removals/"/>
-    <id>https://finagle.github.io/blog/2017/04/06/announce-removals/</id>
-    <published>2017-04-05T17:00:00-07:00</published>
-    <updated>2017-04-06T10:52:00-07:00</updated>
-    <author>
-      <name>Article Author</name>
-    </author>
-    <content type="html">&lt;p&gt;As mentioned in our &lt;a href="https://finagle.github.io/blog/2017/03/20/spring-planning/"&gt;spring planning notes&lt;/a&gt;, we are sunsetting a number of modules that have been unsupported or exist in a zombie-like state.&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;finagle-ostrich4&lt;/li&gt;
-&lt;li&gt;finagle-kestrel&lt;/li&gt;
-&lt;li&gt;finagle-stream&lt;/li&gt;
-&lt;li&gt;finagle-native&lt;/li&gt;
-&lt;li&gt;finagle-mdns&lt;/li&gt;
-&lt;li&gt;util-eval&lt;/li&gt;
-&lt;li&gt;ostrich&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The upcoming April release will be their final one. Due to Ostrich being a separate project it will not be removed immediately.&lt;/p&gt;
-
-&lt;p&gt;Please feel free to ask questions on the &lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;mailing list&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Kevin Oliver and the Core Systems Libraries team&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>🌻 Spring Planning 🌻</title>
-    <link rel="alternate" href="https://finagle.github.io/blog/2017/03/20/spring-planning/"/>
-    <id>https://finagle.github.io/blog/2017/03/20/spring-planning/</id>
-    <published>2017-03-19T17:00:00-07:00</published>
-    <updated>2017-03-20T16:42:40-07:00</updated>
-    <author>
-      <name>Article Author</name>
-    </author>
-    <content type="html">&lt;p&gt;The team working on &lt;a href="https://twitter.github.io/finagle/"&gt;Finagle&lt;/a&gt;, &lt;a href="https://twitter.github.io/finatra/"&gt;Finatra&lt;/a&gt;, and related libraries met last week and did our planning for the next three months. These are high-level goals and as such, have varying degrees of confidence and certainty.&lt;/p&gt;
-
-&lt;h4&gt;In the spirit of Spring cleaning:&lt;/h4&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Remove Netty 3 support from most protocols. We expect to complete most protocols, however HTTP is a long shot.&lt;/li&gt;
-&lt;li&gt;Upgrade &lt;a href="https://thrift.apache.org/"&gt;libthrift&lt;/a&gt; to 0.10.0 from the ancient fork of 0.5.0. (&lt;a href="https://github.com/twitter/scrooge/issues/85"&gt;twitter/scrooge#85&lt;/a&gt;)&lt;/li&gt;
-&lt;li&gt;Deprecate and then remove modules that are unsupported or exist in a zombie-like state. This includes &lt;a href="https://github.com/twitter/ostrich"&gt;ostrich&lt;/a&gt;, &lt;a href="https://github.com/twitter/finagle/tree/develop/finagle-ostrich4"&gt;finagle-ostrich4&lt;/a&gt;, &lt;a href="https://github.com/twitter/finagle/tree/develop/finagle-kestrel"&gt;finagle-kestrel&lt;/a&gt;, &lt;a href="https://github.com/twitter/finagle/tree/develop/finagle-stream"&gt;finagle-stream&lt;/a&gt;, &lt;a href="https://github.com/twitter/finagle/tree/develop/finagle-native"&gt;finagle-native&lt;/a&gt;, &lt;a href="https://github.com/twitter/finagle/tree/develop/finagle-mdns"&gt;finagle-mdns&lt;/a&gt;, and &lt;a href="https://github.com/twitter/util/tree/develop/util-eval"&gt;util-eval&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;Minimize dependencies on &lt;a href="https://github.com/twitter/commons"&gt;twitter-commons&lt;/a&gt; with the eventual goal of removing all of them.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4&gt;For those interested in the shiny and new:&lt;/h4&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Get HTTP/2 to production level quality so that it becomes the default HTTP implementation.&lt;/li&gt;
-&lt;li&gt;Continued SSL/TLS work, including STARTTLS support for Mux.&lt;/li&gt;
-&lt;li&gt;Finish the work on &lt;a href="https://github.com/twitter/util/tree/develop/util-tunable"&gt;Tunables&lt;/a&gt; such that service owners can dynamically change configuration.&lt;/li&gt;
-&lt;li&gt;Finish the work on &lt;a href="https://github.com/twitter/finagle/blob/develop/finagle-core/src/main/scala/com/twitter/finagle/client/MethodBuilder.scala"&gt;MethodBuilder&lt;/a&gt; as a replacement for ClientBuilder and the foundation for more enhancements.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4&gt;For those who like their tools polished:&lt;/h4&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Throughput improvements via changes to Futures, defaulting to the Netty 4 native transport, Netty 4 buffer pooling, and more.&lt;/li&gt;
-&lt;li&gt;Switch the default &lt;a href="https://twitter.github.io/finagle/guide/Clients.html#load-balancing"&gt;load balancer&lt;/a&gt; to Aperture.&lt;/li&gt;
-&lt;li&gt;Switch the default &lt;a href="https://twitter.github.io/finagle/guide/Clients.html#failure-accrual"&gt;failure accrual&lt;/a&gt; policy to success rate instead of consecutive failures.&lt;/li&gt;
-&lt;li&gt;Move TwitterServer to use &lt;a href="https://www.slf4j.org/"&gt;slf4j&lt;/a&gt; for logging and begin the process of moving Util and Finagle.&lt;/li&gt;
-&lt;li&gt;A handful of Scrooge changes to make the Scala generated code more composable, fixing &lt;a href="https://twitter.github.io/finagle/guide/Clients.html#response-classification"&gt;ResponseClassification&lt;/a&gt; for servers for example.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Please feel free to ask questions on the &lt;a href="https://groups.google.com/forum/#!forum/finaglers"&gt;mailing list&lt;/a&gt; about anything that is unclear and we’ll help clarify if you would like to know more.&lt;/p&gt;
-
-&lt;p&gt;Kevin Oliver and the Core Systems Libraries team&lt;/p&gt;
 </content>
   </entry>
 </feed>
